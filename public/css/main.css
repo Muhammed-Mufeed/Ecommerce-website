@@ -904,6 +904,21 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
   opacity: 1;
 }
 
+.auth-buttons .btn {
+  text-decoration: none;
+  padding: 10px 15px;
+  margin: 0 5px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.auth-buttons .btn:hover {
+  background-color: #0056b3;
+}
+
 
 /*//////////////////////////////////////////////////////////////////
 [ Header cart ]*/
