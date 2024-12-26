@@ -1,9 +1,6 @@
+const nodemailer=require('nodemailer')
+const env =require('dotenv').config()
 const User=require('../models/userSchema')
-
-
-const express= require('express')
-const app=express()
-const router=express.Router()
 
 
 const getpageNotFound=async(req,res)=>{
@@ -25,22 +22,88 @@ const getSingupPage=async(req,res)=>{
   }
 }
 
+
+
+
+async function sendVerificationEmail(email,otp){
+  try{
+    console.log("Sending OTP to:", email);  // Log email to check
+// Configure nodemailer
+    const transporter = nodemailer.createTransport({
+      service:'gmail',   // Use your email service (e.g., Gmail, Outlook, etc.)
+      port:587,
+      secure:false,
+      auth:{
+        user: process.env.NODEMAILER_EMAIL,
+        pass: process.env.NODEMAILER_PASSWORD
+      }
+    })
+
+    const info = await transporter.sendMail({
+      from: process.env.NODEMAILER_EMAIL,
+      to:email,    //user email
+      subject: "verify your account",
+      text: `Your OTP is ${otp}`,
+      html: `<b>Your OTP is ${otp}</b>`
+    })
+
+   return  info.accepted.length > 0 ? true : false; //This explicitly returns true if the email was accepted, otherwise false
+
+
+  }
+  catch(error){
+   console.error("Error sending email",error)
+   return false
+  }
+}
+
+
+
+
 const postSignupPage=async(req,res)=>{
   try{
-
-  const {name,email,phone,password}=req.body//for simply testing it is posting or not..
-   const newUser= new User({name,email,phone,password}) //This creates a new instance of the User model (from Mongoose).
-   console.log(newUser); 
-   await newUser.save()        //Saves the new user to the MongoDB database
-   return res.redirect('/signup') //for simply given for now
   
+  //check if password mathch:
+  const {email,password,confirmPassword}= req.body
+  if(password!==confirmPassword){
+   return res.render('signup',{errorMessage:"Password do not match."})
+  }
+
+  //check if user already exists:
+  const existingUser= await User.findOne({email})
+  if(existingUser){
+    return res.render('signup', { errorMessage: 'User with this email already exists.' });
+
+  }
+  
+  // To generate a random 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  console.log(`Generated OTP: ${otp}`); // Log OTP to console
+
+  //to send generated otp to user registered mail
+  const emailSend = await sendVerificationEmail(email,otp);
+
+  if (!emailSend) {
+    return res.render('signup', { errorMessage: "Error sending verification email. Please try again." });
+  }
+
+   req.session.userOTP = otp
+   req.session.userData = {email,password}
+
+  //  res.render('verify-otp')
+   console.log("OTP send successfully",otp);
+   
   }
 
   catch(error){
-   console.log("Error for save User",error)
-   res.status(500).send("Internal server error")
+   console.error("Error during OTP verification",error)
+   res.redirect('/pageNotFound')
   }
 }
+
+
+
+
 
 
 const getHomepage= async (req,res)=>{

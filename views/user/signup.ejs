@@ -130,7 +130,7 @@
             </div>
             <div class="form-group">
                 <label for="confirm-password">Confirm Password</label>
-                <input type="password" id="confirm-password" name="confirm-password" required>
+                <input type="password" id="confirm-password" name="confirmPassword" required>
                 <div class="error" id="confirmPasswordError"></div>
             </div>
             <div class="form-group">
@@ -151,10 +151,8 @@
     <script>
      document.getElementById('signupForm').addEventListener('submit',function(event){
          
-     event.preventDefault()         // Prevents the browser's default form submission behavior (like refreshing the page or navigating to a new URL).
      
-      //to clear previous errors(their textcontents):
-
+     //to clear previous errors(their textcontents):
     const clearError=(id)=>{document.getElementById(id).textContent= ""; } //The function takes a single parameter 'id' using document.getElementById('id').It then sets the .textContent of that element to an empty string (''), effectively clearing any text inside the element.
 
     clearError('nameError') //The clearError function is being called five times, each time with a different id as the argument.
@@ -211,8 +209,13 @@
     // If valid, submit the form (or simulate a submit action)
      if(isValid){
         alert('Form submitted successfully!')
-                                          //To Submit the form after custom validation:
-        // this.submit();   // Form data is sent to "/submit-data" using POST
+
+             //To Submit the form after custom validation:
+        this.submit();   // Form data is sent to "/submit-data" using POST
+     }
+     else{
+        event.preventDefault()         // Prevents the browser's default form submission behavior (like refreshing the page or navigating to a new URL).
+
      }
 
 });
