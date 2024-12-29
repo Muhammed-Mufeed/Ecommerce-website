@@ -1,0 +1,110 @@
+/* Grid Container */
+.grid-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    /* Large div takes 2/3 of the space, small divs take 1/3 each */
+    gap: 20px;
+    /* Space between grid items */
+    padding: 20px;
+    margin-left: 100px;
+    /* Margin on the left side */
+    margin-right: 100px;
+    /* Margin on the right side */
+}
+
+/* Common Styles for all divs */
+.grid-container .large-div,
+.grid-container .small-div {
+    background-color: black;
+    /* Background color */
+    color: white;
+    /* Text color */
+    border-radius: 20px;
+    /* Border radius for rounded corners */
+    padding: 20px;
+    /* Padding inside the divs */
+    text-align: center;
+    /* Center the text */
+    display: flex;
+    /* Use flexbox to center content */
+    flex-direction: column;
+    /* Arrange content vertically */
+    justify-content: center;
+    /* Center content vertically */
+    align-items: center;
+    /* Center content horizontally */
+}
+
+/* Large Div specific style */
+.large-div {
+    height: 300px;
+    /* Increased height for the large div */
+    grid-column: span 2;
+    /* This makes the large div span both columns */
+}
+
+/* Small Divs specific style */
+.small-div {
+    height: 150px;
+    /* Increased height for the small divs */
+}
+
+/* Button Styling */
+.grid-container .btn {
+    background-color: brown;
+    /* Button background */
+    color: white;
+    /* Button text color */
+    border: none;
+    /* Remove button border */
+    border-radius: 20px;
+    /* Button border-radius to match divs */
+    padding: 10px 20px;
+    /* Button padding */
+    margin-top: 10px;
+    /* Space between text and button */
+    cursor: pointer;
+    /* Cursor pointer on hover */
+    font-size: 16px;
+    /* Button text size */
+}
+
+/* Button Hover Effect */
+.grid-container .btn:hover {
+    background-color: darkbrown;
+    /* Darken button background on hover */
+}/* Container Div */
+.container {
+    margin-left: 100px; /* 100px margin on the left */
+    margin-right: 100px; /* 100px margin on the right */
+    display: flex; /* Use flexbox layout */
+    justify-content: space-between; /* Space items evenly */
+    gap: 20px; /* Space between flex items */
+    padding: 20px; /* Padding inside the container */
+    flex-wrap: wrap; /* Allow items to wrap onto the next line */
+}
+
+/* Individual Grid Items */
+.grid-item {
+    background-color: white; /* White background for each grid item */
+    color: black; /* Black text color */
+    border-radius: 10px; /* Border radius for rounded corners */
+    display: flex; /* Use flexbox to center content */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    height: 150px; /* Height for each grid item */
+    width: calc(25% - 100px); /* Each item takes up 25% of the width, minus the gap */
+    text-align: center; /* Center text */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Light shadow for each item */
+}
+
+/* Media query to adjust layout on smaller screens */
+@media screen and (max-width: 600px) {
+    .container {
+        justify-content: center; /* Center items horizontally */
+    }
+    .grid-item {
+        flex: 1 1 100%; /* Each item takes 100% width on small screens */
+        margin-bottom: 10px; /* Space between stacked items */
+    }
+}
