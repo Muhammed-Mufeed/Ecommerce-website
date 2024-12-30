@@ -3,105 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/user/css/signup.css">
     <title>Sign Up - Bag Ecommerce</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f7fc;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .signup-container {
-            background-color: #fff;
-            padding: 30px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            width: 100%;
-            max-width: 400px;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            font-size: 14px;
-            margin-bottom: 5px;
-            display: block;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .form-group .error {       
-            color: red;
-            font-size: 12px;
-            margin-top: 5px;
-        }
-        .form-group button {
-            width: 100%;
-            padding: 12px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .form-group button:hover {
-            background-color: #45a049;
-        }
-        .google-signup {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-        }
-        .google-signup button {
-            padding: 12px 20px;
-            background-color: #db4437;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .google-signup img {
-            width: 50px;
-            height: 50px;
-            margin-right: 10px;
-        }
-        .google-signup button:hover {
-            background-color: #c1351d;
-        }
-        .form-footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-        }
-        .form-footer a {
-            color: #4CAF50;
-            text-decoration: none;
-        }
-        .form-footer a:hover {
-            text-decoration: underline;
-        }
-    </style>
     
 </head>
 <body>
@@ -133,6 +36,11 @@
                 <input type="password" id="confirm-password" name="confirmPassword" required>
                 <div class="error" id="confirmPasswordError"></div>
             </div>
+            <% if(errorMessage){ %>
+                <div class="alert alert-danger text-center">
+                  <p><%= errorMessage %></p>
+                </div>
+            <% } %>
             <div class="form-group">
                 <button type="submit">Sign Up</button>
             </div>
@@ -144,7 +52,7 @@
             </button>
         </div>
         <div class="form-footer">
-            <p>Already have an account? <a href="#">Login</a></p>
+            <p>Already have an account? <a href="/login">Login</a></p>
         </div>
     </div>
 
@@ -206,17 +114,14 @@
     }
     
 
-    // If valid, submit the form (or simulate a submit action)
-     if(isValid){
-        alert('Form submitted successfully!')
+    // If invalid, prevent form submission
+    if (!isValid) {
+    event.preventDefault(); // Prevents the browser's default form submission behavior (like refreshing the page or navigating to a new URL).
 
-             //To Submit the form after custom validation:
-        this.submit();   // Form data is sent to "/submit-data" using POST
-     }
-     else{
-        event.preventDefault()         // Prevents the browser's default form submission behavior (like refreshing the page or navigating to a new URL).
-
-     }
+    }
+     else {
+    alert('Form submitted successfully!');
+    }
 
 });
     </script>

@@ -96,7 +96,7 @@
                     Swal.fire({         //for alert
                         icon:"success",
                         title:"OTP verified Successfully!!",
-                        showConfirmButton:false,
+                        showConfirmButton:false,    //hides the confirmation button on the alert, and timer: 1500 makes the popup disappear after 1.5 seconds.
                         timer:1500,
                     }).then(()=>{
                         window.location.href = response.redirectUrl;  // Redirect on successful OTP verification
@@ -121,8 +121,53 @@
             }
 
          })
-         return false;
+         return false;  // Prevent the default form submission
         }
+
+
+
+
+      function resendOTP() {
+        clearInterval(timerInterval);
+        timer = 60;        // Reset timer
+        timerElement.textContent = timer; //Updates the displayed timer value on the webpage, showing 60 seconds.
+        timerElement.style.color = "#007bff";
+        resendBtn.disabled = true;  //Disables the "Resend OTP" button to prevent multiple clicks before the new OTP is sent. The button will be re-enabled once the OTP is successfully resent.
+        startTimer();  // Starts the countdown timer again by calling the startTimer() function
+
+        $.ajax({
+        type: "POST",
+        url: "/resend-otp",
+        success: function (response) {
+            if (response.success) {
+            Swal.fire({
+                icon: "success",
+                title: "OTP Resent Successfully",
+                showConfirmButton: false, 
+                timer: 1500,
+            });
+            } else {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: response.message, // Show error message if OTP verification fails
+            });
+            resendBtn.disabled = false; // Enable resend button on failure
+            }
+        },
+        error: function (error) {
+            console.error("Error in AJAX request:", error);
+            Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to resend OTP. Please try again.",
+            });
+            resendBtn.disabled = false; // Enable resend button on failure
+        },
+        });
+
+     return false;  // Prevent the default form submission
+    }
 
     </script>
 </body>

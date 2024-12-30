@@ -6,6 +6,7 @@ const  mongoDB=require("./config/db")
  mongoDB()
 
 const userRoutes=require('./routes/userRoutes')
+// const adminRoutes=require('./routes/adminRoutes')
 
 const app=express()
 
@@ -27,8 +28,9 @@ app.use(session({
 }))
 app.use(express.static(path.join(__dirname,'public')))
 
-
+// app.use('/admin',adminRoutes)
 app.use('/',userRoutes)
+
 
 
 app.listen(process.env.PORT,()=>{

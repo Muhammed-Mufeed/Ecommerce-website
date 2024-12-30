@@ -15,10 +15,10 @@ const getpageNotFound=async(req,res)=>{
 
 const getSingupPage=async(req,res)=>{
   try{
-    res.render('signup')
+    res.render('signup',{errorMessage:null})
   }
   catch(error){
-    console.log("signup pae is not found",error)
+    console.log("signup page is not found",error)
     res.status(500).send("server error")
   }
 }
@@ -92,7 +92,7 @@ const postSignupPage=async(req,res)=>{
    req.session.userOTP = otp
    req.session.userData = {name,phone,email,password}
 
-   res.render('verify-otp')
+   res.render('verify-otp',{errorMessage:null})
    console.log("OTP send successfully",otp);
    
   }
@@ -146,12 +146,100 @@ const postverifyOtp = async (req,res)=>{
   }
 }
 
+const postResendOtp = async (req,res)=>{
+  try{
+    
+    // Ensure session data exists
+    const { userData } = req.session;
+    if (!userData || !userData.email) {
+      return res.status(400).json({ success: false, message: "Email not found in session" });
+    }
+  
+   const{email} = userData
+   console.log("Resending Otp to:",email) //debugging
+ 
+  
+   // Generate new OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+   req.session.userOTP = otp;     //Update session with new OTP
+   console.log(`Generated OTP(resend): ${otp}`); // Debugging
 
 
+     // Send the OTP via email
+   const emailSent = await sendVerificationEmail(email,otp);
+   if(emailSent){
+    console.log(`OTP sent(resend) successfully ${otp}`); //debugging
+    return res.status(200).json({success:true,message:"OTP Resend Successfully"})
+    
+   }
+   else{
+    res.status(500).json({success:false,message:"Failed to resend OTP. Please try again"})
+  
+    }
+  }
+  catch(error){
+    console.error("Error resending OTP",error)
+    res.status(500).json({success:false,message:"Internal Server Error.Please try again"})
+  }
+}
+
+
+
+const getLoginPage = async (req,res)=>{
+  try  {
+    if(!req.session.user)
+    {
+      return res.render('login',{errorMessage:null})
+    }
+    else{
+      res.redirect('/')
+    }
+    
+  }
+  catch (error) {
+    res.redirect('/pageNotFound')
+  }
+}
+
+
+const postLoginPage = async (req,res)=>{
+  try{
+    const{email,password}=req.body
+  
+    const findUser = await User.findOne({isAdmin:false,email:email})
+  
+    if(!findUser){
+      return res.render('login',{errorMessage:"User is not found"})
+    }
+
+    if(findUser.isBlocked){
+      return res.render("login",{errorMessage:"User is blocked by the Admin"})
+    }
+
+   //comparing password
+    const passwordMatch = await bcrypt.compare(password,findUser.password)
+
+    if(!passwordMatch){
+      return res.render('login',{errorMessage:" Incorrect password"})
+    }
+
+    //Now, store the user information in the session
+    req.session.user={
+      id: findUser._id
+    }
+  
+    res.redirect('/')
+  }
+
+  catch(error){
+    console.error("Login error",error)
+    res.render('login',{errorMessage:"Login failed.Please try again later"})
+  }
+}
 
 const getHomepage= async (req,res)=>{
   try{
-    res.render('home')
+    res.render('home',{errorMessage:null})
   }
   catch(error){
     console.log("Home page is not found",error)
@@ -161,4 +249,8 @@ const getHomepage= async (req,res)=>{
 }
 
 
-module.exports={getHomepage,getpageNotFound, getSingupPage,postSignupPage,postverifyOtp,}
+
+
+
+
+module.exports={getHomepage,getpageNotFound, getSingupPage,postSignupPage,postverifyOtp,postResendOtp,getLoginPage,postLoginPage}
