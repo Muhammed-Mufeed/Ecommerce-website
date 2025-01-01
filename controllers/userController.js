@@ -1,9 +1,10 @@
+
 const nodemailer=require('nodemailer')
 const bcrypt=require('bcrypt')
 const env =require('dotenv').config()
 const User=require('../models/userSchema')
 
-
+// ==================================================================================================================//
 const getpageNotFound=async(req,res)=>{
   try{
    return res.render('page-404')
@@ -13,6 +14,7 @@ const getpageNotFound=async(req,res)=>{
   }
 }
 
+// ==================================================================================================================//
 const getSingupPage=async(req,res)=>{
   try{
     res.render('signup',{errorMessage:null})
@@ -24,7 +26,7 @@ const getSingupPage=async(req,res)=>{
 }
 
 
-
+// ==================================================================================================================//
 
 async function sendVerificationEmail(email,otp){
   try{
@@ -103,6 +105,7 @@ const postSignupPage=async(req,res)=>{
   }
 }
 
+// ==================================================================================================================//
 
 //hashing password using bcrypt
 const securePassword=async (password)=>{
@@ -146,6 +149,7 @@ const postverifyOtp = async (req,res)=>{
   }
 }
 
+// ==================================================================================================================//
 const postResendOtp = async (req,res)=>{
   try{
     
@@ -183,7 +187,7 @@ const postResendOtp = async (req,res)=>{
   }
 }
 
-
+// ==================================================================================================================//
 
 const getLoginPage = async (req,res)=>{
   try  {
@@ -201,7 +205,7 @@ const getLoginPage = async (req,res)=>{
   }
 }
 
-
+// ==================================================================================================================//
 const postLoginPage = async (req,res)=>{
   try{
     const{email,password}=req.body
@@ -227,7 +231,7 @@ const postLoginPage = async (req,res)=>{
     req.session.user={
       id: findUser._id
     }
-  
+    
     res.redirect('/')
   }
 
@@ -237,20 +241,76 @@ const postLoginPage = async (req,res)=>{
   }
 }
 
-const getHomepage= async (req,res)=>{
-  try{
-    res.render('home',{errorMessage:null})
-  }
-  catch(error){
-    console.log("Home page is not found",error)
-    res.status(500).send("server error")
-    
-  }
+
+// ==================================================================================================================//
+
+const postLogoutPage = async (req,res)=>{
+try {
+
+  req.session.destroy((err)=>{
+
+   if(err){
+    console.log("Session Logout error",err.message);
+    return res.redirect('/pageNotFound') 
+   }
+
+   else{
+   return  res.redirect('/login')
+   }
+  }) 
+
+} catch (error) {
+  console.error("Error during Logout",error)
+  res.redirect('/pageNotFound')
 }
 
+}
+
+// ==================================================================================================================//
+
+const getHomepage = async (req, res) => {
+  try {
+    const user = req.session.user; 
+
+    if (user) {
+      // If the user is logged in, fetch their data from the database
+      const userData = await User.findOne({_id: user.id}); // we store the user_id from db to "id" variable in session. so that's why we use user.id.
+      return res.render('home', { userData, error: null }); // Pass userData to EJS
+    } 
+    else {
+      // If the user is not logged in, pass null or undefined for userData
+      return res.render('home', { userData: null, error: null });
+    }
+  } catch (error) {
+    console.log("Error in getHomepage:", error);
+    res.status(500).send("Server Error");
+  }
+};
+
+
+// ==================================================================================================================//
 
 
 
 
 
-module.exports={getHomepage,getpageNotFound, getSingupPage,postSignupPage,postverifyOtp,postResendOtp,getLoginPage,postLoginPage}
+
+
+
+
+
+
+
+// ==================================================================================================================//
+
+module.exports={
+   getHomepage,
+   getpageNotFound,
+   getSingupPage,
+   postSignupPage,
+   postverifyOtp,
+   postResendOtp,
+   getLoginPage,
+   postLoginPage,
+   postLogoutPage
+  }

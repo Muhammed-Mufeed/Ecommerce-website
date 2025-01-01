@@ -1,30 +1,48 @@
+<div class="navbar">
+    <!-- Top Row: Logo, Search Bar, Icons -->
+    <div class="top-row">
+        <!-- Logo -->
+        <div class="logo">PackSmart</div>
 
-  <div class="navbar">
-      <!-- Top Row: Logo, Search Bar, Icons -->
-      <div class="top-row">
-          <!-- Logo -->
-          <div class="logo">PackSmart</div>
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" placeholder="Search products...">
+        </div>
 
-          <!-- Search Bar -->
-          <div class="search-bar">
-              <input type="text" placeholder="Search the products">
-          </div>
-           
-           
-          <!-- Icons -->
-          <div class="icons">
-              <div class="icon">🏠</div>
-              <div class="icon">❤️</div>
-              <div class="icon">👤</div>
-              <div class="cart icon">🛒<span>3</span></div>
-          </div>
-      </div>
+        <!-- Icons -->
+        <div class="icons">
+            <div class="icon">🏠</div>
+            <div class="icon">❤️</div>
 
-      <!-- Menu Items Below Search Bar -->
-      <div class="menu">
-          <a href="#">Home</a>
-          <a href="#">Products</a>
-          <a href="#">Help Center</a>
-          <a href="#">About us</a>
-      </div>
-  </div>
+            <div class="icon user-profile">
+                👤
+                <% if (userData) { %> <!-- Check if user is logged in -->
+                    <div class="dropdown">
+                        <a href="/userProfile">Profile</a>
+                        <form action="/logout" method="POST" style="display: inline;">
+                            <button type="submit" style="background: none; border: none; color: inherit; cursor: pointer;">
+                                Logout
+                            </button>
+                        </form>
+                       
+                    </div>
+                <% } else { %> <!-- Show Signup and Login if not logged in -->
+                    <div class="dropdown">
+                        <a href="/signup">Signup</a>
+                        <a href="/login">Login</a>
+                    </div>
+                <% } %>
+            </div>
+            
+            <div class="cart icon">🛒<span>3</span></div>
+        </div>
+    </div>
+
+    <!-- Menu Items Below Search Bar -->
+    <div class="menu">
+        <a href="#">Home</a>
+        <a href="#">Products</a>
+        <a href="#">Help Center</a>
+        <a href="#">About Us</a>
+    </div>
+</div>
