@@ -15,7 +15,7 @@ const getpageNotFound=async(req,res)=>{
 }
 
 // ==================================================================================================================//
-const getSingupPage=async(req,res)=>{
+const getSignupPage=async(req,res)=>{
   try{
     return res.render('signup',{errorMessage:null})
   }
@@ -187,21 +187,14 @@ const postResendOtp = async (req,res)=>{
 
 // ==================================================================================================================//
 
-const getLoginPage = async (req,res)=>{
-  try  {
-    if(!req.session.user)
-    {
-      return res.render('login',{errorMessage:null})
-    }
-    else{
-      res.redirect('/')
-    }
-    
+const getLoginPage = async (req, res) => {
+  try {
+    res.render('login', { errorMessage: null });
+  } catch (error) {
+    res.redirect('/pageNotFound');
   }
-  catch (error) {
-    res.redirect('/pageNotFound')
-  }
-}
+};
+
 
 // ==================================================================================================================//
 const postLoginPage = async (req,res)=>{
@@ -253,7 +246,7 @@ try {
    }
 
    else{
-   return  res.redirect('/login')
+     res.redirect('/login')
    }
   }) 
 
@@ -288,23 +281,12 @@ const getHomepage = async (req, res) => {
 
 // ==================================================================================================================//
 
-
-
-
-
-
-
-
-
-
-
-
 // ==================================================================================================================//
 
 module.exports={
    getHomepage,
    getpageNotFound,
-   getSingupPage,
+   getSignupPage,
    postSignupPage,
    postverifyOtp,
    postResendOtp,
