@@ -16,6 +16,13 @@ app.set('views',[path.join(__dirname,'views/user'),path.join(__dirname,'views/ad
 
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
+
+// Disable caching middleware
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  next();
+});
+
 app.use(session({
  secret: process.env.SESSION_SECRET,
  resave: false,
@@ -26,6 +33,8 @@ app.use(session({
   maxAge:72*60*60*1000     //(72 hrs)
  }
 }))
+
+
 app.use(express.static(path.join(__dirname,'public')))
 
 

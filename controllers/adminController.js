@@ -2,6 +2,7 @@ const Admin=require('../models/userSchema')
 const bcrypt = require('bcrypt')
 
 
+
 exports. getAdminpageNotFound=async(req,res)=>{
   try{
    return res.render('error-page.ejs')
@@ -47,7 +48,8 @@ try {
 
   //store admin information in the session
   req.session.admin = {
-    id: findAdmin._id
+    id: findAdmin._id,
+    isAdmin:true
   }
    res.redirect('/admin/dashboard')
   }
@@ -63,12 +65,13 @@ try {
 exports.getAdminDashboard = async (req,res)=>{
   try{
     const admin = req.session.admin
-    if(admin){
-      return res.render('dashboard',{errorMessage : null})
+    if (!admin || !admin.isAdmin) {
+      return res.redirect('/admin/login');
     }
     else{
-      res.redirect('/admin/login')
-    }  
+      return res.render('dashboard',{errorMessage : null})
+    }
+    
   }
 
 catch(error){
@@ -79,15 +82,16 @@ catch(error){
 
 // ==================================================================================================================//
 exports.postAdminLogout = async (req,res)=>{
+   
    try{
     req.session.destroy((err)=>{
-        
      if(err){
       console.error("Session Logout Error",err)
-      return res.redirect('/admin/errorPage')
+      return res.status(500).render('error-page.ejs', { message: "Failed to log out. Please try again." });
      }
      else{
-       return res.redirect('/')
+     
+       return res.redirect('/admin/login')
       }
     })
   }
