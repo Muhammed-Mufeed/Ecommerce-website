@@ -17,7 +17,7 @@ const getpageNotFound=async(req,res)=>{
 // ==================================================================================================================//
 const getSingupPage=async(req,res)=>{
   try{
-    res.render('signup',{errorMessage:null})
+    return res.render('signup',{errorMessage:null})
   }
   catch(error){
     console.log("signup page is not found",error)
@@ -59,8 +59,6 @@ async function sendVerificationEmail(email,otp){
    return false
   }
 }
-
-
 
 
 const postSignupPage=async(req,res)=>{
@@ -132,7 +130,7 @@ const postverifyOtp = async (req,res)=>{
       name:user.name,
       email:user.email,
       phone:user.phone,
-      password:passwordHash
+      password:passwordHash  //saving as hashed password
     })
 
     await saveUserData.save()  // Save the user data to the database
@@ -224,7 +222,7 @@ const postLoginPage = async (req,res)=>{
     const passwordMatch = await bcrypt.compare(password,findUser.password)
 
     if(!passwordMatch){
-      return res.render('login',{errorMessage:" Incorrect password"})
+      return res.render('login',{errorMessage:" Incorrect Email or password"})
     }
 
     //Now, store the user information in the session
