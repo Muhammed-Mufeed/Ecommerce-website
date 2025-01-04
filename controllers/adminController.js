@@ -3,7 +3,9 @@ const bcrypt = require('bcrypt')
 
 
 
-exports. getAdminpageNotFound=async(req,res)=>{
+//===============================================AdminErrorPage-GET===================================================================//
+
+exports.getAdminErrorPage=async(req,res)=>{
   try{
    return res.render('error-page.ejs')
   }
@@ -11,18 +13,13 @@ exports. getAdminpageNotFound=async(req,res)=>{
    res.redirect('/admin/errorPage')
   }
 }
-// ==================================================================================================================//
+// ===============================================AdminLogin--GET===================================================================//
 
  exports.getAdminLogin = async (req,res)=>{
-  try {
-    if(req.session.admin){
-      return res.redirect('/admin/dashboard')
-    }
-    else{
-      res.render('admin-login',{errorMessage:null})
+  try {   
+     return res.render('admin-login',{errorMessage:null})
     }
     
-  } 
   catch (error) {
     console.error('Login page is not found',error)
     res.status(500).send("Internal server error")
@@ -30,7 +27,7 @@ exports. getAdminpageNotFound=async(req,res)=>{
 }
 
 
-// ==================================================================================================================//
+// ============================================== AdminLogin--POST==================================================================//
 exports.postAdminLogin = async (req,res)=>{
 
 try {
@@ -61,26 +58,20 @@ try {
 
 }
 
-// ==================================================================================================================//
+// =============================================AdminDashboard--GET=====================================================================//
 exports.getAdminDashboard = async (req,res)=>{
-  try{
-    const admin = req.session.admin
-    if (!admin || !admin.isAdmin) {
-      return res.redirect('/admin/login');
-    }
-    else{
-      return res.render('dashboard',{errorMessage : null})
-    }
-    
+
+  try{ 
+     return res.render('dashboard')
   }
 
-catch(error){
-  console.log("Error during loading dashboard",error)
-  res.status(500).send("Internal server error")
- }
+  catch(error){
+    console.log("Error during loading dashboard",error)
+    res.status(500).send("Internal server error")
+  }
 }
 
-// ==================================================================================================================//
+// ===============================================AdminLogout--POST===================================================================//
 exports.postAdminLogout = async (req,res)=>{
    
    try{

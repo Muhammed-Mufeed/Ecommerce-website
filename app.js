@@ -4,6 +4,7 @@ const path=require('path')
 const env=require("dotenv").config()
 const  mongoDB=require("./config/db")
  mongoDB()
+ const passport = require('./config/passport')
 
 const userRoutes=require('./routes/userRoutes')
 const adminRoutes=require('./routes/adminRoutes')
@@ -16,6 +17,7 @@ app.set('views',[path.join(__dirname,'views/user'),path.join(__dirname,'views/ad
 
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
+
 
 // Disable caching middleware
 app.use((req, res, next) => {
@@ -33,6 +35,10 @@ app.use(session({
   maxAge:72*60*60*1000     //(72 hrs)
  }
 }))
+
+//GoogleAuth:
+app.use(passport.initialize())   //Initializes Passport, which is a middleware for authentication.    
+app.use(passport.session())      // Integrates Passport with session-based authentication.
 
 
 app.use(express.static(path.join(__dirname,'public')))

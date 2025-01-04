@@ -21,10 +21,14 @@ const userSchema= new Schema({
     default:null
   },
 
+  googleId:{
+   type:String,
+   unique:true,
+  },
 
   password:{
     type:String,
-    required:true
+    required:false
   },
 
   isBlocked:{
@@ -57,10 +61,6 @@ const userSchema= new Schema({
     ref:"Order"
   }],
 
-  createdOn:{
-    type:Date,
-    default:Date.now
-  },
 
   referalCode:{         //for new created users
     type:String
@@ -90,7 +90,7 @@ const userSchema= new Schema({
   }]
 
 
-})
+},{timestamps:true})
 
 const User=mongoose.model("User",userSchema);
 module.exports=User

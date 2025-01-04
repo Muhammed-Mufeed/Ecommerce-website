@@ -57,7 +57,7 @@ body {
 /* Icons Container Styling */
 .icons {
   display: flex;
-  gap: 20px;
+  gap: 38px;
   align-items: center;
 }
 
@@ -65,9 +65,17 @@ body {
 .icon {
   position: relative;
   cursor: pointer;
-  font-size: 28px;
+  font-size: 28px; /* Default size */
   color: #fff;
   transition: transform 0.3s ease, color 0.3s ease;
+}
+
+/* Ensure icon images are not too large */
+.icon img {
+  width: 28px; /* Adjust the size of the images */
+  height: 28px; /* Keep the height consistent */
+  object-fit: contain; /* Ensures the image is contained within the icon */
+  transition: transform 0.3s ease;
 }
 
 .icon:hover {
@@ -129,9 +137,6 @@ body {
   background-color: #555;
 }
 
-
-
-
 .user-profile:hover .dropdown {
   display: block;
 }
@@ -155,12 +160,7 @@ body {
   color: #ff9800;
 }
 
-
-
-
-
-
-/*Footer*/
+/* Footer */
 .footer {
   background-color: #1c1c1c;
   color: #fff;

@@ -4,7 +4,7 @@ const bcrypt=require('bcrypt')
 const env =require('dotenv').config()
 const User=require('../models/userSchema')
 
-// ==================================================================================================================//
+// =======================================UserErrorPage-GET===========================================================================//
 const getpageNotFound=async(req,res)=>{
   try{
    return res.render('page-404')
@@ -14,7 +14,7 @@ const getpageNotFound=async(req,res)=>{
   }
 }
 
-// ==================================================================================================================//
+// ==========================================UserSignup-GET=========================================================================//
 const getSignupPage=async(req,res)=>{
   try{
     return res.render('signup',{errorMessage:null})
@@ -26,7 +26,7 @@ const getSignupPage=async(req,res)=>{
 }
 
 
-// ==================================================================================================================//
+// ===============================================UserSignup-POST===================================================================//
 
 async function sendVerificationEmail(email,otp){
   try{
@@ -92,7 +92,7 @@ const postSignupPage=async(req,res)=>{
    req.session.userOTP = otp
    req.session.userData = {name,phone,email,password}
 
-   res.render('verify-otp',{errorMessage:null})
+   res.render('verify-otp')
    console.log("OTP send successfully",otp);
    
   }
@@ -103,7 +103,7 @@ const postSignupPage=async(req,res)=>{
   }
 }
 
-// ==================================================================================================================//
+// ====================================================UserVerifyOTP-POST==============================================================//
 
 //hashing password using bcrypt
 const securePassword=async (password)=>{
@@ -135,7 +135,7 @@ const postverifyOtp = async (req,res)=>{
 
     await saveUserData.save()  // Save the user data to the database
     req.session.User = saveUserData._id; // Store user ID in session
-    res.json({success:true,redirectUrl:"/"})  //If the process is successful, a response with { success: true, redirectUrl: "/" } is sent back, indicating the user is successfully registered and will be redirected to the home page ("/").
+    res.json({success:true,redirectUrl:"/login"})  //If the process is successful, a response with { success: true, redirectUrl: "/" } is sent back, indicating the user is successfully registered and will be redirected to the home page ("/").
    }
    else{
     res.status(400).json({success:false,message:"Invalid OTP, Please try again"})
@@ -147,7 +147,7 @@ const postverifyOtp = async (req,res)=>{
   }
 }
 
-// ==================================================================================================================//
+// =============================================UserResendOTP-POST=====================================================================//
 const postResendOtp = async (req,res)=>{
   try{
     
@@ -185,18 +185,18 @@ const postResendOtp = async (req,res)=>{
   }
 }
 
-// ==================================================================================================================//
+// =============================================UserLogin-GET=====================================================================//
 
 const getLoginPage = async (req, res) => {
   try {
-    res.render('login', { errorMessage: null });
+    res.render('login',{errorMessage:null});
   } catch (error) {
     res.redirect('/pageNotFound');
   }
 };
 
 
-// ==================================================================================================================//
+// ===============================================UserLogin-POST===================================================================//
 const postLoginPage = async (req,res)=>{
   try{
     const{email,password}=req.body
@@ -232,8 +232,23 @@ const postLoginPage = async (req,res)=>{
   }
 }
 
+// ===============================================GoogleLogin Callback Fn===================================================================//
 
-// ==================================================================================================================//
+const googleLogin = async(req,res) => {
+  try{
+    const user = await User.findById(req.user._id);      // req.user: The authenticated user object from Passport.  // here,~ Access the logged-in user’s Id
+    req.session.user = {id:user._id};
+    res.redirect('/');
+  }
+  catch(error){
+   console.error("Erro during Google Login",error)
+   res.status(500).send("Internal Server Error")
+  }
+  
+}
+
+
+// ==================================================UserLogout-POST================================================================//
 
 const postLogoutPage = async (req,res)=>{
 try {
@@ -257,12 +272,12 @@ try {
 
 }
 
-// ==================================================================================================================//
+// ===============================================UserHome-GET===================================================================//
 
 const getHomepage = async (req, res) => {
-  try {
-    const user = req.session.user; 
-
+  try { 
+    const user = req.session.user;
+  
     if (user) {
       // If the user is logged in, fetch their data from the database
       const userData = await User.findOne({_id: user.id}); // we store the user_id from db to "id" variable in session. so that's why we use user.id.
@@ -292,5 +307,6 @@ module.exports={
    postResendOtp,
    getLoginPage,
    postLoginPage,
-   postLogoutPage
+   postLogoutPage,
+   googleLogin
   }
