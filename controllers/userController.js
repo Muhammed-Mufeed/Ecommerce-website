@@ -3,6 +3,7 @@ const nodemailer=require('nodemailer')
 const bcrypt=require('bcrypt')
 const env =require('dotenv').config()
 const User=require('../models/userSchema')
+const Otp = require('../models/otpSchema')
 
 // =======================================UserErrorPage-GET===========================================================================//
 const getpageNotFound=async(req,res)=>{
@@ -82,6 +83,19 @@ const postSignupPage=async(req,res)=>{
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   console.log(`Generated OTP: ${otp}`); // Log OTP to console for debugging
 
+
+ //Calculate expiration time
+ const expiresAt = new Date(Date.now() + 30 * 1000) //OTP expires in 30 seconds
+
+ // Save OTP to MongoDB along with userId and expiration time
+ const saveOtp = new Otp({
+   otp:otp,
+   userId:email,
+   expiresAt:expiresAt
+ })
+
+  await saveOtp.save()      // Save OTP to the database
+
   //to send generated otp to user registered mail
   const emailSent = await sendVerificationEmail(email,otp);
 
@@ -89,7 +103,6 @@ const postSignupPage=async(req,res)=>{
     return res.json('email-error');
   }
   
-   req.session.userOTP = otp
    req.session.userData = {name,phone,email,password}
 
    res.render('verify-otp')
@@ -121,8 +134,21 @@ const securePassword=async (password)=>{
 const postverifyOtp = async (req,res)=>{
   try{
    const {otp} = req.body;
+   const {email} = req.session.userData
 
-   if(otp===req.session.userOTP){
+  // Finding OTP in the database for the given email/userId
+   const otpRecord = await Otp.findOne({userId:email, otp:otp})
+
+   if(!otpRecord){
+    //OTP not found in the database,invalid OTP
+    return res.status(400).json({ success: false, message: "Invalid OTP, Please try again."})
+   }
+
+   //Check if OTP has expired
+   if(otpRecord.expiresAt < new Date()){
+    return res.status(400).json({ succes: false, message: "OTP has expired.Please request a new one."})
+   }
+    //OTP is valid, now proceed to hash the password
     const user = req.session.userData
     const passwordHash = await securePassword(user.password);
 
@@ -134,12 +160,13 @@ const postverifyOtp = async (req,res)=>{
     })
 
     await saveUserData.save()  // Save the user data to the database
-    req.session.User = saveUserData._id; // Store user ID in session
+    
+    req.session.userOTP= null      // Clear OTP from session
+    req.session.User = saveUserData._id;  // Store user ID in session
+    
+    // Respond with success
     res.json({success:true,redirectUrl:"/login"})  //If the process is successful, a response with { success: true, redirectUrl: "/" } is sent back, indicating the user is successfully registered and will be redirected to the home page ("/").
-   }
-   else{
-    res.status(400).json({success:false,message:"Invalid OTP, Please try again"})
-   }
+  
   }
   catch(error){
    console.error("Error verifying OTP",error)
@@ -150,25 +177,38 @@ const postverifyOtp = async (req,res)=>{
 // =============================================UserResendOTP-POST=====================================================================//
 const postResendOtp = async (req,res)=>{
   try{
-    
-    // Ensure session data exists
-    const { userData } = req.session;
-    if (!userData || !userData.email) {
-      return res.status(400).json({ success: false, message: "Email not found in session" });
-    }
-  
-   const{email} = userData
+   const{email} = req.session.userData  // Get email from session data
    console.log("Resending Otp to:",email) //debugging
- 
   
-   // Generate new OTP
+   // Check if the user already has an OTP stored (whether expired or not)
+   const existingOtp = await Otp.findOne({userId:email}) 
+
+   // If an OTP already exists, remove it (expired OTPs or previously used OTPs)
+   if(existingOtp){
+    await Otp.deleteOne({_id:existingOtp._id});
+   }
+
+    // Generate new OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-   req.session.userOTP = otp;     //Update session with new OTP
-   console.log(`Generated OTP(resend): ${otp}`); // Debugging
+  console.log(`Generated OTP(resend): ${otp}`); // Debugging
+
+   // Set expiration time for the new OTP
+   const expiresAt = new Date(Date.now() + 30 * 1000)  // OTP expires in 30 seconds
+   
+   //Save the new OTP to the database
+   const newOtp = new Otp({
+    otp:otp,
+    userId:email,
+    expiresAt:expiresAt
+   })
+  
+   await newOtp.save()  // Save new OTP to the database
 
 
-     // Send the OTP via email
+
+   // Send the OTP to the user's email
    const emailSent = await sendVerificationEmail(email,otp);
+
    if(emailSent){
     console.log(`OTP sent(resend) successfully ${otp}`); //debugging
     return res.status(200).json({success:true,message:"OTP Resend Successfully"})

@@ -18,6 +18,11 @@
         <label for="password">Password</label>
         <input type="password" id="password" name="password" placeholder="Enter your password" required>
       </div>
+      <% if(errorMessage){ %>
+        <div class="alert alert-danger text-center">
+          <p><%= errorMessage %></p>
+        </div>
+      <% } %>
       <button type="submit" class="login-btn">Login</button>
       
     </form>
