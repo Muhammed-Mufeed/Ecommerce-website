@@ -14,5 +14,5 @@
   router.get('/dashboard', checkLogin ,adminController.getAdminDashboard)
   // ==================================================================================================================/
   router.get('/customers',checkLogin,customerController.getuserManagement)
-  router.patch('/customers/:userId/update-status',customerController.updateUserStatus)
+  router.patch('/customers/:userId/update-status',customerController.patchUpdateUserStatus)
   module.exports = router

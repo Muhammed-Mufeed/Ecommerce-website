@@ -16,7 +16,8 @@
             
             <!-- Search Bar -->
             <div class="search-bar">
-                <input type="text" id="user-search" placeholder="Search Customers..." >
+              <input type="text" id="user-search" placeholder="Search Customers..." value = "<%= search%>"
+              >
             </div>
 
             <!-- Users Table -->
@@ -32,30 +33,60 @@
                 </thead>
          
        
-                <tbody>
-                  <% users.forEach((user,index) => { %>
-                    <tr>
-                        <td><%= index+1 %></td>
-                        <td><%= user.name %></td>
-                        <td><%= user.email %></td>
-                        <td><%= user.phone %></td>
-                        <td>
-                         <button
-                         class="<%= user.isBlocked ?  'unblock-btn' : 'block-btn' %>" 
-                         onclick="updateUserStatus('<%= user._id %>',this)"
-                         data-user-id="<%= user._id %>"\
-                          >              
-                         <%= user.isBlocked ? 'Unblock' : 'Block' %>   <!--text change--> 
-                        </button> 
-                        </td>
-                    </tr>      
-               <% }) %>
-                  
-              </tbody>
+               <tbody>
+                  <% if (users.length > 0) { %>
+
+                       <% users.forEach((user,index) => { %>
+                            <tr>
+                                <td><%= (currentPage - 1) * 5 + index+1 %></td>
+                                <td><%= user.name %></td>
+                                <td><%= user.email %></td>
+                                <td><%= user.phone %></td>
+                                <td>
+                                  <button
+                                  class="<%= user.isBlocked ?  'unblock-btn' : 'block-btn' %>" 
+                                  onclick="updateUserStatus('<%= user._id %>',this)"
+                                  data-user-id="<%= user._id %>"
+                                  >              
+                                  <%= user.isBlocked ? 'Unblock' : 'Block' %>   <!--text change--> 
+                                  </button> 
+                                </td>
+                            </tr>      
+                        <% }) %>
+
+                  <% } else { %>
+                     <tr>
+                      <td colspan="5" style="text-align: center;">No users found</td>
+                     </tr>
+                  <% } %>
+               </tbody>
               
             </table>
-        </div>
+
+        <!--  pagination section  -->
+        <% if (users.length > 0) { %>
+            <div class="pagination">
+                <!-- Previous Button -->
+                <% if (currentPage > 1) { %>
+                    <a href="/admin/customers?page=<%= currentPage - 1 %>&search=<%= search %>" class="page-link">Previous</a>
+                <% } %>
+
+                <!-- Page Numbers -->
+                <% for(let i = 1; i <= totalPages; i++) { %>
+                    <a href="/admin/customers?page=<%= i %>&search=<%= search %>" 
+                      class="page-link <%= currentPage === i ? 'active' : '' %>">
+                        <%= i %>
+                    </a>
+                <% } %>
+
+                <!-- Next Button -->
+                <% if (currentPage < totalPages) { %>
+                    <a href="/admin/customers?page=<%= currentPage + 1 %>&search=<%= search %>" class="page-link">Next</a>
+                <% } %>
+            </div>
+        <% } %>           
     </div>
+
 <script>
     async function updateUserStatus(userId,button){
         try {
@@ -94,6 +125,19 @@
           alert("An error occured during userManagement")  
         }
     }
+
+     // Add search functionality
+     const searchInput = document.getElementById('user-search');
+        let searchTimeout;
+
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const searchValue = e.target.value.trim();
+                window.location.href = `/admin/customers?search=${searchValue}&page=1`;
+            }, 500); // Wait 500ms after user stops typing
+        });
+    </script>
   
 </script>
 </body>

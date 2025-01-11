@@ -57,3 +57,39 @@ button {
 .unblock-btn:hover {
   background-color: #2ecc71;
 }
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 30px 0;
+}
+
+.pagination .page-link {
+  padding: 8px 16px;
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 5px;
+  background-color: white;
+  color: #34495e;
+  border: 1px solid #34495e;
+  transition: all 0.3s ease;
+}
+
+
+.pagination .page-link:hover {
+  background-color: #34495e;
+  color: white;
+}
+
+.pagination .page-link.active {
+  background-color: #34495e;
+  color: white;
+}
+
+.pagination .ellipsis {
+  color: #666;
+  padding: 8px;
+}

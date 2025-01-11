@@ -65,7 +65,8 @@ body {
     cursor: pointer;
     width: 100%;
     font-size: 18px;
-    margin-top: 30px;
+    margin-top: 60px;
+    margin-left:-12px
 }
 
 .logout-btn:hover {
