@@ -78,7 +78,7 @@ exports.postAdminLogout = async (req,res)=>{
     req.session.destroy((err)=>{
      if(err){
       console.error("Session Logout Error",err)
-      return res.status(500).render('error-page.ejs', { message: "Failed to log out. Please try again." });
+      return res.status(500).render('error-page.ejs', { errorMessage: "Failed to log out. Please try again." });
      }
      else{
      

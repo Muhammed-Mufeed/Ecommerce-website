@@ -12,117 +12,89 @@
       <%-include('../partials/admin/header')%>
         <!-- Users Page Content -->
         <div class="users-page">
-            <h3>Users List</h3>
+            <h3>Customers List</h3>
             
             <!-- Search Bar -->
             <div class="search-bar">
-                <input type="text" id="user-search" placeholder="Search users..." oninput="filterUsers()">
+                <input type="text" id="user-search" placeholder="Search Customers..." >
             </div>
 
             <!-- Users Table -->
             <table class="users-table" id="users-table">
                 <thead>
                     <tr>
+                        <th>No</th>
                         <th>Name</th>
                         <th>Email</th>
-                        <th>Status</th>
+                        <th>Phone</th>
                         <th>Action</th>
                     </tr>
                 </thead>
-
+         
+       
                 <tbody>
-                  <tr>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td><button class="block-btn" onclick="toggleStatus(this)">Block</button></td>
-                  </tr>
-                  <tr>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td><button class="unblock-btn" onclick="toggleStatus(this)">Unblock</button></td>
-                  </tr>
-                  <!-- Add more users here as needed -->
+                  <% users.forEach((user,index) => { %>
+                    <tr>
+                        <td><%= index+1 %></td>
+                        <td><%= user.name %></td>
+                        <td><%= user.email %></td>
+                        <td><%= user.phone %></td>
+                        <td>
+                         <button
+                         class="<%= user.isBlocked ?  'unblock-btn' : 'block-btn' %>" 
+                         onclick="updateUserStatus('<%= user._id %>',this)"
+                         data-user-id="<%= user._id %>"\
+                          >              
+                         <%= user.isBlocked ? 'Unblock' : 'Block' %>   <!--text change--> 
+                        </button> 
+                        </td>
+                    </tr>      
+               <% }) %>
+                  
               </tbody>
               
             </table>
         </div>
     </div>
+<script>
+    async function updateUserStatus(userId,button){
+        try {
+           const response = await fetch(`/admin/customers/${userId}/update-status`,{
+            method: 'PATCH',
+            headers: {
+                'content-Type': 'application/json'
+            }
 
-    <script>
+           });
 
-      // Function to set the active link based on the current page
-    function setActiveMenu() {
-        // Get all menu links
-        const menuLinks = document.querySelectorAll('.menu-item');
-        
-        // Remove 'active' class from all menu links
-        menuLinks.forEach(link => {
-            link.classList.remove('active');
-        });
-        
-        // Get the current page URL
-        const currentPage = window.location.pathname;
+           const data = await response.json();
 
-        // Check which link corresponds to the current page and add the 'active' class
-        if (currentPage.includes('/admin/dashboard')) {
-            document.getElementById('dashboard-link').classList.add('active');
-        } else if (currentPage.includes('/admin/users')) {
-            document.getElementById('users-link').classList.add('active');
-        } else if (currentPage.includes('/admin/products')) {
-            document.getElementById('products-link').classList.add('active');
-        } else if (currentPage.includes('/admin/categories')) {
-            document.getElementById('categories-link').classList.add('active');
-        } else if (currentPage.includes('/admin/orders')) {
-            document.getElementById('orders-link').classList.add('active');
-        } else if (currentPage.includes('/admin/coupons')) {
-            document.getElementById('coupons-link').classList.add('active');
-        } else if (currentPage.includes('/admin/settings')) {
-            document.getElementById('settings-link').classList.add('active');
+           if(data.success){
+             
+             if(data.isBlocked){
+                button.className = 'unblock-btn'
+                button.textContent = 'Unblock'
+             }
+             else{
+                button.className = 'block-btn',
+                button.textContent= 'Block'
+             }
+
+             //show success message(optional)
+            alert(data.message) //message from the backend
+           }
+
+           else {
+              alert("Failed to update user status");
+             }
+            
+        } 
+        catch (error) {
+          console.log("Error during user Management",error) //error will be displayed on frontend
+          alert("An error occured during userManagement")  
         }
     }
-    // Run setActiveMenu on page load
-    window.onload = setActiveMenu;
-
-
-
-        
-     // Function to toggle Block/Unblock status
-function toggleStatus(button) {
-    const row = button.closest('tr');  // Find the row the button is in
-    const statusCell = row.cells[2];   // The Status cell is at index 2 (third column)
-    const actionCell = row.cells[3];   // The Action cell is at index 3 (fourth column)
-
-    if (statusCell.innerText === 'Active') {
-        // Change the status text to Blocked
-        statusCell.innerText = 'Blocked';
-        // Change the button to "Unblock"
-        actionCell.innerHTML = '<button class="unblock-btn" onclick="toggleStatus(this)">Unblock</button>';
-    } else {
-        // Change the status text to Active
-        statusCell.innerText = 'Active';
-        // Change the button to "Block"
-        actionCell.innerHTML = '<button class="block-btn" onclick="toggleStatus(this)">Block</button>';
-    }
-}
-
-          
-        // Function to filter users based on the search input
-        function filterUsers() {
-            const searchInput = document.getElementById('user-search').value.toLowerCase();
-            const rows = document.querySelectorAll('#users-table tbody tr');
-
-            rows.forEach(row => {
-                const name = row.cells[0].textContent.toLowerCase();
-                const email = row.cells[1].textContent.toLowerCase();
-                if (name.includes(searchInput) || email.includes(searchInput)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
-    </script>
+  
+</script>
 </body>
 </html>

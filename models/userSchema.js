@@ -43,53 +43,53 @@ const userSchema= new Schema({
     default:false
   },
 
-  cart:[{
-    type:Schema.Types.ObjectId,
-    ref:"Cart"
-  }],
+  // cart:[{
+  //   type:Schema.Types.ObjectId,
+  //   ref:"Cart"
+  // }],
 
-  wallet:{
-    type:Number,
-    default:0
-  },
+  // wallet:{
+  //   type:Number,
+  //   default:0
+  // },
 
-  wishlist:[{
-   type:Schema.Types.ObjectId,
-   ref:"Wishlist"
-  }],
+  // wishlist:[{
+  //  type:Schema.Types.ObjectId,
+  //  ref:"Wishlist"
+  // }],
 
-  orderHistory:[{
-    type:Schema.Types.ObjectId,
-    ref:"Order"
-  }],
+  // orderHistory:[{
+  //   type:Schema.Types.ObjectId,
+  //   ref:"Order"
+  // }],
 
 
-  referalCode:{         //for new created users
-    type:String
-  },
+  // referalCode:{         //for new created users
+  //   type:String
+  // },
 
-  redeemed:{           //to check for it is redeemed or not.
-    type:Boolean
-  },
+  // redeemed:{           //to check for it is redeemed or not.
+  //   type:Boolean
+  // },
 
-  redeemedUsers:[{      
-     type: Schema.Types.ObjectId,
-     ref:"User"
-  }],
+  // redeemedUsers:[{      
+  //    type: Schema.Types.ObjectId,
+  //    ref:"User"
+  // }],
 
-  searchHistory: [{    //to sort their 
-    category: {
-        type: Schema.Types.ObjectId,
-        ref:"Category"
-    },
-    brand: {
-      type: String
-    },
-    searchOn: {
-      type:Date,
-      default: Date.now
-    }
-  }]
+  // searchHistory: [{    //to sort their 
+  //   category: {
+  //       type: Schema.Types.ObjectId,
+  //       ref:"Category"
+  //   },
+  //   brand: {
+  //     type: String
+  //   },
+  //   searchOn: {
+  //     type:Date,
+  //     default: Date.now
+  //   }
+  // }]
 
 
 },{timestamps:true})

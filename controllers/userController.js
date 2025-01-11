@@ -248,7 +248,7 @@ const postLoginPage = async (req,res)=>{
     }
 
     if(findUser.isBlocked){
-      return res.render("login",{errorMessage:"User is blocked by the Admin"})
+      return res.render("login",{errorMessage:"Your account has been blocked. Please contact support."})
     }
 
    //comparing password
