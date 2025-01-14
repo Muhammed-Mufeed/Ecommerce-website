@@ -12,22 +12,16 @@ const categorySchema=new Schema({
     type:String,
     required:true
    },
-
+   image: {
+      type: String,
+      required: true
+   },
    isListed:{
     type:Boolean,
     default:true
    },
 
-   categoryOffer:{
-    type:Number,
-    default:0
-   },
+   
+},{timestamps:true})
 
-   createdAt:{
-    type:Date,
-    default:Date.now
-   }
-})
-
-const Category=mongoose.model("Category",categorySchema)
-module.exports=Category
+module.exports = mongoose.model("Category",categorySchema)

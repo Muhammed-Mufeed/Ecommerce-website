@@ -6,6 +6,8 @@
     <title>Users - Admin Dashboard</title>
     <link rel="stylesheet" href="/admin/css/customers.css">
     <link rel="stylesheet" href="/admin/css/partial.css">
+    <!-- Add SweetAlert  -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
    <body>
   
@@ -28,6 +30,7 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -42,6 +45,7 @@
                                 <td><%= user.name %></td>
                                 <td><%= user.email %></td>
                                 <td><%= user.phone %></td>
+                                <td><%= user.isBlocked ? 'Blocked' : 'Active' %></td>
                                 <td>
                                   <button
                                   class="<%= user.isBlocked ?  'unblock-btn' : 'block-btn' %>" 
@@ -101,28 +105,47 @@
            const data = await response.json();
 
            if(data.success){
-             
+              // This ensures the status displayed in the table reflects the user's current isBlocked state without reloading the page.
+              const statusCell = button.parentNode.previousElementSibling;
+
              if(data.isBlocked){
                 button.className = 'unblock-btn'
                 button.textContent = 'Unblock'
+                statusCell.textContent = 'Blocked'; // Update status in table
+               
              }
              else{
                 button.className = 'block-btn',
                 button.textContent= 'Block'
+                statusCell.textContent = 'Active'; // Update status in table
+                
              }
+            
 
              //show success message(optional)
-            alert(data.message) //message from the backend
+             Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message,        //message from backend
+                    });
            }
 
            else {
-              alert("Failed to update user status");
+            Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to update User status',
+                    });
              }
             
         } 
         catch (error) {
           console.log("Error during user Management",error) //error will be displayed on frontend
-          alert("An error occured during userManagement")  
+          Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred during User Management',
+                });  
         }
     }
 

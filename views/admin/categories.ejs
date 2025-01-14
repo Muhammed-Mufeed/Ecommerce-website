@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories - Admin Dashboard</title>
+    <link rel="stylesheet" href="/admin/css/categories.css">
+    <link rel="stylesheet" href="/admin/css/partial.css">
+      <!-- Add SweetAlert  -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <%-include('../partials/admin/header')%>
+    
+    <!-- Categories Page Content -->
+    <div class="categories-page">
+        <div class="header-section">
+            <h3>Categories List</h3>
+            <a href="/admin/categories/add" class="add-category-btn">Add Category</a>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" id="category-search" placeholder="Search Categories..." value="<%= search %>">
+        </div>
+
+        <!-- Categories Table -->
+        <table class="categories-table" id="categories-table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Picture</th>
+                    <th>Category Name</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (categories.length > 0) { %>
+                    <% categories.forEach((category, index) => { %>
+                        <tr>
+                            <td><%= (currentPage - 1) * 5 + index + 1 %></td>
+                            <td>
+                                <% if (category.image) { %>
+                                    <img src="<%= category.image %>" 
+                                         alt="<%= category.name %>" 
+                                         class="category-thumbnail"
+                                         >
+                                <% } else { %>
+                                    <img src="/admin/images/default-category.png" 
+                                         alt="Default Category" 
+                                         class="category-thumbnail"
+                                        ">
+                                <% } %>
+                            </td>
+                            <td><%= category.name %></td>
+                            <td><%= category.description %></td>
+                            <td><%= category.isListed ? 'Listed' : 'Unlisted' %></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="/admin/categories/edit/<%= category._id %>" class="edit-btn">Edit</a>
+                                    <button 
+                                    class="<%= category.isListed ? 'unlist-btn' : 'list-btn' %>"
+                                    onclick="updateCategoryStatus('<%= category._id %>', this)"
+                                    >
+                                    <%= category.isListed ? 'Unlist' : 'List' %>
+                                    </button>
+                                </div>
+                               
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="5" style="text-align: center;">No categories found</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+
+        <!-- Pagination Section -->
+        <% if (categories.length > 0) { %>
+            <div class="pagination">
+                <% if (currentPage > 1) { %>
+                    <a href="/admin/categories?page=<%= currentPage - 1 %>&search=<%= search %>" class="page-link">Previous</a>
+                <% } %>
+
+                <% for(let i = 1; i <= totalPages; i++) { %>
+                    <a href="/admin/categories?page=<%= i %>&search=<%= search %>" 
+                        class="page-link <%= currentPage === i ? 'active' : '' %>">
+                        <%= i %>
+                    </a>
+                <% } %>
+
+                <% if (currentPage < totalPages) { %>
+                    <a href="/admin/categories?page=<%= currentPage + 1 %>&search=<%= search %>" class="page-link">Next</a>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+
+    <script>
+        // Search functionality
+        const searchInput = document.getElementById('category-search');
+        let searchTimeout;
+
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const searchValue = e.target.value.trim();
+                window.location.href = `/admin/categories?search=${searchValue}&page=1`;
+            }, 500);
+        });
+
+        // Category status update
+        async function updateCategoryStatus(categoryId, button) {
+            try {
+                const response = await fetch(`/admin/categories/${categoryId}/update-CategoryStatus`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                 // This ensures the status displayed in the table reflects the user's current isBlocked state without reloading the page.
+                const statusCell = button.parentNode.previousElementSibling;
+                if (data.success) {
+                    if (data.isListed) {
+                        button.className = 'unlist-btn';
+                        button.textContent = 'Unlist';
+                        statusCell.textContent = 'Listed'; // Update status in table
+                    } else {
+                        button.className = 'list-btn';
+                        button.textContent = 'List';
+                        statusCell.textContent = 'Unlisted'; 
+                    }
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message,
+                    });
+                } 
+                else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to update category status',
+                    });
+                }
+            } 
+            catch (error) {
+                console.error('Error during category management:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred during category management',
+                });
+            }
+        }
+    </script>
+</body>
+</html>

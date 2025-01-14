@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/user/css/partial.css" />
+    <link rel="stylesheet" href="/user/css/product.css" />
+    <title>PackSmart - Product Detail</title>
+  </head>
+  <body>
+   <%-include('../partials/user/header')%>
+    <main class="product-detail-container">
+      <!-- Breadcrumb -->
+      <div class="breadcrumb">
+          <a href="#">Home</a> / <a href="#">Products</a> / Adventure Travel Backpack
+      </div>
+
+      <!-- Product Content -->
+      <div class="product-content">
+          <!-- Product Gallery -->
+          <div class="product-gallery">
+              <div class="main-image">
+                  <img src="/api/placeholder/600/400" alt="Adventure Travel Backpack">
+              </div>
+              <div class="thumbnail-grid">
+                  <div class="thumbnail active">
+                      <img src="/api/placeholder/80/80" alt="Product thumbnail 1">
+                  </div>
+                  <div class="thumbnail">
+                      <img src="/api/placeholder/80/80" alt="Product thumbnail 2">
+                  </div>
+                  <div class="thumbnail">
+                      <img src="/api/placeholder/80/80" alt="Product thumbnail 3">
+                  </div>
+                  <div class="thumbnail">
+                      <img src="/api/placeholder/80/80" alt="Product thumbnail 4">
+                  </div>
+              </div>
+          </div>
+
+          <!-- Product Info -->
+          <div class="product-info">
+              <h1 class="product-title">Adventure Travel Backpack</h1>
+              <div class="product-rating">
+                  <div class="stars">★★★★☆</div>
+                  <div class="review-count">4.2 (128 reviews)</div>
+              </div>
+              <div class="product-price">$89.99</div>
+              <p class="product-description">
+                  The perfect companion for your adventures. This durable backpack features water-resistant material,
+                  multiple compartments, and ergonomic design for maximum comfort during long trips.
+              </p>
+
+              <!-- Product Options -->
+              <div class="product-options">
+                  <div class="option-group">
+                      <label>Color</label>
+                      <select>
+                          <option>Midnight Black</option>
+                          <option>Navy Blue</option>
+                          <option>Forest Green</option>
+                      </select>
+                  </div>
+                  <div class="option-group">
+                      <label>Size</label>
+                      <select>
+                          <option>30L</option>
+                          <option>40L</option>
+                          <option>50L</option>
+                      </select>
+                  </div>
+                  <div class="option-group">
+                      <label>Quantity</label>
+                      <input type="number" class="quantity-input" value="1" min="1">
+                  </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="product-actions">
+                  <button class="add-to-cart">Add to Cart</button>
+                  <button class="buy-now">Buy Now</button>
+              </div>
+          </div>
+      </div>
+
+      <!-- Product Tabs -->
+      <div class="product-tabs">
+          <div class="tabs-header">
+              <button class="tab-button active">Description</button>
+              <button class="tab-button">Features</button>
+              <button class="tab-button">Reviews</button>
+          </div>
+          <div class="tab-content">
+              <ul class="features-list">
+                  <li>Water-resistant ripstop nylon material</li>
+                  <li>Padded laptop compartment (fits up to 15")</li>
+                  <li>Ergonomic shoulder straps with breathable mesh</li>
+                  <li>Multiple internal and external pockets</li>
+                  <li>Hidden security pocket</li>
+                  <li>Compression straps for size adjustment</li>
+                  <li>Reinforced carry handle</li>
+              </ul>
+          </div>
+      </div>
+  </main>
+ <%-include('../partials/user/footer')%>  
+</body>
+</html>

@@ -2,41 +2,45 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+   
 }
 
 body {
     font-family: 'Roboto', sans-serif;
     background-color: #121212;
-    color: #fff;
+    background: #fff;
 }
 
 
+
 .header {
+
     text-align: center;
-    padding: 80px 20px;
-    background: linear-gradient(to right, #2b2b2b, #1c1c1c);
+    padding: 90px 20px;
+    background: linear-gradient(to right, #e2dada, #eac5c5);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
     margin-bottom: 50px;
+   
 }
 
 .header h1 {
     font-size: 3rem;
     font-weight: bold;
     margin-bottom: 15px;
-    color: #fff;
+    color: #0f0101;
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
 }
 
 .header p {
     font-size: 1.4rem;
-    color: #ccc;
+    color: #060000;
     margin-bottom: 30px;
 }
 
 .header button {
     padding: 15px 30px;
     font-size: 1.2rem;
-    background-color: #42a5f5;
+    background-color: #1268ae;
     color: #fff;
     border: none;
     border-radius: 30px;
@@ -49,45 +53,81 @@ body {
     transform: scale(1.1);
 }
 
+/* Categories Container */
 .categories {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px;
+    flex-wrap: wrap; 
+    justify-content: flex-start;  
+    gap: 80px;
     padding: 40px 20px;
 }
 
+/* Header for Categories */
 .categories-header {
     font-size: 2.5rem;
     font-weight: bold;
-    color: #fff;
+    color: #080606;
     margin-bottom: 30px;
     text-align: center;
     width: 100%;
     text-transform: uppercase;
 }
 
+/* Style for each category */
 .categories .category {
     width: 250px;
-    height: 200px;
+    height: 300px;
     background-color: #2b2b2b;
     border-radius: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
-    color: #fff;
+    color: #0f0202;
     text-align: center;
+    position: relative; 
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    transition: background-color 0.3s, transform 0.3s ease-in-out;
+    overflow: hidden; /* Make sure the name stays within the category box */
+    transition: transform 0.3s ease-in-out;
 }
 
+/* Hover effect */
 .categories .category:hover {
-    background-color: #42a5f5;
-    color: #fff;
     transform: scale(1.05);
 }
+
+/* Category image */
+.categories .category img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    position: absolute; 
+    top: 0;
+    left: 0;
+    z-index: 1; 
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Category name */
+.categories .category span {
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #eae8de;
+    z-index: 2; 
+    opacity: 0; 
+    transition: opacity 0.3s ease-in-out; 
+}
+
+/* Show the category name on hover */
+.categories .category:hover span {
+    opacity: 1; 
+}
+
 
 /* Header for the Products section */
 .products-header {

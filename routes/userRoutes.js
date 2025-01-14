@@ -1,7 +1,7 @@
 const express= require('express')
 const router=express.Router()
 const userController=require('../controllers/userController')
-const{checkLogin,checkLogout} = require('../middlewares/userAuth')
+const{checkLogin,checkLogout,checkBlocked} = require('../middlewares/userAuth')
 const passport = require('../config/passport')
 const User = require('../models/userSchema')
 // ==================================================================================================================//
@@ -21,7 +21,7 @@ router.get('/login', checkLogout, userController.getLoginPage)
 router.post('/login',userController.postLoginPage)
 // ==================================================================================================================//
 
-router.get('/', userController.getHomepage)
+router.get('/',checkBlocked, userController.getHomepage)
 router.post('/logout', userController.postLogoutPage)
 // ==================================================================================================================//
 

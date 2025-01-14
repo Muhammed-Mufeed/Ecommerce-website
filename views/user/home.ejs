@@ -19,10 +19,13 @@
   
   <section class="categories">
     <div class="categories-header">Shop by Categories</div>
-    <div class="category">Casual Daybackpack</div>
-    <div class="category">Trolleys</div>
-    <div class="category">Travel Bags</div>
-    <div class="category">Laptop Bags</div>
+    <% categories.forEach(category => { %>
+      <div class="category">
+        <img src="<%= category.image %>" alt="<%= category.name %>" />
+        <span><%= category.name %></span>
+      </div>
+    <% }) %>
+
   </section>
   
   <section class="product-container">

@@ -1,0 +1,235 @@
+/* Category Page Specific Styles */
+.categories-page h3 {
+  font-size: 24px;
+  margin-top: 60px;
+  margin-bottom: 20px;
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.add-category-btn {
+  background-color: #27ae60;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.add-category-btn:hover {
+  background-color: #219a52;
+}
+
+.search-bar input {
+  padding: 10px;
+  font-size: 16px;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.categories-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: white;
+}
+
+.categories-table th, .categories-table td {
+  padding: 15px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.categories-table th {
+  background-color: #34495e;
+  color: white;
+}
+
+/* Action Buttons Container */
+.action-buttons {
+  display: flex; /* Ensure buttons are in a row */
+  gap: 10px; /* Add space between the buttons */
+  flex-wrap: nowrap; /* Prevent buttons from wrapping to the next line */
+  justify-content: flex-start; /* Align buttons to the left */
+  align-items: center; /* Align buttons vertically */
+}
+
+/* General Button Styles */
+button, .edit-btn, .list-btn, .unlist-btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  text-transform: capitalize;
+  white-space: nowrap; /* Prevent text inside buttons from wrapping */
+}
+
+/* Edit Button */
+.edit-btn {
+  background-color: #3498db;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
+}
+
+/* List Button */
+.list-btn {
+  background-color: #27ae60;
+  color: white;
+}
+
+.list-btn:hover {
+  background-color: #219a52;
+  transform: scale(1.05);
+}
+
+/* Unlist Button */
+.unlist-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.unlist-btn:hover {
+  background-color: #c0392b;
+  transform: scale(1.05);
+}
+
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: white;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 5px;
+  width: 80%;
+  max-width: 500px;
+}
+
+.close {
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: #666;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.form-group textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+.submit-btn {
+  background-color: #27ae60;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 16px;
+}
+
+.submit-btn:hover {
+  background-color: #219a52;
+}
+
+
+
+
+/* Image styles for category thumbnail */
+.category-thumbnail {
+  
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  
+  /* Border and colors */
+  border: 1px solid #ddd;
+  background-color: #fff;
+  transition: all 0.2s ease-in-out;
+}
+
+.category-thumbnail:hover {
+  transform: scale(1.1);
+  cursor: pointer;
+    
+} 
+
+
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 30px 0;
+}
+
+.pagination .page-link {
+  padding: 8px 16px;
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 5px;
+  background-color: white;
+  color: #34495e;
+  border: 1px solid #34495e;
+  transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+  background-color: #34495e;
+  color: white;
+}
+
+.pagination .page-link.active {
+  background-color: #34495e;
+  color: white;
+}

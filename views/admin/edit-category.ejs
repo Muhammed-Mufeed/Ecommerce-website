@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Category - Admin Dashboard</title>
+    <link rel="stylesheet" href="/admin/css/add-category.css">
+    <link rel="stylesheet" href="/admin/css/partial.css">
+    <!-- Add SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <%-include('../partials/admin/header')%>
+    
+    <div class="add-category-page">
+        <div class="header-section">
+            <h3>Edit Category</h3>
+            <a href="/admin/categories" class="back-btn">Back to Categories</a>
+        </div>
+
+        <form id="categoryForm" class="category-form">
+            <div class="form-group">
+                <label for="name">Category Name</label>
+                <input type="text" id="name" name="name" value="<%= category.name %>">
+                <span class="error" id="nameError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description"><%= category.description %></textarea>
+                <span class="error" id="descriptionError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="image">Category Image</label>
+                <div class="image-upload-container">
+                    <div class="image-preview" id="imagePreview">
+                        <% if (category.image) { %>
+                            <img src="<%= category.image %>" alt="Category Image">
+                        <% } %>
+                    </div>
+                    <input type="file" id="image" name="image" accept="image/*">
+                    <input type="hidden" name="existingImage" value="<%= category.image %>">
+                </div>
+                <span class="error" id="imageError"></span>
+            </div>
+
+            <button type="submit" class="submit-btn">Update Category</button>
+        </form>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const categoryForm = document.getElementById('categoryForm');
+        const nameError = document.getElementById('nameError');
+        const descriptionError = document.getElementById('descriptionError');
+        const imageError = document.getElementById('imageError');
+        const imageInput = document.getElementById('image');
+        const imagePreview = document.getElementById('imagePreview');
+
+        // Image preview functionality
+        imageInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.innerHTML = `<img src="${e.target.result}">`;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Form submission
+        categoryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Reset error messages
+            nameError.textContent = '';
+            descriptionError.textContent = '';
+            imageError.textContent = '';
+
+            // Get form data
+            const formData = new FormData(categoryForm);
+            
+            // Validation
+            let isValid = true;
+            
+            if (formData.get('name').trim().length < 3) {
+                nameError.textContent = 'Category name must be at least 3 characters';
+                isValid = false;
+            }
+
+            if (formData.get('description').trim().length < 10) {
+                descriptionError.textContent = 'Description must be at least 10 characters';
+                isValid = false;
+            }
+
+            const imageFile = formData.get('image');
+            if (imageFile && imageFile.name && imageFile.size > 5000000) {
+                imageError.textContent = 'Image size should be less than 5MB';
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            try {
+                const categoryId = '<%= category._id %>'; // Get category ID 
+                const response = await fetch(`/admin/categories/edit/${categoryId}`, {
+                    method: 'PUT',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Category updated successfully',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '/admin/categories';
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message || 'Failed to update category',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while updating the category',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    });
+    </script>
+</body>
+</html>

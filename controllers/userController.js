@@ -4,7 +4,7 @@ const bcrypt=require('bcrypt')
 const env =require('dotenv').config()
 const User=require('../models/userSchema')
 const Otp = require('../models/otpSchema')
-
+const Category = require('../models/categorySchema')
 // =======================================UserErrorPage-GET===========================================================================//
 const getpageNotFound=async(req,res)=>{
   try{
@@ -229,7 +229,8 @@ const postResendOtp = async (req,res)=>{
 
 const getLoginPage = async (req, res) => {
   try {
-    res.render('login',{errorMessage:null});
+    const message = req.query.message || null;
+    res.render('login',{errorMessage:message});
   } catch (error) {
     res.redirect('/pageNotFound');
   }
@@ -260,7 +261,8 @@ const postLoginPage = async (req,res)=>{
 
     //Now, store the user information in the session
     req.session.user={
-      id: findUser._id
+      id: findUser._id,
+      isBlocked:findUser.isBlocked  //to check user is blocked or not while in the session
     }
     
     res.redirect('/')
@@ -317,7 +319,8 @@ try {
 const getHomepage = async (req, res) => {
   try { 
     const user = req.session.user;
-  
+    const categories = await Category.find({isListed:true})
+
     if (user) {
       // If the user is logged in, fetch their data from the database
       const userData = await User.findOne({_id: user.id}); // we store the user_id from db to "id" variable in session. so that's why we use user.id.
@@ -325,7 +328,7 @@ const getHomepage = async (req, res) => {
     } 
     else {
       // If the user is not logged in, pass null or undefined for userData
-      return res.render('home', { userData: null, error: null });
+      return res.render('home', { userData: null, error: null,categories });
     }
   } catch (error) {
     console.log("Error in getHomepage:", error);
