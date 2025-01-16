@@ -7,6 +7,7 @@
         <li><a href="/admin/customers" class="menu-item" id="users-link">Customers</a></li>
         <li><a href="/admin/products" class="menu-item" id="products-link">Products</a></li>
         <li><a href="/admin/categories" class="menu-item" id="categories-link">Categories</a></li>
+        <li><a href="/admin/brands" class="menu-item" id="brands-link">Brands</a></li>
         <li><a href="/admin/orders" class="menu-item" id="orders-link">Orders</a></li>
         <li><a href="/admin/coupons" class="menu-item" id="coupons-link">Coupons</a></li>
         <li><a href="/admin/settings" class="menu-item" id="settings-link">Settings</a></li>
@@ -23,3 +24,40 @@
     <div class="navbar">
         <h2 class="navbar-heading">PackSmart</h2>
     </div>
+    <script>
+       // Function to set the active link based on the current page
+    function setActiveMenu() {
+        // Get all menu links
+        const menuLinks = document.querySelectorAll('.menu-item');
+        
+        // Remove 'active' class from all menu links
+        menuLinks.forEach(link => {
+            link.classList.remove('active');
+        });
+        
+        // Get the current page URL
+        const currentPage = window.location.pathname;
+
+        // Check which link corresponds to the current page and add the 'active' class
+        if (currentPage.includes('/admin/dashboard')) {
+            document.getElementById('dashboard-link').classList.add('active');
+        } else if (currentPage.includes('/admin/customers')) {
+            document.getElementById('users-link').classList.add('active');
+        } else if (currentPage.includes('/admin/products')) {
+            document.getElementById('products-link').classList.add('active');
+        } else if (currentPage.includes('/admin/categories')) {
+            document.getElementById('categories-link').classList.add('active');
+        } else if (currentPage.includes('/admin/brands')) {
+            document.getElementById('brands-link').classList.add('active');
+        } else if (currentPage.includes('/admin/orders')) {
+            document.getElementById('orders-link').classList.add('active');
+        } else if (currentPage.includes('/admin/coupons')) {
+            document.getElementById('coupons-link').classList.add('active');
+        } else if (currentPage.includes('/admin/settings')) {
+            document.getElementById('settings-link').classList.add('active');
+        }
+    }
+    // Run setActiveMenu on page load
+    window.onload = setActiveMenu;
+
+    </script>

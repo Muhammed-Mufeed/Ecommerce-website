@@ -6,133 +6,178 @@
     <title>Products - Admin Dashboard</title>
     <link rel="stylesheet" href="/admin/css/products.css">
     <link rel="stylesheet" href="/admin/css/partial.css">
- </head>
- <body>
-  <%-include('../partials/admin/header')%>
-   <!-- Products Page Content -->
-   <div class="products-page">
-    <h3>Products List</h3>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   
+</head>
+<body>
+    <%-include('../partials/admin/header')%>
     
-    <!-- Search Bar -->
-    <div class="search-bar">
-        <input type="text" id="product-search" placeholder="Search products..." oninput="filterProducts()">
+    <div class="products-page">
+        <div class="header-section">
+            <h3>Products List</h3>
+            <a href="/admin/products/add" class="add-product-btn">Add Product</a>
+        </div>
+        
+        <div class="search-bar">
+            <input type="text" id="product-search" placeholder="Search Products..." value="<%= search %>">
+        </div>
+
+        <div class="products-grid">
+            <% if (products.length > 0) { %>
+                <% products.forEach((product, index) => { %>
+                    <div class="product-card">
+                        <div class="product-image-container">
+                            <span class="product-number"><%= (currentPage - 1) * 5 + index + 1 %></span>
+                            <% if (product.image) { %>
+                                <img src="<%= product.image %>" 
+                                     alt="<%= product.name %>" 
+                                     class="product-image">
+                            <% } else { %>
+                                <img src="/admin/images/default-product.png" 
+                                     alt="Default Product" 
+                                     class="product-image">
+                            <% } %>
+                        </div>
+                        
+                        <div class="product-details">
+                            <div class="detail-section">
+                                <div class="field-label">Product Image</div>
+                                <!-- Image is shown above -->
+                            </div>
+        
+                            <div class="detail-section">
+                                <div class="field-label">Product Name</div>
+                                <h4 class="product-name"><%= product.name %></h4>
+                            </div>
+        
+                            <div class="detail-section">
+                                <div class="field-label">Description</div>
+                                <p class="product-description"><%= product.description %></p>
+                            </div>
+        
+                            <div class="detail-section">
+                                <div class="field-label">Category</div>
+                                <p class="product-category"><%= product.category.name %></p>
+                            </div>
+
+                            <div class="detail-section">
+                                <div class="field-label">Category</div>
+                                <p class="product-brand"><%= product.brand.name %></p>
+                            </div>
+        
+                            <div class="detail-section">
+                                <div class="field-label">Price</div>
+                                <p class="product-price">₹<%= product.price.toLocaleString('en-IN') %></p>
+                            </div>
+        
+                            <div class="detail-section">
+                                <div class="field-label">Status</div>
+                                <span class="product-status <%= product.isListed ? 'status-listed' : 'status-unlisted' %>">
+                                    <%= product.isListed ? 'Listed' : 'Unlisted' %>
+                                </span>
+                            </div>
+        
+                            <div class="detail-section">
+                                <div class="field-label">Actions</div>
+                                <div class="action-buttons">
+                                    <a href="/admin/products/edit/<%= product._id %>" class="edit-btn">Edit</a>
+                                    <button 
+                                        class="<%= product.isListed ? 'unlist-btn' : 'list-btn' %>"
+                                        onclick="updateProductStatus('<%= product._id %>', this)">
+                                        <%= product.isListed ? 'Unlist' : 'List' %>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="no-products">
+                    No products found
+                </div>
+            <% } %>
+        </div>
+
+        <% if (products.length > 0) { %>
+            <div class="pagination">
+                <% if (currentPage > 1) { %>
+                    <a href="/admin/products?page=<%= currentPage - 1 %>&search=<%= search %>" class="page-link">Previous</a>
+                <% } %>
+
+                <% for(let i = 1; i <= totalPages; i++) { %>
+                    <a href="/admin/products?page=<%= i %>&search=<%= search %>" 
+                       class="page-link <%= currentPage === i ? 'active' : '' %>">
+                        <%= i %>
+                    </a>
+                <% } %>
+
+                <% if (currentPage < totalPages) { %>
+                    <a href="/admin/products?page=<%= currentPage + 1 %>&search=<%= search %>" class="page-link">Next</a>
+                <% } %>
+            </div>
+        <% } %>
     </div>
 
-    <!-- Add New Product Button -->
-    <button class="add-btn" onclick="addProduct()">Add New Product</button>
+    <script>
+        // Search functionality
+        const searchInput = document.getElementById('product-search');
+        let searchTimeout;
 
-    <!-- Products Table -->
-    <table class="products-table" id="products-table">
-        <thead>
-            <tr>
-                <th>Product Name</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Product 1</td>
-                <td>$50</td>
-                <td>120</td>
-                <td>Available</td>
-                <td>
-                    <button class="edit-btn" onclick="editProduct(this)">Edit</button>
-                    <button class="delete-btn" onclick="deleteProduct(this)">Unlist</button>
-                </td>
-            </tr>
-            <tr>
-                <td>Product 2</td>
-                <td>$100</td>
-                <td>80</td>
-                <td>Out of Stock</td>
-                <td>
-                    <button class="edit-btn" onclick="editProduct(this)">Edit</button>
-                    <button class="delete-btn" onclick="deleteProduct(this)">Unlist</button>
-                </td>
-            </tr>
-            <!-- Add more products here as needed -->
-        </tbody>
-    </table>
-</div>
-</div>
-
-<script>
-
-      // Function to set the active link based on the current page
-    function setActiveMenu() {
-        // Get all menu links
-        const menuLinks = document.querySelectorAll('.menu-item');
-        
-        // Remove 'active' class from all menu links
-        menuLinks.forEach(link => {
-            link.classList.remove('active');
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const searchValue = e.target.value.trim();
+                window.location.href = `/admin/products?search=${searchValue}&page=1`;
+            }, 500);
         });
-        
-        // Get the current page URL
-        const currentPage = window.location.pathname;
 
-        // Check which link corresponds to the current page and add the 'active' class
-        if (currentPage.includes('/admin/dashboard')) {
-            document.getElementById('dashboard-link').classList.add('active');
-        } else if (currentPage.includes('/admin/users')) {
-            document.getElementById('users-link').classList.add('active');
-        } else if (currentPage.includes('/admin/products')) {
-            document.getElementById('products-link').classList.add('active');
-        } else if (currentPage.includes('/admin/categories')) {
-            document.getElementById('categories-link').classList.add('active');
-        } else if (currentPage.includes('/admin/orders')) {
-            document.getElementById('orders-link').classList.add('active');
-        } else if (currentPage.includes('/admin/coupons')) {
-            document.getElementById('coupons-link').classList.add('active');
-        } else if (currentPage.includes('/admin/settings')) {
-            document.getElementById('settings-link').classList.add('active');
-        }
-    }
-    // Run setActiveMenu on page load
-    window.onload = setActiveMenu;
+        // Product status update
+        async function updateProductStatus(productId, button) {
+            try {
+                const response = await fetch(`/admin/products/${productId}/update-productStatus`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
 
-
-
-     // Function to filter products based on the search input
-     function filterProducts() {
-            const searchInput = document.getElementById('product-search').value.toLowerCase();
-            const rows = document.querySelectorAll('#products-table tbody tr');
-
-            rows.forEach(row => {
-                const name = row.cells[0].textContent.toLowerCase();
-                const price = row.cells[1].textContent.toLowerCase();
-                if (name.includes(searchInput) || price.includes(searchInput)) {
-                    row.style.display = '';
+                const data = await response.json();
+                const statusSpan = button.parentNode.previousElementSibling;
+                
+                if (data.success) {
+                    if (data.isListed) {
+                        button.className = 'unlist-btn';
+                        button.textContent = 'Unlist';
+                        statusSpan.textContent = 'Listed';
+                        statusSpan.className = 'product-status status-listed';
+                    } else {
+                        button.className = 'list-btn';
+                        button.textContent = 'List';
+                        statusSpan.textContent = 'Unlisted';
+                        statusSpan.className = 'product-status status-unlisted';
+                    }
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message,
+                    });
                 } else {
-                    row.style.display = 'none';
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to update product status',
+                    });
                 }
-            });
+            } catch (error) {
+                console.error('Error during product management:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred during product management',
+                });
+            }
         }
-
-        // Function to navigate to the Add New Product page
-    function addProduct() {
-        window.location.href = '/admin/products/add'; // Redirects to the "Add Product" page
-    }
-
-    // Function to navigate to the Edit Product page
-    function editProduct(button) {
-        const row = button.closest('tr');
-        const productName = row.cells[0].textContent;
-        const productPrice = row.cells[1].textContent;
-        
-        // You can pass product details via query parameters or as part of the route
-        window.location.href = `/admin/products/edit?name=${productName}&price=${productPrice}`; // Redirects to the "Edit Product" page with query parameters
-    }
-
-    // Function to simulate deleting a product
-    function deleteProduct(button) {
-        const row = button.closest('tr');
-        row.remove();
-        alert('Product removed');
-    }
-</script>
+    </script>
 </body>
 </html>

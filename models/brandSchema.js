@@ -1,26 +1,21 @@
 const mongoose=require("mongoose")
 
 const brandSchema=new mongoose.Schema({
-  brandName: {
+  name: {
     type:String,
-    requiredL:true
+    required:true,
+    unique: true,
   },
 
-  brandImage: {
+ image: {
     type:[String],
     required:true
   },
 
-  isBlocked: {
+  isListed: {
     type:Boolean,
-    default:false
+    default:true
   },
+},{timestamps: true})
 
-  createdAt: {
-    type:Date,
-    default:Date.now
-  }
-})
-
-const Brand=mongoose.model("Brand",brandSchema)
-module.exports=Brand
+module.exports=mongoose.model("Brand",brandSchema)

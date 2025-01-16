@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product - Admin Dashboard</title>
+    <link rel="stylesheet" href="/admin/css/add-product.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="add-product-page">
+        <div class="header-section">
+            <h3>Add New Product</h3>
+        </div>
+
+        <form id="addProductForm" action="/admin/products/add" method="POST" enctype="multipart/form-data">
+            <div class="form-grid">
+                <!-- Product Information Section -->
+                <div class="form-group">
+                    <label for="name">Product Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <option value="">Select Category</option>
+                        <% categories.forEach(category => { %>
+                            <option value="<%= category._id %>"><%= category.name %></option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="brand">Brand</label>
+                    <select id="brand" name="brand" required>
+                        <option value="">Select Brand</option>
+                        <% brands.forEach(brand => { %>
+                            <option value="<%= brand._id %>"><%= brand.name %></option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Price (₹)</label>
+                    <input type="number" id="price" name="price" min="0" step="1" required>
+                </div>
+
+                <!-- Image Upload Section -->
+                <div class="image-upload-section">
+                    <h4>Product Images</h4>
+                    <div class="image-upload-grid">
+                        <% for(let i = 0; i < 3; i++) { %>
+                            <div class="image-upload-container">
+                                <div class="preview-container">
+                                    <img src="" 
+                                         class="image-preview" 
+                                         data-index="<%= i %>"
+                                         id="previewImage<%= i %>" 
+                                         style="display: none;">
+                                </div>
+                                <input type="file" 
+                                       name="productImages" 
+                                       class="image-input" 
+                                       accept="image/*"
+                                       data-index="<%= i %>"
+                                       id="imageInput<%= i %>"
+                                       required="<%= i === 0 %>">
+                                <button type="button" 
+                                        class="crop-btn" 
+                                        data-index="<%= i %>">Crop</button>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">Add Product</button>
+                <a href="/admin/products" class="cancel-btn">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let cropper = null; // Global cropper variable
+
+        // Handle image input changes
+        document.querySelectorAll('.image-input').forEach(input => {
+            input.addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                const index = this.dataset.index;
+
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    const preview = document.getElementById(`previewImage${index}`);
+
+                    // Display the preview image
+                    preview.src = url;
+                    preview.style.display = 'block';
+
+                    // Initialize Cropper.js
+                    if (cropper) cropper.destroy(); // Destroy the old cropper
+                    cropper = new Cropper(preview, {
+                        aspectRatio: 1, // Square aspect ratio
+                        viewMode: 2,
+                    });
+                }
+            });
+        });
+
+        // Handle crop button clicks
+        document.querySelectorAll('.crop-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const index = this.dataset.index;
+                const preview = document.getElementById(`previewImage${index}`);
+
+                if (cropper) {
+                    const croppedCanvas = cropper.getCroppedCanvas();
+
+                    // Replace the preview image with the cropped version
+                    const url = croppedCanvas.toDataURL();
+                    preview.src = url;
+
+                    // Convert cropped canvas to a Blob
+                    croppedCanvas.toBlob(blob => {
+                        const fileName = `cropped_image_${index}.png`;
+                        const croppedFile = new File([blob], fileName, { type: 'image/png' });
+
+                        // Update the file input with the cropped image
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(croppedFile);
+                        const input = document.getElementById(`imageInput${index}`);
+                        input.files = dataTransfer.files;
+                    });
+
+                    // Destroy the cropper after cropping
+                    cropper.destroy();
+                    cropper = null;
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Image Cropped',
+                        text: 'The image has been cropped successfully!',
+                        timer: 1500,
+                        showConfirmButton: false,
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'No Cropper Initialized',
+                        text: 'Please select and load an image first.',
+                    });
+                }
+            });
+        });
+
+        // Handle form submission
+        document.getElementById('addProductForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            try {
+                const formData = new FormData(this);
+                const response = await fetch('/admin/products/add', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Product added successfully!',
+                    }).then(() => {
+                        window.location.href = '/admin/products';
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: result.message || 'Failed to add Product',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'An error occurred while adding the product',
+                });
+            }
+        });
+    </script>
+</body>
+</html>

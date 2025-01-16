@@ -1,0 +1,148 @@
+<!-- views/admin/brands.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brands - Admin Dashboard</title>
+    <link rel="stylesheet" href="/admin/css/brands.css">
+    <link rel="stylesheet" href="/admin/css/partial.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <%-include('../partials/admin/header')%>
+    
+    <div class="brand-management">
+        <div class="brand-header">
+            <h3>Brands List</h3>
+            <a href="/admin/brands/add" class="brand-add-btn">Add Brand</a>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="brand-search-container">
+            <input type="text" id="brand-search-input" placeholder="Search Brands..." value="<%= search %>">
+        </div>
+
+        <!-- Brands Table -->
+        <table class="brand-table" id="brands-table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Brand Name</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (brands.length > 0) { %>
+                    <% brands.forEach((brand, index) => { %>
+                        <tr>
+                            <td><%= (currentPage - 1) * 4 + index + 1 %></td>
+                            <td><%= brand.name %></td>
+                            <td><%= brand.isListed ? 'Listed' : 'Unlisted' %></td>
+                            <td>
+                                <div class="brand-actions">
+                                    <a href="/admin/brands/edit/<%= brand._id %>" class="brand-edit-btn">Edit</a>
+                                    <button 
+                                        class="<%= brand.isListed ? 'brand-unlist-btn' : 'brand-list-btn' %>"
+                                        onclick="updateBrandStatus('<%= brand._id %>', this)"
+                                    >
+                                        <%= brand.isListed ? 'Unlist' : 'List' %>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="4" class="brand-empty-message">No brands found</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+
+        <!-- Pagination Section -->
+        <% if (brands.length > 0) { %>
+            <div class="brand-pagination">
+                <% if (currentPage > 1) { %>
+                    <a href="/admin/brands?page=<%= currentPage - 1 %>&search=<%= search %>" class="brand-page-link">Previous</a>
+                <% } %>
+
+                <% for(let i = 1; i <= totalPages; i++) { %>
+                    <a href="/admin/brands?page=<%= i %>&search=<%= search %>" 
+                       class="brand-page-link <%= currentPage === i ? 'brand-page-active' : '' %>">
+                        <%= i %>
+                    </a>
+                <% } %>
+
+                <% if (currentPage < totalPages) { %>
+                    <a href="/admin/brands?page=<%= currentPage + 1 %>&search=<%= search %>" class="brand-page-link">Next</a>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+
+    <script>
+        // Search functionality
+        const searchInput = document.getElementById('brand-search-input');
+        let searchTimeout;
+
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const searchValue = e.target.value.trim();
+                window.location.href = `/admin/brands?search=${searchValue}&page=1`;
+            }, 500);
+        });
+
+        // Brand status update
+        async function updateBrandStatus(brandId, button) {
+            try {
+                const response = await fetch(`/admin/brands/${brandId}/update-BrandStatus`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'  
+                    }
+                });
+               
+                const data = await response.json();
+                
+                
+                
+                const statusCell = button.parentNode.parentNode.previousElementSibling;
+                
+                if (data.success) {
+                    if (data.isListed) {
+                        button.className = 'brand-unlist-btn';
+                        button.textContent = 'Unlist';
+                        statusCell.textContent = 'Listed';
+                    } else {
+                        button.className = 'brand-list-btn';
+                        button.textContent = 'List';
+                        statusCell.textContent = 'Unlisted';
+                    }
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message,
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to update brand status',
+                    });
+                }
+            } catch (error) {
+                console.error('Error during brand management:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred during brand management',
+                });
+            }
+        }
+    </script>
+</body>
+</html>

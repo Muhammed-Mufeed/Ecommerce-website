@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Brand - Admin Dashboard</title>
+    <link rel="stylesheet" href="/admin/css/add-brand.css">
+    <link rel="stylesheet" href="/admin/css/partial.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    
+    <div class="add-brand-container">
+        <div class="add-brand-header">
+            <h3>Add New Brand</h3>
+            <a href="/admin/brands" class="back-btn">Back</a>
+        </div>
+
+        <form id="brandForm" class="add-brand-form">
+            <div class="form-group">
+                <label for="brandName">Brand Name</label>
+                <input type="text" id="brandName" required>
+            </div>
+            <button type="submit" class="submit-btn">Add Brand</button>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('brandForm');
+        const nameInput = document.getElementById('brandName');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const brandName = nameInput.value.trim();
+            
+            // Simple validation
+            if(brandName === '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please enter a brand name'
+                });
+                return;
+            }
+            
+            try {
+                const response = await fetch('/admin/brands/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: brandName })
+                });
+
+                const data = await response.json();
+
+                if(response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Brand added successfully!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = '/admin/brands';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Failed to add brand'
+                    });
+                }
+            } catch(error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Something went wrong'
+                });
+            }
+        });
+    </script>
+</body>
+</html>

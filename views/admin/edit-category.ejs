@@ -55,20 +55,35 @@
         const nameError = document.getElementById('nameError');
         const descriptionError = document.getElementById('descriptionError');
         const imageError = document.getElementById('imageError');
-        const imageInput = document.getElementById('image');
-        const imagePreview = document.getElementById('imagePreview');
+       
 
         // Image preview functionality
-        imageInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    imagePreview.innerHTML = `<img src="${e.target.result}">`;
-                }
-                reader.readAsDataURL(file);
+
+    const imageInput = document.getElementById('image');
+    const imagePreview = document.getElementById('imagePreview');
+
+    imageInput.addEventListener('change', function () {
+    const file = this.files[0];
+    imageError.textContent = '';   // Reset error
+
+        if (file) {
+            const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!validImageTypes.includes(file.type)) {
+                imageError.textContent = 'Please select a valid image file (JPEG, PNG, GIF, or WEBP)';
+                imagePreview.innerHTML = ''; // Clear preview
+                this.value = ''; // Reset file input
+                return;
             }
-        });
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                imagePreview.innerHTML = `<img src="${e.target.result}" alt="Image Preview" >`;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            imagePreview.innerHTML = ''; // Clear preview if no file is selected
+        }
+    });
 
         // Form submission
         categoryForm.addEventListener('submit', async (e) => {

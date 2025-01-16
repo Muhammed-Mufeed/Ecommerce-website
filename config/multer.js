@@ -1,18 +1,28 @@
+// config/multer.js
 const multer = require('multer');
 const path = require('path');
 
-// Configure multer for storing uploaded files
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'public/admin/uploads/categories'); // Make sure this directory exists
+        // Check which route is being accessed
+        let uploadPath;
+        if (req.originalUrl.includes('/products')) {
+            uploadPath = 'public/admin/uploads/products';
+        } else if (req.originalUrl.includes('/categories')) {
+            uploadPath = 'public/admin/uploads/categories';
+        } else {
+            // Default fallback if needed
+            uploadPath = 'public/admin/uploads';
+        }
+        cb(null, uploadPath);
     },
+
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
 });
 
-// File filter to only allow images
 const fileFilter = (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
         cb(null, true);
@@ -21,6 +31,7 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
+// Create different upload middlewares for different uses
 const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
@@ -29,4 +40,8 @@ const upload = multer({
     }
 });
 
-module.exports = upload;
+// Export both single and array upload middlewares
+module.exports = {
+    single: upload.single('image'), //this is name attributes given in ejs form inputs.
+    array: upload.array('productImages', 3)
+};

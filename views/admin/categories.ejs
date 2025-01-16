@@ -40,7 +40,7 @@
                 <% if (categories.length > 0) { %>
                     <% categories.forEach((category, index) => { %>
                         <tr>
-                            <td><%= (currentPage - 1) * 5 + index + 1 %></td>
+                            <td><%= (currentPage - 1) * 4 + index + 1 %></td>
                             <td>
                                 <% if (category.image) { %>
                                     <img src="<%= category.image %>" 
@@ -56,7 +56,8 @@
                             </td>
                             <td><%= category.name %></td>
                             <td><%= category.description %></td>
-                            <td><%= category.isListed ? 'Listed' : 'Unlisted' %></td>
+                             <!-- Add a unique ID for the status cell -->
+                            <td  id="status-<%= category._id %>"><%= category.isListed ? 'Listed' : 'Unlisted' %></td>
                             <td>
                                 <div class="action-buttons">
                                     <a href="/admin/categories/edit/<%= category._id %>" class="edit-btn">Edit</a>
@@ -115,6 +116,7 @@
 
         // Category status update
         async function updateCategoryStatus(categoryId, button) {
+            console.log('hello')
             try {
                 const response = await fetch(`/admin/categories/${categoryId}/update-CategoryStatus`, {
                     method: 'PATCH',
@@ -122,19 +124,23 @@
                         'Content-Type': 'application/json'
                     }
                 });
+                console.log(response);
 
                 const data = await response.json();
-                 // This ensures the status displayed in the table reflects the user's current isBlocked state without reloading the page.
-                const statusCell = button.parentNode.previousElementSibling;
+
+                
+                  // Access the status cell using its unique ID
+                const statusCell = document.getElementById(`status-${categoryId}`);
+                
                 if (data.success) {
                     if (data.isListed) {
                         button.className = 'unlist-btn';
                         button.textContent = 'Unlist';
-                        statusCell.textContent = 'Listed'; // Update status in table
+                        statusCell.textContent = 'Listed'; // Update status in the table
                     } else {
                         button.className = 'list-btn';
                         button.textContent = 'List';
-                        statusCell.textContent = 'Unlisted'; 
+                        statusCell.textContent = 'Unlisted';
                     }
                     
                     Swal.fire({

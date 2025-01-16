@@ -45,7 +45,8 @@
                                 <td><%= user.name %></td>
                                 <td><%= user.email %></td>
                                 <td><%= user.phone %></td>
-                                <td><%= user.isBlocked ? 'Blocked' : 'Active' %></td>
+                                 <!-- Add a unique ID for the status cell -->
+                                <td id="status-<%= user._id %>"><%= user.isBlocked ? 'Blocked' : 'Active' %></td>
                                 <td>
                                   <button
                                   class="<%= user.isBlocked ?  'unblock-btn' : 'block-btn' %>" 
@@ -104,10 +105,11 @@
 
            const data = await response.json();
 
-           if(data.success){
-              // This ensures the status displayed in the table reflects the user's current isBlocked state without reloading the page.
-              const statusCell = button.parentNode.previousElementSibling;
+        // Access the status cell using its unique ID
+        const statusCell = document.getElementById(`status-${userId}`);
 
+           if(data.success){
+    
              if(data.isBlocked){
                 button.className = 'unblock-btn'
                 button.textContent = 'Unblock'

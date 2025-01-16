@@ -1,13 +1,13 @@
 const Category = require('../models/categorySchema')
 const path =  require('path')
 
-
+// ====================================================categoryManagement-GET========================================================================//
 
 exports.getCategoryManagement = async (req,res)=>{
   try {
       // Get page and search parameters
    const page = parseInt(req.query.page) || 1;
-   const limit = 5;
+   const limit = 4;
    const search = req.query.search || '';
 
    //create search Filter

@@ -1,69 +1,46 @@
 const mongoose=require("mongoose")
 const {Schema}=mongoose
 
-const productSchema= new Schema({
-  productName:{
-    type:String,
-    required:true
+const productSchema = new mongoose.Schema({
+  name: {
+      type: String,
+      required: true,
+      
   },
-
-  description:{
-    type:String,
-    required:true
+  description: {
+      type: String,
+      required: true
   },
-
+  price: {
+      type: Number,
+      required: true,
+      
+  },
+  images: [{
+      type: String,
+      required: true
+  }],
+  category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category',
+      required: true
+  },
   brand: {
-    type:String,
-    required:true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Brand',
+      required: true
+  },
+  isListed: {
+      type: Boolean,
+      default: true
   },
 
-   category:{
-    type:Schema.Types.ObjectId,
-    ref:'Category',
-    required:true  
-   },
-
-   regularPrice:{
-    type:Number,
-    required:true
-   },
-
-   salePrice:{
-    type:Number,
-    required:true
-   },
-
-   productOffer:{
-    type:Number,
-    default:0
-   },
-
-   quantity:{
-    type:Number,
-    default:true
-   },
-
-   color:{
-    type:String,
-    required:true
-   },
-
-   productImage:{
-    type:[String],
-    required:true
-   },
-
-   isBlocked:{
-    type:Boolean,
-    default:false
-   },
-
-   status:{
-    type:String,
-    enum:["Available","Out of Stock","Discountinued"],
-    required:true,
-    default:'Available'
-   },
+  status:{
+  type:String,
+  enum:["Available","Out of Stock"],
+  required:true,
+  default:'Available'
+  },
 
 },{timestamps:true})
 

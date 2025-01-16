@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/user/css/partial.css" />
+    <link rel="stylesheet" href="/user/css/product.css" />
+    <title>PackSmart - Products</title>
+
+</head>
+<body>
+  
+  <%-include('../partials/user/header')%>
+    <!-- Main Content -->
+    <!-- <main class="main-container"> -->
+        <!-- <div class="products-layout"> -->
+            <!-- Filters Panel -->
+            <!-- <aside class="filters-panel">
+                <div class="filter-group">
+                    <h3>Categories</h3>
+                    <div class="filter-option">
+                        <input type="checkbox" id="backpacks">
+                        <label for="backpacks">Backpacks</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="suitcases">
+                        <label for="suitcases">Suitcases</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="accessories">
+                        <label for="accessories">Travel Accessories</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h3>Price Range</h3>
+                    <div class="filter-option">
+                        <input type="checkbox" id="price-1">
+                        <label for="price-1">Under $50</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="price-2">
+                        <label for="price-2">$50 - $100</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="price-3">
+                        <label for="price-3">$100 - $200</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="price-4">
+                        <label for="price-4">$200+</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h3>Ratings</h3>
+                    <div class="filter-option">
+                        <input type="checkbox" id="rating-4">
+                        <label for="rating-4">4★ & Above</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="rating-3">
+                        <label for="rating-3">3★ & Above</label>
+                    </div>
+                </div> -->
+            <!-- </aside> -->
+
+            <!-- Products Section -->
+            <section class="products-section">
+                <div class="products-header">
+                    <h2>All Products</h2>
+                    <select class="sort-select">
+                        <option value="featured">Featured</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="rating">Highest Rated</option>
+                    </select>
+                </div>
+
+                <div class="products-grid">
+                    <!-- Product Card -->
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="/api/placeholder/250/200" alt="Travel Backpack">
+                        </div>
+                        <div class="product-details">
+                            <h3 class="product-title">Adventure Travel Backpack</h3>
+                            <p class="product-price">$89.99</p>
+                            <div class="product-rating">★★★★☆ (4.2)</div>
+                            <button class="add-to-cart-btn">Add to Cart</button>
+                        </div>
+                    </div>
+
+                    <!-- Repeat product cards as needed -->
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="/api/placeholder/250/200" alt="Carry-on Suitcase">
+                        </div>
+                        <div class="product-details">
+                            <h3 class="product-title">Smart Carry-on Suitcase</h3>
+                            <p class="product-price">$159.99</p>
+                            <div class="product-rating">★★★★★ (4.8)</div>
+                            <button class="add-to-cart-btn">Add to Cart</button>
+                        </div>
+                    </div>
+
+                    <!-- Add more product cards here -->
+                </div>
+            </section>
+        </div>
+    </main>
+    <%-include('../partials/user/footer')%>  
+</body>
+</html>

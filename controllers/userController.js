@@ -81,7 +81,7 @@ const postSignupPage=async(req,res)=>{
   
   // To generate a random 6-digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  console.log(`Generated OTP: ${otp}`); // Log OTP to console for debugging
+  console.log(`Generated OTP: ${otp}`); 
 
 
  //Calculate expiration time
