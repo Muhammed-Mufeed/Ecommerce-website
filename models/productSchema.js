@@ -1,5 +1,4 @@
 const mongoose=require("mongoose")
-const {Schema}=mongoose
 
 const productSchema = new mongoose.Schema({
   name: {
@@ -11,11 +10,21 @@ const productSchema = new mongoose.Schema({
       type: String,
       required: true
   },
-  price: {
+  actualPrice: {
       type: Number,
       required: true,
       
   },
+  sellingPrice: {
+    type: Number,
+    required: true,
+    
+},
+  stock: {
+    type:String,
+    required:true
+  },
+
   images: [{
       type: String,
       required: true

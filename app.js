@@ -1,6 +1,7 @@
 const express=require('express')
 const session = require('express-session')
 const path=require('path')
+const nocache = require('nocache');
 const env=require("dotenv").config()
 const  mongoDB=require("./config/db")
  mongoDB()
@@ -19,11 +20,9 @@ app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 
 
-// Disable caching middleware
-app.use((req, res, next) => {
-  res.set('Cache-Control', 'no-store');
-  next();
-});
+
+app.use(nocache());
+
 
 app.use(session({
  secret: process.env.SESSION_SECRET,

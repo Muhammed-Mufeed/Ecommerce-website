@@ -18,7 +18,7 @@
             <a href="/admin/categories" class="back-btn">Back to Categories</a>
         </div>
 
-        <form id="categoryForm" class="category-form">
+        <form id="categoryForm" class="category-form" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="name">Category Name</label>
                 <input type="text" id="name" name="name" >
@@ -45,116 +45,131 @@
     </div>
 
     <script>
-      // Add this in your EJS file's script section after including SweetAlert CDN
-document.addEventListener('DOMContentLoaded', function() {
-    const categoryForm = document.getElementById('categoryForm');
-    const nameError = document.getElementById('nameError');
-    const descriptionError = document.getElementById('descriptionError');
-    const imageError = document.getElementById('imageError');
+        document.addEventListener('DOMContentLoaded',function(){
 
-  //Image preview functionality
-    const imageInput = document.getElementById('image');
-    const imagePreview = document.getElementById('imagePreview');
+            const categoryForm = document.getElementById('categoryForm')
+            const nameInput = document.getElementById("name")
+            const descriptionInput = document.getElementById('description')
+            const imageInput = document.getElementById('image')
+            const imagePreview = document.getElementById('imagePreview')
 
-        imageInput.addEventListener('change', function () {
-        const file = this.files[0];
-        imageError.textContent = ''; // Reset error
+            const nameError = document.getElementById('nameError')
+            const descriptionError = document.getElementById('descriptionError');
+            const imageError = document.getElementById('imageError');
 
-        if (file) {
-            const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-            if (!validImageTypes.includes(file.type)) {
-                imageError.textContent = 'Please select a valid image file (JPEG, PNG, GIF, or WEBP)';
-                imagePreview.innerHTML = ''; // Clear preview
-                this.value = ''; // Reset file input
-                return;
-            }
+            imageInput.addEventListener('change',function (){
+                const file = this.files[0]
+                imageError.textContent = ''; 
 
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                imagePreview.innerHTML = `<img src="${e.target.result}" alt="Image Preview" >`;
-            };
-            reader.readAsDataURL(file);
-        } else {
-            imagePreview.innerHTML = ''; // Clear preview if no file is selected
-        }
-    });
+                if(file){
+                    const validImageTypes = ['image/jpeg','image/png','image/gif','image/webp'];
 
-
-  //Frontend validation
-    categoryForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        // Reset error messages
-        nameError.textContent = '';
-        descriptionError.textContent = '';
-        imageError.textContent = '';
-
-        // Get form data
-        const formData = new FormData(categoryForm);
-        
-        // Validate
-        let isValid = true;
-        
-        if (formData.get('name').trim().length < 3) {
-            nameError.textContent = 'Category name must be at least 3 characters';
-            isValid = false;
-        }
-
-        if (formData.get('description').trim().length < 10) {
-            descriptionError.textContent = 'Description must be at least 10 characters';
-            isValid = false;
-        }
-
-        const imageFile = formData.get('image');
-        if (!imageFile || !imageFile.name) {
-            imageError.textContent = 'Please select an image';
-            isValid = false;
-        } else if (imageFile.size > 5000000) {
-            imageError.textContent = 'Image size should be less than 5MB';
-            isValid = false;
-        }
-
-        if (!isValid) return;
-
-        
-        try {
-            const response = await fetch('/admin/categories/add', {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'Category added successfully',
-                    icon: 'success',
-                    confirmButtonText: 'OK'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = '/admin/categories';
+                    if(!validImageTypes.includes(file.type)){
+                        imageError.textContent = 'Please select a valid image file (JPEG, PNG, GIF, or WEBP)';
+                        imagePreview.innerHTML ='' // Clear preview
+                        this.value = '' // Reset error
+                        return    
                     }
-                });
-            } else {
-                Swal.fire({
-                    title: 'Error!',
-                    text: data.message || 'Failed to add category',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            Swal.fire({
-                title: 'Error!',
-                text: 'An error occurred while adding the category',
-                icon: 'error',
-                confirmButtonText: 'OK'
-            });
-        }
-    });
-});
+
+                    const reader = new FileReader();
+                    reader.onload = function(e){
+                        imagePreview.innerHTML = `<img src = "${e.target.result}" alt ="Image Preview" >`; //Logs the Base64 URL
+                    };
+                    reader.readAsDataURL(file) /// Convert image to Base64.
+                }
+
+                else{
+                    imagePreview.innerHTML = '' // Clear preview if no file is selected
+                }
+
+            })
+
+             //validation:
+
+            categoryForm.addEventListener('submit',async (e)=>{
+                e.preventDefault()
+
+                // Reset error messages
+                nameError.textContent = ''
+                descriptionError.textContent = ''
+                imageError.textContent = ''
+
+                let isValid = true;
+
+                if(nameInput.value.trim().length < 3){
+                    nameError.textContent = 'Category name must be at least 3 characters';
+                    isValid = false;
+                }
+
+                if(descriptionInput.value.trim().length < 10){
+                    descriptionError.textContent = 'Description must be at least 10 characters';
+                    isValid = false
+                }
+
+                
+                const  imageFile = imageInput.files[0];
+                if(!imageFile){
+                imageError.textContent = "Please select an image"
+                isValid = false
+                }
+                else if( imageFile.size > 5000000 ){
+                    imageError.textContent = 'Image size should be less than 5MB.'
+                    isValid = false;
+                }
+
+
+              if(isValid==false){
+                return;
+              }
+
+            
+                try{
+
+                    const formData = new FormData(categoryForm) 
+
+                    const response = await fetch('/admin/categories/add',{
+                        method:'POST',
+                        body:formData
+                    })
+                    const data = await response.json()
+
+                    if(data.success){
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'success',
+                            text: data.message || "Category added Successfully",
+                            confirmButtonText: 'OK'
+                        }).then((result)=>{
+                            if(result.isConfirmed){
+                                window.location.href = '/admin/categories'
+                            }
+                        })                    
+                    }
+                    else{
+
+                        Swal.fire({
+                            icon:'error',
+                            title:'error',
+                            text: data.message || "Failed to add Category",
+                            confirmButtonText: 'OK'
+
+                        })
+                    }
+
+                }
+                catch(error){
+                    console.log('Error during add Category',error)
+                    Swal.fire({
+                        icon:'error',
+                        title:'error',
+                        text:"An error occurred while adding the category",
+                        confirmButtonText:'OK'
+                    })          
+                }
+
+
+            })
+        })
     </script>
 </body>
 </html>

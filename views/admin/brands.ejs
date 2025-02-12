@@ -39,7 +39,7 @@
                         <tr>
                             <td><%= (currentPage - 1) * 4 + index + 1 %></td>
                             <td><%= brand.name %></td>
-                            <td><%= brand.isListed ? 'Listed' : 'Unlisted' %></td>
+                            <td  id="status-<%= brand._id %>"><%= brand.isListed ? 'Listed' : 'Unlisted' %></td>
                             <td>
                                 <div class="brand-actions">
                                     <a href="/admin/brands/edit/<%= brand._id %>" class="brand-edit-btn">Edit</a>
@@ -109,7 +109,7 @@
                 
                 
                 
-                const statusCell = button.parentNode.parentNode.previousElementSibling;
+                const statusCell = document.getElementById(`status-${brandId}`);
                 
                 if (data.success) {
                     if (data.isListed) {

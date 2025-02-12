@@ -136,7 +136,7 @@
             Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: 'Failed to update User status',
+                        text: data.message ||'Failed to update User status',
                     });
              }
             
@@ -146,7 +146,7 @@
           Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'An error occurred during User Management',
+                    text:  data.message ||'An error occurred during User Management',
                 });  
         }
     }

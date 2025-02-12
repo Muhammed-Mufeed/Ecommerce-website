@@ -1,4 +1,4 @@
-const Admin=require('../models/userSchema')
+const Admin=require('../../models/userSchema')
 const bcrypt = require('bcrypt')
 
 

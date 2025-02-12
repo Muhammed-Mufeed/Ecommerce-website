@@ -1,6 +1,7 @@
 const express= require('express')
 const router=express.Router()
-const userController=require('../controllers/userController')
+const userController=require('../controllers/user/userController')
+const productController = require('../controllers/user/productController')
 const{checkLogin,checkLogout,checkBlocked} = require('../middlewares/userAuth')
 const passport = require('../config/passport')
 const User = require('../models/userSchema')
@@ -19,10 +20,14 @@ router.post('/resend-otp',userController.postResendOtp)
 
 router.get('/login', checkLogout, userController.getLoginPage)
 router.post('/login',userController.postLoginPage)
+router.post('/logout', userController.postLogoutPage)
+
 // ==================================================================================================================//
 
-router.get('/',checkBlocked, userController.getHomepage)
-router.post('/logout', userController.postLogoutPage)
+router.get('/',checkBlocked, productController.getHomepage)
+// router.get('/userproducts',checkBlocked,productController.getProductspage)
+// router.get('/productdetail/:id',checkBlocked, productController.getProductDetailPage)
+// router.get('/categoryProducts/:categoryId',checkBlocked,productController.getCategoryProductspage)
 // ==================================================================================================================//
 
 router.get('/auth/google',passport.authenticate('google',{ scope: ['profile','email'] }))

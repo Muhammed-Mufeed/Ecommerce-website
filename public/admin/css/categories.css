@@ -108,6 +108,12 @@ button, .edit-btn, .list-btn, .unlist-btn {
   background-color: #c0392b;
   transform: scale(1.05);
 }
+/* Remove underline from buttons */
+.add-category-btn, 
+.edit-btn {
+  text-decoration: none;
+  display: inline-block;
+}
 
 
 /* Modal Styles */

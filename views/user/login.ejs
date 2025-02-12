@@ -3,39 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/user/css/login.css">
     <title>Login Page</title>
-   
 </head>
 <body>
   <div class="login-container">
-      <h1>Login</h1>
+      <h1>User Login</h1>
       <form action="/login" method="POST">
-          <div class="form-group" >
+          <div class="form-group">
               <label for="email">Email Address</label>
-              <input type="email" id="email" name="email" placeholder="Enter your email" required>
+              <input type="email" id="email" name="email" placeholder="Enter your email">
           </div>
           <div class="form-group">
               <label for="password">Password</label>
-              <input type="password" id="password" name="password" placeholder="Enter your password" required>
+              <div class="password-field">
+                  <input type="password" id="password" name="password" placeholder="Enter your password">
+                  <i class="toggle-password fas fa-eye-slash"></i>
+              </div>
           </div>
-         <% if(errorMessage){ %>
+          <% if(errorMessage){ %>
             <div class="alert alert-danger text-center">
               <p><%= errorMessage %></p>
             </div>
-        <% } %>
+          <% } %>
           <button type="submit" class="login-btn">Login</button>
       </form>
       <div class="google-login">
         <a href="/auth/google" class="google-btn">
-            <img src="/user/images/google-logo.png" alt="Google Logo">
-            <span>Login with Google</span>
+            <span class="google-icon">
+                <i class="fab fa-google"></i>
+            </span>
+            <span class="btn-text">Sign in with Google</span>
         </a>
     </div>
+      
     
       <div class="signup-link">
           Not registered? <a href="/signup">Sign up</a>
       </div>
   </div>
+
+  <script>
+    document.querySelector('.toggle-password').addEventListener('click', function() {
+        const passwordInput = document.querySelector('#password');
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+  </script>
 </body>
 </html>

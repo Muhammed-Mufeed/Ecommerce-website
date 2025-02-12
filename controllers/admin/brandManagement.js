@@ -1,33 +1,32 @@
-const Brand= require('../models/brandSchema')
+const Brand= require('../../models/brandSchema')
 
 
 // ====================================================brandManagement-GET========================================================================//
 exports.getBrandManagement = async (req,res)=>{
   try {
-     // Get page and search parameters
+    
        const page = parseInt(req.query.page) || 1;
        const limit = 5;
        const search = req.query.search || '';
     
-       //create search Filter
        const searchFilter ={ 
         $or:[
-          {name: {$regex: search, $options: 'i'}}, // Search in 'name' field
+          {name: {$regex: search, $options: 'i'}}, 
          ] 
        }
        
-         // Count total documents of Brands that match the filter for pagination
+         
         const totalBrands = await Brand.countDocuments(searchFilter)    
     
-        const totalPages = Math.ceil(totalBrands / limit)  // Calculate total pages
+        const totalPages = Math.ceil(totalBrands / limit)  
     
-        // Fetch Brands based on pagination and search filter
+       
         const brands = await Brand.find(searchFilter)
          .skip( (page - 1)* limit) 
          .limit(limit)             
          .sort({createdAt : 1})   // Newest last
         
-        // Render the page and pass brands, pagination info, and search keyword 
+        
          res.render('brands',{brands,currentPage:page,totalPages,search})
       } 
       catch (error) {
@@ -56,6 +55,7 @@ exports.postAddBrand = async (req, res) => {
         const { name } = req.body;
 
         // Server-side validation
+        
         if (!name || typeof name !== 'string') {
             return res.status(400).json({ 
                 success: false, 
@@ -63,19 +63,17 @@ exports.postAddBrand = async (req, res) => {
             });
         }
 
-        // Trim and validate brand name
-        const trimmedName = name.trim();
-
-        if (trimmedName.length < 2 || trimmedName.length > 10) {
+      
+       
+        if (name.trim().length < 2 || name.trim().length > 20) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'Brand name must be between 2 and 10 characters' 
+                message: 'Brand name must be between 2 and 20 characters' 
             });
         }
 
-        // Check if brand already exists (case-insensitive)
         const existingBrand = await Brand.findOne({
-            name: { $regex: new RegExp(`^${trimmedName}$`, 'i') }
+            name: { $regex: `^${name.trim()}$`, $options: "i" }
         });
 
         if (existingBrand) {
@@ -87,7 +85,7 @@ exports.postAddBrand = async (req, res) => {
 
         // Create new brand
         const newBrand = new Brand({
-            name: trimmedName,
+            name: name.trim(),
         });
 
         await newBrand.save();
@@ -129,28 +127,30 @@ exports.getEditBrand =  async (req, res) => {
 exports.putEditBrand = async (req, res) => {
     try {
         const { name } = req.body;
-        
-        // Basic validation
+        const brandId =req.params.id
+        // Basic validation:
+
         if (!name || name.trim() === '') {
             return res.status(400).json({ message: 'Brand name is required' });
         }
 
-        // Check if brand exists
-        const existingBrand = await Brand.findById(req.params.id);
+      
+        const existingBrand = await Brand.findById(brandId);
         if (!existingBrand) {
             return res.status(404).json({ message: 'Brand not found' });
         }
 
         // Check if another brand already has this name
-        const duplicateBrand = await Brand.findOne({ 
-            name: name.trim(), 
-            _id: { $ne: req.params.id } 
-        });
+       const duplicateBrand = await Brand.findOne({ 
+               name: { $regex: `^${name.trim()}$`, $options: "i" }, 
+               _id: { $ne: brandId } 
+             });
+        
         if (duplicateBrand) {
             return res.status(400).json({ message: 'Brand name already exists' });
         }
 
-        // Update brand
+        
         const updatedBrand = await Brand.findByIdAndUpdate(  req.params.id, { name: name.trim() },  { new: true });
 
         res.status(200).json({ 
@@ -181,7 +181,7 @@ exports.patchUpdateBrandStatus = async (req,res)=>{
     
     await brand.save()
 
-    //To return success response with a message
+    
     const message = brand.isListed  ? 'The Brand Listed successfully.' : 'The Brand Unlisted successfully.';
     
     res.status(200).json({success:true, isListed:brand.isListed, message})   // Current Listed status after toggling

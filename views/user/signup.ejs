@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/user/css/signup.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Sign Up - Bag Ecommerce</title>
-    
 </head>
 <body>
     <div class="signup-container">
@@ -13,47 +14,59 @@
         <form action="/signup" method="POST" id="signupForm">
             <div class="form-group">
                 <label for="name">Full Name</label>
-                <input type="text" id="name" name="name" >
+                <input type="text" id="name" name="name" placeholder="Enter your full name">
                 <div class="error" id="nameError"></div>
             </div>
+            
             <div class="form-group">
                 <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" >
+                <input type="email" id="email" name="email" placeholder="example@email.com">
                 <div class="error" id="emailError"></div>
             </div>
+            
             <div class="form-group">
                 <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone" >
+                <input type="tel" id="phone" name="phone" placeholder="Enter 10-digit number">
                 <div class="error" id="phoneError"></div>
             </div>
+            
             <div class="form-group">
                 <label for="password">Password</label>
                 <div class="password-container">
-                    <input type="password" id="password" name="password" >
-                    <img src="/user/icons/close-eye.png" alt="Show Password" id="togglePassword" class="eye-icon">
+                    <input type="password" id="password" name="password" placeholder="Minimum 8 characters">
+                    <i class="toggle-password fas fa-eye-slash"></i>
                 </div>
                 <div class="error" id="passwordError"></div>
             </div>
             
             <div class="form-group">
                 <label for="confirm-password">Confirm Password</label>
-                <input type="password" id="confirm-password" name="confirmPassword" >
+                <input type="password" id="confirm-password" name="confirmPassword" placeholder="Re-enter your password">
                 <div class="error" id="confirmPasswordError"></div>
             </div>
+
             <% if(errorMessage){ %>
-                <div class="alert alert-danger text-center">
-                  <p><%= errorMessage %></p>
+                <div class="alert alert-danger">
+                    <p><%= errorMessage %></p>
                 </div>
             <% } %>
+
             <div class="form-group">
-                <button type="submit">Sign Up</button>
+                <button type="submit">Create Account</button>
             </div>
         </form>
 
-        <div class="google-login"> 
-                <a href="/auth/google"   class="google-btn">
-                    <img src="/user/images/google-logo.png" alt="Google Login">
-                </a>    
+        <div class="divider">
+            <span>or</span>
+        </div>
+
+        <div class="google-login">
+            <a href="/auth/google" class="google-btn">
+                <span class="google-icon">
+                    <i class="fab fa-google"></i>
+                </span>
+                <span class="btn-text">Sign in with Google</span>
+            </a>
         </div>
         
         <div class="form-footer">
@@ -61,93 +74,81 @@
         </div>
     </div>
 
+
     <script>
      //Eye icon toggle Functionality
-     document.getElementById('togglePassword').addEventListener('click',function(){
-        const passwordInput = document.getElementById('password');
-        const toggleIcon = document.getElementById('togglePassword');
-
-        if(passwordInput.type ==='password'){
-            passwordInput.type = 'text';
-            toggleIcon.src = "/user/icons/open-eye.png"   // Show password (open eye)
-        }
-        else{
-            passwordInput.type = 'password';
-            toggleIcon.src = "/user/icons/close-eye.png"; // Hide password (closed eye)
-        }
-
-     });
+     document.querySelector('.toggle-password').addEventListener('click', function() {
+        const passwordInput = document.querySelector('#password');
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+     })
 
 
 
     //* Form Validation *
-    document.getElementById('signupForm').addEventListener('submit',function(event){
-             
-        //to clear previous errors(their textcontents):
-        const clearError=(id)=>{document.getElementById(id).textContent= ""; } //The function takes a single parameter 'id' using document.getElementById('id').It then sets the .textContent of that element to an empty string (''), effectively clearing any text inside the element.
+    document.getElementById('signupForm').addEventListener('submit', function(event) {
+    // Clear previous errors
+      document.querySelectorAll('.error').forEach(err => err.textContent= '');
+    // Get form values
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const confirmPassword = document.getElementById('confirm-password').value.trim();
 
-        clearError('nameError') //The clearError function is being called five times, each time with a different id as the argument.
-        clearError('emailError')
-        clearError('phoneError');
-        clearError('passwordError');
-        clearError('confirmPasswordError');
-        
-        //Form fields(Storing the input values in to variables ):
-        const name = document.getElementById('name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const phone =document.getElementById('phone').value.trim();
-        const password = document.getElementById('password').value.trim();
-        const confirmPassword = document.getElementById('confirm-password').value.trim();
-        
-        // Regex patterns
-        const namePattern = /^[a-zA-Z\s]+$/;
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const phonePattern = /^[0-9]{10}$/;
-        
-        let isValid = true;  //this is used as a flag to track the validation status of the entire form. By default, the form is assumed to be valid (isValid = true).
-        
-        //Name validation:
-        if (!namePattern.test(name) || name !== name.trim()) {
-            document.getElementById('nameError').textContent =   'Name can only contain alphabets, spaces, and should not have leading or trailing spaces.';
-            isValid = false;
-        }
+    // Regex patterns
+    const namePattern = /^[a-zA-Z\s'-]+$/;
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const phonePattern = /^\+?[0-9\s\-()]{10,}$/;
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-        
-        //Email validation:
-        if(!emailPattern.test(email)){
-            document.getElementById('emailError').textContent = 'Invalid email format.';
-            isValid = false;
-        }
+    let isValid = true;
 
-        //Phone validation:
-        if(!phonePattern.test(phone)){
-            document.getElementById('phoneError').textContent = 'Phone number must be exactly 10 digits.';
-            isValid = false;
-        }
+    // Name validation
+    if (!namePattern.test(name)) {
+        document.getElementById('nameError').textContent = 'Name can only contain alphabets, spaces, and should not have leading or trailing spaces.';
+        isValid = false;
+    }
 
-        //Password validation:
-        if(password.length < 8){
-            document.getElementById('passwordError').textContent = 'Password must be at least 8 characters long.';
-            isValid = false;
-        }
-        
-        // Confirm password validation
-        if (password !== confirmPassword) {
-            document.getElementById('confirmPasswordError').textContent = 'Passwords do not match.';
-            isValid = false;
-        }
-        
+    // Email validation
+    if (!emailPattern.test(email)) {
+        document.getElementById('emailError').textContent = 'Please enter a valid email address (e.g., example@email.com).';
+        isValid = false;
+    }
 
-        // If invalid, prevent form submission
-        if (!isValid) {
-        event.preventDefault();       // Prevents the browser's default form submission behavior (like refreshing the page or navigating to a new URL).
+    // Phone validation
+    if (!phonePattern.test(phone)) {
+        document.getElementById('phoneError').textContent = 'Phone number must be at least 10 digits.';
+        isValid = false;
+    }
 
-        }
-        else {
-        alert('User Registered successfully!');
-        }
+    // Password validation
+    if (!passwordPattern.test(password)) {
+        document.getElementById('passwordError').textContent = 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.';
+        isValid = false;
+    }
 
-    });
+    // Confirm password validation
+    if (password !== confirmPassword) {
+        document.getElementById('confirmPasswordError').textContent = 'Passwords do not match.';
+        isValid = false;
+    }
+
+    // Prevent form submission if invalid
+    if (!isValid) {
+        event.preventDefault();
+    } else {
+       
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'User Registered successfully!',
+            confirmButtonText: 'OK',
+        });
+    }
+});
  </script>
 </body>
 </html>

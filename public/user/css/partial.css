@@ -1,8 +1,8 @@
 /* General Styles */
 body {
   font-family: 'Roboto', sans-serif;
-  background-color: #121212;
-  color: #fff;
+  background-color: #f9fafb; /* Light gray background */
+  color: #333;
   margin: 0;
   padding: 0;
 }
@@ -12,10 +12,12 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #333;
-  padding: 20px 30px;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+  background-color: #ffffff; /* White background */
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow */
   width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 1000; /* Ensure it stays on top */
 }
 
 /* Top Row Styling */
@@ -24,40 +26,53 @@ body {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  max-width: 1200px; /* Restrict width for larger screens */
+  margin: 0 auto; /* Center align */
+  padding: 12px 20px; /* Compact padding */
 }
 
 /* Logo Styling */
 .logo {
-  font-size: 32px;
+  font-family: 'Poppins', sans-serif; /* Use a modern font */
+  font-size: 28px; /* Larger size for prominence */
   font-weight: bold;
-  color: #ff9800;
-  letter-spacing: 0.5px;
+  color: #000; /* Solid black color */
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+  cursor: pointer; /* Indicates it's clickable */
+  transition: all 0.3s ease; /* Smooth transitions for hover effects */
+}
+
+.logo:hover {
+  transform: scale(1.05); /* Slight zoom effect */
+  text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.4); /* Stronger shadow on hover */
 }
 
 /* Search Bar Styling */
 .search-bar input {
-  width: 350px;
-  padding: 12px 18px;
-  border: 1px solid #ccc;
-  border-radius: 25px;
+  width: 300px; /* Reduced width for conciseness */
+  padding: 10px 16px;
+  border: 1px solid #ddd; /* Light border */
+  border-radius: 20px; /* Rounded edges */
   outline: none;
-  font-size: 16px;
+  font-size: 14px; /* Smaller font size */
   color: #333;
-  transition: width 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .search-bar input::placeholder {
-  color: #888;
+  color: #aaa; /* Light placeholder text */
 }
 
 .search-bar input:focus {
-  width: 400px;
+  width: 350px; /* Expands slightly on focus */
+  border-color: #ff6f61; /* Matches logo color */
+  box-shadow: 0 0 8px rgba(255, 111, 97, 0.3); /* Subtle glow */
 }
 
 /* Icons Container Styling */
 .icons {
   display: flex;
-  gap: 38px;
+  gap: 24px; /* Reduced spacing between icons */
   align-items: center;
 }
 
@@ -65,145 +80,226 @@ body {
 .icon {
   position: relative;
   cursor: pointer;
-  font-size: 28px; /* Default size */
-  color: #fff;
+  font-size: 24px; /* Slightly smaller icon size */
+  color: #333; /* Neutral color */
   transition: transform 0.3s ease, color 0.3s ease;
 }
 
-/* Ensure icon images are not too large */
 .icon img {
-  width: 28px; /* Adjust the size of the images */
-  height: 28px; /* Keep the height consistent */
-  object-fit: contain; /* Ensures the image is contained within the icon */
+  width: 24px; /* Consistent icon size */
+  height: 24px;
+  object-fit: contain;
   transition: transform 0.3s ease;
 }
 
 .icon:hover {
-  transform: scale(1.1);
-  color: #ff9800;
+  transform: scale(1.1); /* Slight zoom effect */
+  color: #ff6f61; /* Matches logo color */
 }
 
 /* Cart Icon Specific Styling */
 .cart {
   position: relative;
-  font-size: 30px;
+  font-size: 24px;
 }
 
 .cart span {
   position: absolute;
-  top: -5px;
-  right: -8px;
-  background-color: red;
+  top: -8px;
+  right: -10px;
+  background-color: #ff6f61; /* Vibrant badge color */
   color: white;
-  font-size: 12px;
+  font-size: 10px;
   padding: 4px 8px;
-  border-radius: 50%;
+  border-radius: 50%; /* Circular badge */
   font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow */
 }
 
 /* Dropdown Menu Styling */
-.user-profile .dropdown {
-  display: none;
+.user-profile {
+  position: relative;
+  font-size: 24px;
+}
+
+.profile-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+  display: flex;
+  align-items: center;
+}
+
+.profile-button img {
+  width: 24px; /* Match the size of other icons */
+  height: 24px;
+  object-fit: contain;
+}
+
+.profile-button img:hover {
+  transform: scale(1.1); /* Slight zoom effect */
+  color: #ff6f61; /* Matches logo color */
+}
+.dropdown {
+  display: none; /* Initially hidden */
   position: absolute;
-  top: 35px;
+  top: 40px; /* Position below the button */
   right: 0;
-  background-color: #444;
-  border-radius: 5px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: #fff; /* White background */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   z-index: 1000;
-  width: 150px;
+  width: 180px; /* Wider dropdown */
+}
+
+/* Show dropdown when the button is focused or clicked */
+.user-profile:focus-within .dropdown {
+  display: block; /* Show dropdown when the button is focused */
 }
 
 /* Dropdown Links Styling */
-.user-profile .dropdown a,
-.user-profile .dropdown button {
+.dropdown a,
+.dropdown button {
   display: block;
-  width: 100%; /* Ensures full width */
-  padding: 12px 20px;
+  width: 100%;
+  padding: 12px 16px;
   text-decoration: none;
-  background: none; /* Removes default button styling */
-  border: none; /* Removes borders */
-  text-align: left; /* Aligns text like links */
-  color: white;
-  font-size: 16px;
+  background: none;
+  border: none;
+  text-align: left;
+  color: #333;
+  font-size: 14px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
-/* Hover Effect for Links and Button */
-.user-profile .dropdown a:hover,
-.user-profile .dropdown button:hover {
-  background-color: #555;
+.dropdown a:hover,
+.dropdown button:hover {
+  background-color: #f0f0f0; /* Light gray hover */
 }
 
-.user-profile:hover .dropdown {
-  display: block;
+/* Menu Container Styling */
+.menu-container {
+  background-color: #ffffff; /* White background */
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+  width: 100%;
 }
 
 /* Menu Items Styling */
 .menu {
   display: flex;
-  gap: 30px;
-  margin-top: 15px;
-  font-size: 18px;
+  justify-content: center; /* Center align menu items */
+  gap: 24px; /* Reduced spacing */
+  padding: 12px 20px; /* Compact padding */
+  font-size: 16px; /* Slightly smaller font */
+  max-width: 1200px; /* Align with navbar */
+  margin: 0 auto; /* Center align */
 }
-
 .menu a {
-  color: white;
+  color: #333;
   text-decoration: none;
-  font-size: 18px;
+  font-weight: 500; /* Slightly bold */
   transition: color 0.3s ease;
 }
-
 .menu a:hover {
-  color: #ff9800;
+  color: #ff6f61; /* Matches logo color */
 }
 
-/* Footer */
+/* Responsive Design */
+@media (max-width: 768px) {
+  .top-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .search-bar input {
+    width: 100%; /* Full width on small screens */
+    max-width: 300px;
+  }
+  .menu {
+    flex-direction: column;
+    gap: 8px;
+    padding: 0;
+  }
+}
+
+/* Footer Styles */
 .footer {
-  background-color: #1c1c1c;
-  color: #fff;
-  padding: 40px 43px;
+  background-color: #000;
+  color: #ecf0f1;
+  padding: 40px 20px;
+  font-family: Arial, sans-serif;
   display: flex;
-  justify-content: space-between;
   flex-wrap: wrap;
-  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.4);
+  justify-content: space-around;
+  align-items: flex-start;
+  width: 100%;
 }
 
 .footer .column {
-  flex: 1 1 250px;
-  margin: 20px;
+  flex: 1;
+  min-width: 200px;
+  margin: 0 15px;
+  padding: 0 10px;
 }
 
-.footer .column h4 {
-  font-size: 1.4rem;
-  margin-bottom: 15px;
-  color: #fff;
-  font-weight: bold;
+.footer h4 {
+  color: #3498db;
+  font-size: 1.2em;
+  margin-bottom: 20px;
+  text-transform: uppercase;
 }
 
-.footer .column a {
+.footer a {
+  color: #ecf0f1;
   text-decoration: none;
-  color: #aaa;
-  font-size: 1rem;
-  transition: color 0.3s;
+  line-height: 2;
+  transition: color 0.3s ease;
+  display: inline-block;
+  margin-right: 15px;
 }
 
-.footer .column a:hover {
-  color: #42a5f5;
+.footer a:hover {
+  color: #3498db;
+}
+
+.footer p {
+  line-height: 1.6;
+  margin: 5px 0;
+  display: inline-block;
+  margin-right: 15px;
 }
 
 .footer .bottom-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 20px;
-  border-top: 1px solid #333;
+  width: 100%;
+  text-align: center;
+  margin-top: 30px;
   padding-top: 20px;
+  border-top: 1px solid #34495e;
 }
 
-.footer .bottom-row .social-icons {
-  display: flex;
-  gap: 15px;
+.footer .bottom-row p {
+  margin: 0;
+  font-size: 0.9em;
+}
+
+.footer strong {
+  color: #3498db;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer .column {
+      flex: 100%;
+      text-align: center;
+      margin-bottom: 30px;
+  }
+  
+  .footer a, .footer p {
+      display: inline-block;
+      margin: 5px 10px;
+  }
 }

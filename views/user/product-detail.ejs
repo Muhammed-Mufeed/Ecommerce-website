@@ -1,108 +1,182 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/user/css/partial.css" />
-    <link rel="stylesheet" href="/user/css/product.css" />
-    <title>PackSmart - Product Detail</title>
-  </head>
-  <body>
-   <%-include('../partials/user/header')%>
-    <main class="product-detail-container">
-      <!-- Breadcrumb -->
-      <div class="breadcrumb">
-          <a href="#">Home</a> / <a href="#">Products</a> / Adventure Travel Backpack
-      </div>
+    <link rel="stylesheet" href="/user/css/product-detail.css" />
+    <title>Product Detail Page</title>
+   
+</head>
+<body>
+    <%-include('../partials/user/header')%>
 
-      <!-- Product Content -->
-      <div class="product-content">
-          <!-- Product Gallery -->
-          <div class="product-gallery">
-              <div class="main-image">
-                  <img src="/api/placeholder/600/400" alt="Adventure Travel Backpack">
-              </div>
-              <div class="thumbnail-grid">
-                  <div class="thumbnail active">
-                      <img src="/api/placeholder/80/80" alt="Product thumbnail 1">
-                  </div>
-                  <div class="thumbnail">
-                      <img src="/api/placeholder/80/80" alt="Product thumbnail 2">
-                  </div>
-                  <div class="thumbnail">
-                      <img src="/api/placeholder/80/80" alt="Product thumbnail 3">
-                  </div>
-                  <div class="thumbnail">
-                      <img src="/api/placeholder/80/80" alt="Product thumbnail 4">
-                  </div>
-              </div>
+    <div class="breadcrumb-container">
+        <div class="breadcrumb">
+            <a href="/">Home</a>
+            <span class="separator">></span>
+            <a href="/productdetail/<%= productData._id %>"><%= productData.name %></a>
+        </div>
+    </div>
+    
+    
+    <div class="product-container">
+        <div class="product-images">
+            <% productData.images.forEach((image, index) => { %>
+                <img src="<%= image %>" 
+                     alt="Product thumbnail <%= index + 1 %>" 
+                     class="thumbnail <%= index === 0 ? 'active' : '' %>"
+                     onclick="updateMainImage(this)">
+            <% }) %>
+        </div>
+        
+        <div class="main-image-container">
+            <img src="<%= productData.images.length > 0 ? productData.images[0] : '/default-image.jpg' %>" 
+                 alt="Main Product Image" 
+                 class="main-image" 
+                 id="mainImage">
+        </div>
+
+        <div class="product-info">
+            <span class="online-exclusive">ONLINE EXCLUSIVE</span>
+            <h1 class="product-title"><%= productData.name %></h1>
+
+            <div class="price-container">
+                <span class="mrp">MRP: ₹<%= productData.actualPrice %></span>
+                <span class="selling-price">₹<%= productData.sellingPrice %></span>
+            </div>
+            
+            <div class="product-brand">Brand: <%= productData.brand.name %></div>
+            
+
+            <div class="stock-status <%= productData.stock > 0 ? 'in-stock' : 'out-of-stock' %>">
+                <%= productData.stock > 0 ? 'In Stock' : 'Out of Stock' %>
+            </div>
+
+            <div class="action-buttons">
+                <button class="buy-now-btn">Buy Now</button>
+                <button class="add-to-cart-btn">Add to Cart</button>
+            </div>
           </div>
+    </div>
+    
 
-          <!-- Product Info -->
-          <div class="product-info">
-              <h1 class="product-title">Adventure Travel Backpack</h1>
-              <div class="product-rating">
-                  <div class="stars">★★★★☆</div>
-                  <div class="review-count">4.2 (128 reviews)</div>
+    <div class="product-description">
+        <%= productData.description %>
+    </div>
+
+    <div class="product-reviews">
+        <h2 class="reviews-title">Product reviews</h2>
+        <div class="rating-bars">
+            <div class="rating-row">
+                <span class="star-number">5 ★</span>
+                <div class="rating-bar"></div>
+                <span class="rating-count">0</span>
+            </div>
+            <div class="rating-row">
+                <span class="star-number">4 ★</span>
+                <div class="rating-bar"></div>
+                <span class="rating-count">0</span>
+            </div>
+            <div class="rating-row">
+                <span class="star-number">3 ★</span>
+                <div class="rating-bar"></div>
+                <span class="rating-count">0</span>
+            </div>
+            <div class="rating-row">
+                <span class="star-number">2 ★</span>
+                <div class="rating-bar"></div>
+                <span class="rating-count">0</span>
+            </div>
+            <div class="rating-row">
+                <span class="star-number">1 ★</span>
+                <div class="rating-bar"></div>
+                <span class="rating-count">0</span>
+            </div>
+        </div>
+
+        <div class="write-review">
+            <button class="write-review-btn">Write a review</button>
+        </div>
+    </div>
+   <div class="related-products">
+  <h2 class="related-title">Related Products</h2>
+  <div class="products-grid">
+    <% if (relatedProducts.length > 0) { %>
+      <% relatedProducts.forEach(product => { %>
+        <div class="product-card">
+          <a href="/productdetail/<%= product._id %>" class="product-link">
+            <div class="product-image">
+              <img src="<%= product.images[0] %>" alt="<%= product.name %>">
+              <div class="product-wishlist">
+                <img src="/user/icons/wishlist-2.png" alt="wishlist" width="20">
               </div>
-              <div class="product-price">$89.99</div>
-              <p class="product-description">
-                  The perfect companion for your adventures. This durable backpack features water-resistant material,
-                  multiple compartments, and ergonomic design for maximum comfort during long trips.
-              </p>
-
-              <!-- Product Options -->
-              <div class="product-options">
-                  <div class="option-group">
-                      <label>Color</label>
-                      <select>
-                          <option>Midnight Black</option>
-                          <option>Navy Blue</option>
-                          <option>Forest Green</option>
-                      </select>
-                  </div>
-                  <div class="option-group">
-                      <label>Size</label>
-                      <select>
-                          <option>30L</option>
-                          <option>40L</option>
-                          <option>50L</option>
-                      </select>
-                  </div>
-                  <div class="option-group">
-                      <label>Quantity</label>
-                      <input type="number" class="quantity-input" value="1" min="1">
-                  </div>
-              </div>
-
-              <!-- Action Buttons -->
-              <div class="product-actions">
-                  <button class="add-to-cart">Add to Cart</button>
-                  <button class="buy-now">Buy Now</button>
-              </div>
+            </div>
+          </a>
+          <div class="product-details">
+            <h3 class="product-name"><%= product.name %></h3>
+            <div class="price-container">
+              <span class="mrp">M.R.P₹<%= product.actualPrice %></span>
+              <span class="selling-price">₹<%= product.sellingPrice %></span>
+            </div>
+            <div class="product-rating">★★★★☆</div>
+            <button class="add-to-cart">Add to Cart</button>
           </div>
-      </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <p>No related products found.</p>
+    <% } %>
+  </div>
+</div>
+    
+    <script>
+        function updateMainImage(thumbnail) {
+            // Update main image
+            const mainImage = document.getElementById('mainImage');
+            mainImage.src = thumbnail.src;
+            
+            // Update active state of thumbnails
+            const thumbnails = document.querySelectorAll('.thumbnail');
+            thumbnails.forEach(thumb => thumb.classList.remove('active'));
+            thumbnail.classList.add('active');
+        }
 
-      <!-- Product Tabs -->
-      <div class="product-tabs">
-          <div class="tabs-header">
-              <button class="tab-button active">Description</button>
-              <button class="tab-button">Features</button>
-              <button class="tab-button">Reviews</button>
-          </div>
-          <div class="tab-content">
-              <ul class="features-list">
-                  <li>Water-resistant ripstop nylon material</li>
-                  <li>Padded laptop compartment (fits up to 15")</li>
-                  <li>Ergonomic shoulder straps with breathable mesh</li>
-                  <li>Multiple internal and external pockets</li>
-                  <li>Hidden security pocket</li>
-                  <li>Compression straps for size adjustment</li>
-                  <li>Reinforced carry handle</li>
-              </ul>
-          </div>
-      </div>
-  </main>
- <%-include('../partials/user/footer')%>  
+
+        //zoom
+        document.addEventListener("DOMContentLoaded", function () {
+    const mainImageContainer = document.querySelector(".main-image-container");
+    const mainImage = document.getElementById("mainImage");
+
+    // Create zoomed preview box
+    const zoomBox = document.createElement("div");
+    zoomBox.classList.add("zoom-box");
+    document.body.appendChild(zoomBox);
+
+    mainImageContainer.addEventListener("mousemove", function (e) {
+        const { left, top, width, height } = mainImage.getBoundingClientRect();
+        const x = ((e.clientX - left) / width) * 100;
+        const y = ((e.clientY - top) / height) * 100;
+
+        zoomBox.style.backgroundImage = `url(${mainImage.src})`;
+        zoomBox.style.backgroundPosition = `${x}% ${y}%`;
+        zoomBox.style.display = "block";
+
+        // Position zoom box next to the main image
+        zoomBox.style.top = `${top}px`;
+        zoomBox.style.left = `${left + width + 20}px`; // Offset from the image
+    });
+
+    mainImageContainer.addEventListener("mouseleave", function () {
+        zoomBox.style.display = "none";
+    });
+});
+
+
+
+
+    </script>
+   <%-include('../partials/user/footer')%>
+
 </body>
-</html>
+</html>    -->

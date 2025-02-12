@@ -1,5 +1,5 @@
 /* Add Category Page Styles */
-.add-category-page {
+.add-category-page,.edit-category-page {
   max-width: 800px;
   margin: 20px auto;
   padding: 25px;

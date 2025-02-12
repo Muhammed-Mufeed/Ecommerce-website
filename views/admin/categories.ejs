@@ -42,7 +42,7 @@
                         <tr>
                             <td><%= (currentPage - 1) * 4 + index + 1 %></td>
                             <td>
-                                <% if (category.image) { %>
+                                <% if (category.image ) { %>
                                     <img src="<%= category.image %>" 
                                          alt="<%= category.name %>" 
                                          class="category-thumbnail"
@@ -116,7 +116,6 @@
 
         // Category status update
         async function updateCategoryStatus(categoryId, button) {
-            console.log('hello')
             try {
                 const response = await fetch(`/admin/categories/${categoryId}/update-CategoryStatus`, {
                     method: 'PATCH',

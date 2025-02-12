@@ -2,9 +2,9 @@
 const nodemailer=require('nodemailer')
 const bcrypt=require('bcrypt')
 const env =require('dotenv').config()
-const User=require('../models/userSchema')
-const Otp = require('../models/otpSchema')
-const Category = require('../models/categorySchema')
+const User=require('../../models/userSchema')
+const Otp = require('../../models/otpSchema')
+
 // =======================================UserErrorPage-GET===========================================================================//
 const getpageNotFound=async(req,res)=>{
   try{
@@ -27,14 +27,14 @@ const getSignupPage=async(req,res)=>{
 }
 
 
-// ===============================================UserSignup-POST===================================================================//
+// ===============================================Nodemailer for sending Otp===================================================================//
 
 async function sendVerificationEmail(email,otp){
   try{
-    console.log("Sending OTP to:", email);  // Log email to check
-// Configure nodemailer
+    console.log("Sending OTP to:", email);  
+// Configuring nodemailer
     const transporter = nodemailer.createTransport({
-      service:'gmail',   // Use your email service (e.g., Gmail, Outlook, etc.)
+      service:'gmail',   // Use your email service 
       port:587,
       secure:false,
       auth:{
@@ -51,7 +51,7 @@ async function sendVerificationEmail(email,otp){
       html: `<b>Your OTP is ${otp}</b>`
     })
 
-   return  info.accepted.length > 0 ? true : false; //This explicitly returns true if the email was accepted, otherwise false
+   return  info.accepted.length > 0 ? true : false; //This explicitly returns true if the email was accepted, otherwise false.
 
 
   }
@@ -61,18 +61,18 @@ async function sendVerificationEmail(email,otp){
   }
 }
 
+// ===============================================UserSignup-POST===================================================================//
 
 const postSignupPage=async(req,res)=>{
   try{
   
-  //check if password mathch:
   const {name,phone,email,password,confirmPassword}= req.body
   
   if(password!==confirmPassword){
    return res.render('signup',{errorMessage:"Password do not match."})
   }
 
-  //check if user already exists:
+  
   const existingUser= await User.findOne({email})
   if(existingUser){
     return res.render('signup', { errorMessage: 'User with this email already exists.' });
@@ -84,23 +84,23 @@ const postSignupPage=async(req,res)=>{
   console.log(`Generated OTP: ${otp}`); 
 
 
- //Calculate expiration time
+
  const expiresAt = new Date(Date.now() + 30 * 1000) //OTP expires in 30 seconds
 
- // Save OTP to MongoDB along with userId and expiration time
+ 
  const saveOtp = new Otp({
    otp:otp,
    userId:email,
    expiresAt:expiresAt
  })
 
-  await saveOtp.save()      // Save OTP to the database
+  await saveOtp.save()      
 
-  //to send generated otp to user registered mail
+  
   const emailSent = await sendVerificationEmail(email,otp);
 
   if (!emailSent) {
-    return res.json('email-error');
+    return res.json({success:false,message:"Failed to send OTP.Please try again"})
   }
   
    req.session.userData = {name,phone,email,password}
@@ -108,8 +108,8 @@ const postSignupPage=async(req,res)=>{
    res.render('verify-otp')
    console.log("OTP send successfully",otp);
    
-  }
-
+  
+}
   catch(error){
    console.error("Error during OTP verification",error)
    res.redirect('/pageNotFound')
@@ -117,18 +117,6 @@ const postSignupPage=async(req,res)=>{
 }
 
 // ====================================================UserVerifyOTP-POST==============================================================//
-
-//hashing password using bcrypt
-const securePassword=async (password)=>{
- try {
-  const passwordHash = await bcrypt.hash(password,10)
-  return passwordHash
- }
- catch (error){
-  console.log("Error password Hashing",error);
-  
- }
-}
 
 
 const postverifyOtp = async (req,res)=>{
@@ -140,32 +128,30 @@ const postverifyOtp = async (req,res)=>{
    const otpRecord = await Otp.findOne({userId:email, otp:otp})
 
    if(!otpRecord){
-    //OTP not found in the database,invalid OTP
+   
     return res.status(400).json({ success: false, message: "Invalid OTP, Please try again."})
    }
 
-   //Check if OTP has expired
    if(otpRecord.expiresAt < new Date()){
-    return res.status(400).json({ succes: false, message: "OTP has expired.Please request a new one."})
+    return res.status(400).json({ success: false, message: "OTP has expired.Please request a new one."})
    }
+
     //OTP is valid, now proceed to hash the password
     const user = req.session.userData
-    const passwordHash = await securePassword(user.password);
+    const passwordHash = await bcrypt.hash(user.password,10)
 
     const saveUserData = new User({
       name:user.name,
       email:user.email,
       phone:user.phone,
-      password:passwordHash  //saving as hashed password
+      password:passwordHash  
     })
 
-    await saveUserData.save()  // Save the user data to the database
+    await saveUserData.save()  
     
-    req.session.userOTP= null      // Clear OTP from session
-    req.session.User = saveUserData._id;  // Store user ID in session
-    
-    // Respond with success
-    res.json({success:true,redirectUrl:"/login"})  //If the process is successful, a response with { success: true, redirectUrl: "/" } is sent back, indicating the user is successfully registered and will be redirected to the home page ("/").
+    delete req.session.userData     //Delete userData from session (no longer needed,after saving user)
+  
+    res.status(200).json({success:true,redirectUrl:"/login"})  
   
   }
   catch(error){
@@ -177,36 +163,32 @@ const postverifyOtp = async (req,res)=>{
 // =============================================UserResendOTP-POST=====================================================================//
 const postResendOtp = async (req,res)=>{
   try{
-   const{email} = req.session.userData  // Get email from session data
+   const{email} = req.session.userData  
    console.log("Resending Otp to:",email) //debugging
   
-   // Check if the user already has an OTP stored (whether expired or not)
    const existingOtp = await Otp.findOne({userId:email}) 
 
-   // If an OTP already exists, remove it (expired OTPs or previously used OTPs)
+   
    if(existingOtp){
     await Otp.deleteOne({_id:existingOtp._id});
    }
 
-    // Generate new OTP
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  console.log(`Generated OTP(resend): ${otp}`); // Debugging
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();   // Generate new OTP
+  console.log(`Generated OTP(resend): ${otp}`); // debugging
 
    // Set expiration time for the new OTP
-   const expiresAt = new Date(Date.now() + 30 * 1000)  // OTP expires in 30 seconds
-   
-   //Save the new OTP to the database
-   const newOtp = new Otp({
+   const expiresAt = new Date(Date.now() + 30 * 1000)  
+
+   const newOtpSave = new Otp({
     otp:otp,
     userId:email,
     expiresAt:expiresAt
    })
   
-   await newOtp.save()  // Save new OTP to the database
+   await newOtpSave.save()  // Save new OTP to the database
 
 
 
-   // Send the OTP to the user's email
    const emailSent = await sendVerificationEmail(email,otp);
 
    if(emailSent){
@@ -252,17 +234,17 @@ const postLoginPage = async (req,res)=>{
       return res.render("login",{errorMessage:"Your account has been blocked. Please contact support."})
     }
 
-   //comparing password
+   
     const passwordMatch = await bcrypt.compare(password,findUser.password)
 
     if(!passwordMatch){
       return res.render('login',{errorMessage:" Incorrect Email or password"})
     }
 
-    //Now, store the user information in the session
+    
     req.session.user={
       id: findUser._id,
-      isBlocked:findUser.isBlocked  //to check user is blocked or not while in the session
+      isBlocked:findUser.isBlocked  
     }
     
     res.redirect('/')
@@ -314,35 +296,11 @@ try {
 
 }
 
-// ===============================================UserHome-GET===================================================================//
 
-const getHomepage = async (req, res) => {
-  try { 
-    const user = req.session.user;
-    const categories = await Category.find({isListed:true})
+// ================================================================================================================================//
 
-    if (user) {
-      // If the user is logged in, fetch their data from the database
-      const userData = await User.findOne({_id: user.id}); // we store the user_id from db to "id" variable in session. so that's why we use user.id.
-      return res.render('home', { userData, error: null }); // Pass userData to EJS
-    } 
-    else {
-      // If the user is not logged in, pass null or undefined for userData
-      return res.render('home', { userData: null, error: null,categories });
-    }
-  } catch (error) {
-    console.log("Error in getHomepage:", error);
-    res.status(500).send("Server Error");
-  }
-};
-
-
-// ==================================================================================================================//
-
-// ==================================================================================================================//
 
 module.exports={
-   getHomepage,
    getpageNotFound,
    getSignupPage,
    postSignupPage,
