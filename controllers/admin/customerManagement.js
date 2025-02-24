@@ -36,7 +36,7 @@ try {
    
 } catch (error) {
    console.error("Error during loading customer page",error)
-   res.status(500).send("Internal Server Error")
+   res.redirect('/admin/errorPage')
 }
 }
 
@@ -64,6 +64,7 @@ exports.patchUpdateUserStatus = async (req,res)=>{
   } 
 
   catch (error) {
-    res.status(500).json({success:false,message:"Internal server Error"}) 
+    console.log("Error occured while updating Customer Status",error)
+    res.status(500).json({message:"Internal Server Error"})
   }
 }

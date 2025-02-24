@@ -3,12 +3,12 @@
   const adminController = require('../controllers/admin/adminController')
   const customerManagement = require('../controllers/admin/customerManagement')
   const categoryManagement = require('../controllers/admin/categoryManagement')
-  // const productManagement = require('../controllers/admin/productManagement')
+  const productManagement = require('../controllers/admin/productManagement')
   const brandManagement = require('../controllers/admin/brandManagement')
 
 
   const{checkLogin,checkLogout} = require('../middlewares/adminAuth')
-  const upload = require("../middlewares/multer");
+  const {uploadCategoryImage, uploadProductImage}= require("../middlewares/multer");
 
   // ==================================================================================================================//
   router.get('/errorPage', checkLogin,adminController.getAdminErrorPage)
@@ -24,17 +24,25 @@
   // ==================================================================================================================//
   router.get('/categories',checkLogin,categoryManagement.getCategoryManagement)
   router.get('/categories/add',checkLogin,categoryManagement.getAddCategory)
-  router.post('/categories/add',upload.single('image'),categoryManagement.postAddCategory)
+  router.post('/categories/add',uploadCategoryImage.single('image'),categoryManagement.postAddCategory)
   router.get('/categories/edit/:id',checkLogin,categoryManagement.getEditCategory)
-  router.put('/categories/edit/:id',checkLogin,upload.single('image'),categoryManagement.putEditCategory)
-  router.patch('/categories/:categoryId/update-CategoryStatus',categoryManagement.patchUpdateCategoriesStatus)
+  router.put('/categories/edit/:id',uploadCategoryImage.single('image'),categoryManagement.putEditCategory)
+  router.patch('/categories/:categoryId/update-CategoryStatus',categoryManagement.patchUpdateCategoryStatus)
   // ==================================================================================================================//
-  // router.get('/products',checkLogin,productManagement.getProductManagement)
-  // router.get('/products/add',checkLogin,productManagement.getAddProduct)
-  // router.post('/products/add',upload.array,productManagement.postAddProduct)
-  // router.get('/products/edit/:id',checkLogin,productManagement.getEditProduct)
-  // router.put('/products/edit/:id',upload.array,productManagement.putEditProduct)
-  // router.patch('/products/:productId/update-ProductStatus',productManagement.patchUpdateProductStatus)
+  router.get('/products',checkLogin,productManagement.getProductManagement)
+  router.get('/products/add',checkLogin,productManagement.getAddProduct)
+  router.post('/products/add',productManagement.postAddProduct)
+  router.get('/products/edit/:id',checkLogin,productManagement.getEditProduct)
+  router.put('/products/edit/:id',productManagement.putEditProduct)
+  router.patch('/products/:productId/update-ProductStatus',productManagement.patchUpdateProductStatus)
+
+  router.get('/products/:productId/variants',checkLogin,productManagement.getVariantsManagement)
+  router.get('/products/:productId/variants/add',checkLogin,productManagement.getAddVariants)
+  router.post('/products/:productId/variants/add',uploadProductImage.array('images',3),productManagement.postAddVariants)
+  router.get('/products/:productId/variants/:variantId/edit',checkLogin,productManagement.getEditVariants)
+  router.put('/products/:productId/variants/:variantId/edit',uploadProductImage.array('images',3),productManagement.putEditVariants)
+  router.patch('/products/:productId/variants/:variantId/update-VariantStatus',productManagement.patchUpdateVariantStatus)
+ 
 
   // ==================================================================================================================//
   router.get('/brands', checkLogin, brandManagement.getBrandManagement);

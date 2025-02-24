@@ -1,0 +1,346 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Variant - Admin Dashboard</title>
+    <link rel="stylesheet" href="/admin/css/add-variants.css">
+    <link rel="stylesheet" href="/admin/css/partial.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <%-include('../partials/admin/header')%>
+    
+    <div class="add-variant-page">
+        <div class="header-section">
+            <h3>Edit Variant for <%= product.name %></h3>
+            <a href="/admin/products/<%= product._id %>/variants" class="back-btn">Back to Variants</a>
+        </div>
+
+        <form id="variantForm" class="variant-form" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="color">Color (HEX)</label>
+                <input type="color" id="color" name="color" value="<%= variant.color %>">
+                <span class="error" id="colorError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="colorName">Color Name</label>
+                <input type="text" id="colorName" name="colorName" value="<%= variant.colorName %>">
+                <span class="error" id="colorNameError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="stock">Stock</label>
+                <input type="number" id="stock" name="stock" value="<%= variant.stock %>">
+                <span class="error" id="stockError"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Variant Images (Select up to 3 images)</label>
+                <div class="image-upload-container">
+                    <% for(let i = 0; i < 3; i++) { %>
+                        <div class="image-slot">
+                            <div class="image-preview" id="imagePreview<%= i %>">
+                                <% if (variant.images[i]) { %>
+                                    <img src="<%= variant.images[i] %>" alt="Preview">
+                                <% } else { %>
+                                    <div class="upload-placeholder">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <span>Click to upload</span>
+                                    </div>
+                                <% } %>
+                            </div>
+                                  <input type="file" class="image-input" id="image<%= i %>" name="images" accept="image/*">
+                                  <% if (variant.images[i]) { %>
+                                    <div class="image-actions" style="display: flex;" id="imageActions<%= i %>">
+                                  <% } else { %>
+                                    <div class="image-actions" style="display: none;" id="imageActions<%= i %>">
+                                  <% } %>
+                                <button type="button" class="action-btn edit-btn" id="editBtn<%= i %>">
+                                    <i class="fas fa-crop-alt"></i>
+                                </button>
+                                <button type="button" class="action-btn cancel-btn" id="cancelBtn<%= i %>">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="crop-actions" style="display: none;" id="cropActions<%= i %>">
+                                <button type="button" class="crop-btn" id="cropBtn<%= i %>">Save</button>
+                                <button type="button" class="cancel-crop-btn" id="cancelCropBtn<%= i %>">Cancel</button>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+                <span class="error" id="imagesError"></span>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitButton">Update Variant</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    const variantForm = document.getElementById('variantForm');
+    const colorInput = document.getElementById('color');
+    const colorNameInput = document.getElementById('colorName');
+    const stockInput = document.getElementById('stock');
+    const submitButton = document.getElementById('submitButton');
+    
+    let croppers = new Map(); // Store croppers for each slot
+    let croppedImages = new Map();
+    let originalImages = new Map(); // Store original image files
+    let hasExistingImages = '<%= variant.images.length > 0 %>'; // Check if images exist
+    let deletedImages = new Set(); // Track deleted image URLs
+
+    // Handle image slots
+    const imageSlots = document.querySelectorAll('.image-slot');
+    imageSlots.forEach((slot, index) => {
+        const preview = document.getElementById(`imagePreview${index}`);
+        const input = document.getElementById(`image${index}`);
+        const actions = document.getElementById(`imageActions${index}`);
+        const cropActions = document.getElementById(`cropActions${index}`);
+        const editBtn = document.getElementById(`editBtn${index}`);
+        const cancelBtn = document.getElementById(`cancelBtn${index}`);
+        const cropBtn = document.getElementById(`cropBtn${index}`);
+        const cancelCropBtn = document.getElementById(`cancelCropBtn${index}`);
+
+        // Make the preview clickable for upload
+        preview.addEventListener('click', () => {
+            if (!croppers.has(index)) {
+                input.click();
+            }
+        });
+
+        input.addEventListener('change', function(e) {
+            const file = this.files[0];
+            if (file) {
+                const validImageTypes = ['image/jpeg', 'image/png', 'image/webp'];
+                if (!validImageTypes.includes(file.type)) {
+                    alert('Please select a valid image file (JPEG, PNG, or WEBP)');
+                    this.value = '';
+                    return;
+                }
+
+                // Store the original file
+                originalImages.set(index, file);
+
+                // If there's an existing image, add it to deletedImages
+                const existingImage = preview.querySelector('img');
+                if (existingImage && existingImage.src.startsWith('http')) {
+                    deletedImages.add(existingImage.src);
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                    actions.style.display = 'flex';
+                    initializeCropper(preview.querySelector('img'), index);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        editBtn.addEventListener('click', () => {
+            const img = preview.querySelector('img');
+            if (img) {
+                const imageUrl = img.src;
+                preview.innerHTML = `<img src="${imageUrl}" alt="Preview">`;
+                initializeCropper(preview.querySelector('img'), index);
+            }
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            resetSlot(index);
+        });
+
+        cropBtn.addEventListener('click', () => {
+            const cropper = croppers.get(index);
+            if (cropper) {
+                const croppedCanvas = cropper.getCroppedCanvas();
+                croppedCanvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    preview.innerHTML = `<img src="${url}" alt="Preview">`;
+                    croppedImages.set(index, blob);
+                    actions.style.display = 'flex';
+                    cropActions.style.display = 'none';
+                    cropper.destroy();
+                    croppers.delete(index);
+                });
+            }
+        });
+
+        cancelCropBtn.addEventListener('click', () => {
+            const cropper = croppers.get(index);
+            if (cropper) {
+                cropper.destroy();
+                croppers.delete(index);
+                cropActions.style.display = 'none';
+
+                // Use the original image if available
+                if (originalImages.has(index)) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                        actions.style.display = 'flex';
+                    };
+                    reader.readAsDataURL(originalImages.get(index));
+                    // Store the original image in croppedImages map for form submission
+                    croppedImages.set(index, originalImages.get(index));
+                } else {
+                    // If no original image (editing existing image), revert to the existing image
+                    const existingImage = preview.querySelector('img');
+                    if (existingImage && existingImage.src.startsWith('http')) {
+                        preview.innerHTML = `<img src="${existingImage.src}" alt="Preview">`;
+                        actions.style.display = 'flex';
+                        // Remove from deletedImages if it was there
+                        deletedImages.delete(existingImage.src);
+                    }
+                }
+            }
+        });
+    });
+
+    function initializeCropper(img, index) {
+        if (croppers.has(index)) {
+            croppers.get(index).destroy();
+            croppers.delete(index);
+        }
+        
+        const cropper = new Cropper(img, {
+            aspectRatio: 1,
+            viewMode: 1,
+            ready() {
+                document.getElementById(`cropActions${index}`).style.display = 'flex';
+                document.getElementById(`imageActions${index}`).style.display = 'none';
+            }
+        });
+        
+        croppers.set(index, cropper);
+    }
+
+    function resetSlot(index) {
+        const preview = document.getElementById(`imagePreview${index}`);
+        const input = document.getElementById(`image${index}`);
+        const actions = document.getElementById(`imageActions${index}`);
+        const cropActions = document.getElementById(`cropActions${index}`);
+
+        // If there's an existing image, add it to deletedImages
+        const existingImage = preview.querySelector('img');
+        if (existingImage && existingImage.src.startsWith('http')) {
+            deletedImages.add(existingImage.src);
+        }
+
+        preview.innerHTML = `
+            <div class="upload-placeholder">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Click to upload</span>
+            </div>
+        `;
+        input.value = '';
+        actions.style.display = 'none';
+        cropActions.style.display = 'none';
+        croppedImages.delete(index);
+        originalImages.delete(index);
+
+        if (croppers.has(index)) {
+            croppers.get(index).destroy();
+            croppers.delete(index);
+        }
+    }
+
+   
+            // Form submission
+            variantForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Reset errors
+                document.querySelectorAll('.error').forEach(err => err.textContent = '');
+                let isValid = true;
+
+                // Validate color name
+                if (colorNameInput.value.trim().length < 2) {
+                    document.getElementById('colorNameError').textContent = 'Color name must be at least 2 characters';
+                    isValid = false;
+                }
+
+                // Validate stock
+                if (stockInput.value.trim() === '' || parseInt(stockInput.value) < 0) {
+                    document.getElementById('stockError').textContent = 'Please enter a valid stock number';
+                    isValid = false;
+                }
+
+                // Validate images
+                if (!hasExistingImages && croppedImages.size === 0) {
+                     document.getElementById('imagesError').textContent = 'Please upload at least one image';
+                     isValid = false;
+                }
+
+                if (!isValid) return;
+
+                submitButton.disabled = true;
+                submitButton.textContent = 'Updating...';
+                
+                try {
+                    const formData = new FormData();
+                    formData.append('color', colorInput.value);
+                    formData.append('colorName', colorNameInput.value);
+                    formData.append('stock', stockInput.value);
+
+                    // Append deleted images
+                    deletedImages.forEach(url => {
+                        formData.append('deletedImages[]', url);
+                    });
+
+                    // Append cropped images
+                    croppedImages.forEach((blob, index) => {
+                        formData.append('images', blob, `image${index}.jpg`);
+                    });
+                    const productId = "<%= product._id %>"
+                    const variantId = "<%= variant._id %>"
+
+                    const response = await fetch(`/admin/products/${productId}/variants/${variantId}/edit`, {
+                        method: 'PUT',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Unknown error occurred');
+                    }
+
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message || 'Variant updated successfully',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = `/admin/products/<%= product._id %>/variants`;
+                            }
+                        });
+                    } else {
+                        throw new Error(data.message || 'Failed to update variant');
+                    }
+                } catch (error) {
+                    console.error('Error during variant update:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message || 'An error occurred while updating the variant'
+                    });
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Update Variant';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+

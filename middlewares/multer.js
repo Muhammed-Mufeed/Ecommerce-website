@@ -1,16 +1,20 @@
-const multer = require("multer");
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("../config/cloudinary");
+  const multer = require("multer");
+  const { CloudinaryStorage } = require("multer-storage-cloudinary");
+  const cloudinary = require("../config/cloudinary");
 
-// Configure Multer to use Cloudinary
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: "categories", // Cloudinary folder where images will be stored
-    allowed_formats: ["jpg", "png", "jpeg", "webp"], // Allowed file types
-  },
-});
+  // Function to create storage with a dynamic folder
+  const createStorage = (folderName) => {
+    return new CloudinaryStorage({
+      cloudinary: cloudinary,
+      params: {
+        folder: folderName, // Dynamic folder name
+        allowed_formats: ["jpg", "png", "jpeg", "webp"],
+      },
+    });
+  };
 
-const upload = multer({ storage: storage });
+  // Define separate upload handlers
+  const uploadCategoryImage = multer({ storage: createStorage("categories") }); // Category images go to "categories"
+  const uploadProductImage = multer({ storage: createStorage("products") }); // Product images go to "products"
 
-module.exports = upload;
+  module.exports = { uploadCategoryImage, uploadProductImage };

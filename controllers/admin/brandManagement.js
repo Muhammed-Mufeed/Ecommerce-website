@@ -31,7 +31,7 @@ exports.getBrandManagement = async (req,res)=>{
       } 
       catch (error) {
         console.error("Error during loading category page",error)
-        res.status(500).send("Internal Server Error")
+        res.redirect('/admin/errorPage')
       }
 }
 
@@ -43,7 +43,7 @@ exports.getAddBrand = (req,res)=>{
     res.render('add-brand')
   } catch (error) {
     console.error("Error during loading Brand adding page",error)
-    res.status(500).send("Internal Server Error")
+    res.redirect('/admin/errorPage')
   }
 }
 
@@ -117,7 +117,7 @@ exports.getEditBrand =  async (req, res) => {
       res.render('edit-brand', { brand });
   } catch (error) {
       console.error('Error in getEditBrand:', error);
-      res.status(500).render('error', { message: 'Error due to loading edit brand page ' });
+      res.redirect('/admin/errorPage')
   }
 }
 
@@ -189,6 +189,7 @@ exports.patchUpdateBrandStatus = async (req,res)=>{
    }
 
    catch (error) {
-    res.status(500).json({success:false,message:"Internal server Error"})
+    console.log("Error occured while updating Brand Status",error)
+    res.status(500).json({message:"Internal Server Error"})
   }
 }

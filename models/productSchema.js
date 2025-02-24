@@ -1,5 +1,33 @@
 const mongoose=require("mongoose")
 
+const variantSchema = new mongoose.Schema({
+
+  color: {
+    type:String,
+    required:true
+  },
+  colorName: {
+    type:String,
+    required:true
+  },
+
+  images: [{
+    type:String,
+    required:true
+  }],
+
+  stock: {
+    type:Number,
+    required:true
+  },
+
+  isListed: {
+    type:Boolean,
+    default:true
+  }
+},{ _id: true ,timestamps:true})  // each variant gets its own _id
+
+
 const productSchema = new mongoose.Schema({
   name: {
       type: String,
@@ -19,16 +47,8 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: true,
     
-},
-  stock: {
-    type:String,
-    required:true
   },
 
-  images: [{
-      type: String,
-      required: true
-  }],
   category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Category',
@@ -39,18 +59,13 @@ const productSchema = new mongoose.Schema({
       ref: 'Brand',
       required: true
   },
+
   isListed: {
       type: Boolean,
       default: true
   },
 
-  status:{
-  type:String,
-  enum:["Available","Out of Stock"],
-  required:true,
-  default:'Available'
-  },
-
+  variants:[variantSchema]
 },{timestamps:true})
 
 

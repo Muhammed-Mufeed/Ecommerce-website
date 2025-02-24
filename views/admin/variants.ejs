@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Variants - Admin Dashboard</title>
+    <link rel="stylesheet" href="/admin/css/variants.css">
+    <link rel="stylesheet" href="/admin/css/partial.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <%-include('../partials/admin/header')%>
+    
+    <!-- Variants Page Content -->
+    <div class="variants-page">
+        <div class="header-section">
+            <h3>Variants of <%= product.name %></h3>
+            <a href="/admin/products/<%= product._id %>/variants/add" class="add-variant-btn">Add Variant</a>
+        </div>
+       
+        <!-- Variants Table -->
+        <table class="variants-table" id="variants-table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>color</th>
+                    <th>ColorName</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (product.variants.length > 0) { %>
+                    <% product.variants.forEach((variant, index) => { %>
+                        <tr>
+                            <td><%= index + 1 %></td>
+                            <td>
+                                <div 
+                                    class="color-preview" 
+                                    style="width: 50px; height: 50px; border-radius: 8px; border: 1px solid #ddd; margin: 0 auto"
+                                    data-color="<%= variant.color %>"
+                                ></div>
+                            </td>
+                            <td><%= variant.colorName %></td>
+                            <td><%= variant.stock %></td>
+                            <td id="status-<%= variant._id %>"><%= variant.isListed ? 'Listed' : 'Unlisted' %></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="/admin/products/<%= product._id %>/variants/<%= variant._id %>/edit" class="edit-btn">Edit</a>
+                                    <button 
+                                        class="<%= variant.isListed ? 'unlist-btn' : 'list-btn' %>"
+                                        onclick="updateVariantStatus('<%= variant._id %>', this)"
+                                    >
+                                        <%= variant.isListed ? 'Unlist' : 'List' %>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="6" style="text-align: center;">No variants found</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+
+        // Set background colors for color previews
+        document.querySelectorAll('.color-preview').forEach(preview => {
+            preview.style.backgroundColor = preview.dataset.color;
+        });
+        
+        
+
+        // Variant status update
+        async function updateVariantStatus(variantId, button) {
+            try {
+                
+                const productId = "<%= product._id %>"
+
+                const response = await fetch(`/admin/products/${productId}/variants/${variantId}/update-VariantStatus`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                const statusCell = document.getElementById(`status-${variantId}`);
+                
+                if (data.success) {
+                    if (data.isListed) {
+                        button.className = 'unlist-btn';
+                        button.textContent = 'Unlist';
+                        statusCell.textContent = 'Listed';
+                    } else {
+                        button.className = 'list-btn';
+                        button.textContent = 'List';
+                        statusCell.textContent = 'Unlisted';
+                    }
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message,
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to update variant status',
+                    });
+                }
+            } catch (error) {
+                console.error('Error during variant management:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred during variant management',
+                });
+            }
+        }
+    </script>
+</body>
+</html>

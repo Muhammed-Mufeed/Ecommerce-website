@@ -3,8 +3,8 @@
   padding: 0;
   box-sizing: border-box;
  
- 
 }
+
 
 body {
   font-family: 'Roboto', sans-serif;
@@ -12,42 +12,6 @@ body {
   background: #fff;
 }
 
-
-/* Breadcrumb styles */
-.breadcrumb-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px 20px 0;
-}
-
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.breadcrumb a {
-  color: #1c8b8b;
-  text-decoration: none !important; /* Force removal */
-  transition: color 0.2s ease;
-}
-
-.breadcrumb a:hover {
-  color: #156666;
-}
-
-.breadcrumb .separator {
-  margin: 0 8px;  /* Slightly reduced margin for the '>' symbol */
-  color: #999;
-  font-size: 0.8rem;  /* Making the '>' slightly smaller */
-}
-
-/* For the last item (current page) */
-.breadcrumb a:last-of-type {
-  color: #666;
-  pointer-events: none;
-}
 
 
 /* Product Card */

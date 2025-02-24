@@ -1,5 +1,9 @@
-/* Product Page Specific Styles */
-.products-page h3 {
+/* Variants Page Specific Styles */
+.variants-page {
+  padding: 20px;
+}
+
+.variants-page h3 {
   font-size: 24px;
   margin-top: 60px;
   margin-bottom: 20px;
@@ -12,7 +16,7 @@
   margin-bottom: 20px;
 }
 
-.add-product-btn {
+.add-variant-btn {
   background-color: #27ae60;
   color: white;
   padding: 10px 20px;
@@ -23,10 +27,11 @@
   text-decoration: none;
 }
 
-.add-product-btn:hover {
+.add-variant-btn:hover {
   background-color: #219a52;
 }
 
+/* Search Bar Styles */
 .search-bar input {
   padding: 10px;
   font-size: 16px;
@@ -37,43 +42,49 @@
   border: 1px solid #ccc;
 }
 
-.products-table {
+/* Table Styles */
+.variants-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
   background-color: white;
 }
 
-.products-table th {
+.variants-table th,
+.variants-table td {
   padding: 15px;
   text-align: center;
   border: 1px solid #ddd;
 }
 
-.products-table td {
-  padding: 15px;
-  text-align: start;
-  border: 1px solid #ddd;
-}
-
-.products-table th {
+.variants-table th {
   background-color: #34495e;
   color: white;
 }
-.product-name, .product-description{
- text-align: start;
+
+
+/* Variant Thumbnail Styles */
+.variant-thumbnail {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 5px;
 }
+
 /* Action Buttons Container */
 .action-buttons {
   display: flex;
   gap: 10px;
   flex-wrap: nowrap;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
 }
 
 /* General Button Styles */
-button, .edit-btn, .list-btn, .unlist-btn, .variants-btn {
+button,
+.edit-btn,
+.list-btn,
+.unlist-btn {
   padding: 8px 16px;
   font-size: 14px;
   font-weight: 500;
@@ -119,43 +130,41 @@ button, .edit-btn, .list-btn, .unlist-btn, .variants-btn {
   transform: scale(1.05);
 }
 
-/* Variants Button */
-.variants-btn {
-  background-color: #f39c12;
-  color: white;
-}
-
-.variants-btn:hover {
-  background-color: #d35400;
-  transform: scale(1.05);
-}
-
-/* Pagination Styles */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  margin: 30px 0;
-}
-
-.pagination .page-link {
-  padding: 8px 16px;
+/* Status Styles */
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 15px;
   font-size: 14px;
-  text-decoration: none;
-  border-radius: 5px;
-  background-color: white;
-  color: #34495e;
-  border: 1px solid #34495e;
-  transition: all 0.3s ease;
+  font-weight: 500;
 }
 
-.pagination .page-link:hover {
-  background-color: #34495e;
+.status-listed {
+  background-color: #27ae60;
   color: white;
 }
 
-.pagination .page-link.active {
-  background-color: #34495e;
+.status-unlisted {
+  background-color: #e74c3c;
   color: white;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .variants-table {
+      display: block;
+      overflow-x: auto;
+  }
+
+  .header-section {
+      flex-direction: column;
+      gap: 15px;
+  }
+
+  .search-bar input {
+      max-width: 100%;
+  }
+
+  .action-buttons {
+      flex-direction: column;
+  }
 }

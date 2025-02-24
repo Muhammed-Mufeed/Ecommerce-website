@@ -8,7 +8,8 @@ const  mongoDB=require("./config/db")
  const passport = require('./config/passport')
 
 const userRoutes=require('./routes/userRoutes')
-const adminRoutes=require('./routes/adminRoutes')
+const adminRoutes=require('./routes/adminRoutes');
+const setUserData = require('./middlewares/sessionAuth');
 
 const app=express()
 
@@ -44,7 +45,7 @@ app.use(express.static(path.join(__dirname,'public')))
 
 
 app.use('/admin',adminRoutes)
-app.use('/',userRoutes)
+app.use('/',setUserData,userRoutes)
 
 
 

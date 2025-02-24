@@ -5,16 +5,14 @@ const  cloudinary  = require('../../config/cloudinary');
 
 exports.getCategoryManagement = async (req,res)=>{
   try {
-      // Get page and search parameters
+   // Get page and search parameters
    const page = parseInt(req.query.page) || 1;
    const limit = 4;
    const search = req.query.search || '';
 
    //create search Filter
    const searchFilter ={ 
-    $or:[
-      {name: {$regex: search, $options: 'i'}}, 
-     ] 
+    name: {$regex: search, $options:'i'}
    }
        
     const totalCategories = await Category.countDocuments(searchFilter)    
@@ -32,7 +30,7 @@ exports.getCategoryManagement = async (req,res)=>{
   } 
   catch (error) {
     console.error("Error during loading category page",error)
-    res.status(500).send("Internal Server Error")
+    res.redirect('/admin/errorPage')
   }
 }
 
@@ -44,7 +42,7 @@ exports.getAddCategory = (req,res)=>{
     res.render('add-category')
   } catch (error) {
     console.error("Error during loading Add category page",error)
-    res.status(500).send("Internal Server Error")
+    res.redirect('/admin/errorPage')
   }
 }
 
@@ -55,7 +53,7 @@ exports.postAddCategory = async (req, res) => {
     const{name,description} = req.body
 
     if(!name || !description){
-      return res.status(400).json({success:false,messaga:"Name and Description are required"})
+      return res.status(400).json({success:false,message:"Name and Description are required"})
     }
 
     if(!req.file){
@@ -104,7 +102,7 @@ exports.getEditCategory = async (req, res) => {
 
 } catch (error) {
     console.error('Error during loading EditCategory page:', error);
-    res.status(500).send("Internal Server Error");
+    res.redirect('/admin/errorPage')
 }
 }
 
@@ -167,7 +165,7 @@ exports.putEditCategory = async (req, res) => {
 // ===============================================UpdateCategoryStatus-PATCH===================================================================//
 
 
-exports.patchUpdateCategoriesStatus = async (req,res)=>{
+exports.patchUpdateCategoryStatus = async (req,res)=>{
   try {
 
     const categoryId =  req.params.categoryId
@@ -190,6 +188,7 @@ exports.patchUpdateCategoriesStatus = async (req,res)=>{
    }
 
    catch (error) {
-    res.status(500).json({success:false,message:"Internal server Error"})
+    console.log("Error occured while updating Category Status",error)
+    res.status(500).json({message:"Failed to update category Status"})
   }
 }

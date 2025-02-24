@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - Admin Dashboard</title>
+    <link rel="stylesheet" href="/admin/css/products.css">
+    <link rel="stylesheet" href="/admin/css/partial.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <%-include('../partials/admin/header')%>
+    
+    <!-- Products Page Content -->
+    <div class="products-page">
+        <div class="header-section">
+            <h3>Products List</h3>
+            <a href="/admin/products/add" class="add-product-btn">Add Product</a>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" id="product-search" placeholder="Search Products..." value="<%= search %>">
+        </div>
+
+        <!-- Products Table -->
+        <table class="products-table" id="products-table">
+            <thead>
+                <tr>
+                    <th>SI No</th>
+                    <th>Product Name</th>
+                    <th>Description</th>
+                    <th>Actual Price</th>
+                    <th>Selling Price</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (products.length > 0) { %>
+                    <% products.forEach((product, index) => { %>
+                        <tr>
+                            <td ><%= (currentPage - 1) * 4 + index + 1 %></td>
+                            <td ><%= product.name %></td>
+                            <td><%= product.description %></td>
+                            <td>₹<%= product.actualPrice %></td>
+                            <td>₹<%= product.sellingPrice %></td>
+                            <td id="status-<%= product._id %>"><%= product.isListed ? 'Listed' : 'Unlisted' %></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="/admin/products/edit/<%= product._id %>" class="edit-btn">Edit</a>
+                                    <button 
+                                        class="<%= product.isListed ? 'unlist-btn' : 'list-btn' %>"
+                                        onclick="updateProductStatus('<%= product._id %>', this)"
+                                    >
+                                        <%= product.isListed ? 'Unlist' : 'List' %>
+                                    </button>
+                                    <a href="/admin/products/<%= product._id %>/variants" class="variants-btn">Variants</a>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="7" style="text-align: center;">No products found</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+
+        <!-- Pagination Section -->
+        <% if (products.length > 0) { %>
+            <div class="pagination">
+                <% if (currentPage > 1) { %>
+                    <a href="/admin/products?page=<%= currentPage - 1 %>&search=<%= search %>" class="page-link">Previous</a>
+                <% } %>
+
+                <% for(let i = 1; i <= totalPages; i++) { %>
+                    <a href="/admin/products?page=<%= i %>&search=<%= search %>" 
+                        class="page-link <%= currentPage === i ? 'active' : '' %>">
+                        <%= i %>
+                    </a>
+                <% } %>
+
+                <% if (currentPage < totalPages) { %>
+                    <a href="/admin/products?page=<%= currentPage + 1 %>&search=<%= search %>" class="page-link">Next</a>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+
+    <script>
+        // Search functionality
+        const searchInput = document.getElementById('product-search');
+        let searchTimeout;
+
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const searchValue = e.target.value.trim();
+                window.location.href = `/admin/products?search=${searchValue}&page=1`;
+            }, 500);
+        });
+
+        // Product status update
+        async function updateProductStatus(productId, button) {
+            try {
+                const response = await fetch(`/admin/products/${productId}/update-ProductStatus`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                const statusCell = document.getElementById(`status-${productId}`);
+                
+                if (data.success) {
+                    if (data.isListed) {
+                        button.className = 'unlist-btn';
+                        button.textContent = 'Unlist';
+                        statusCell.textContent = 'Listed';
+                    } else {
+                        button.className = 'list-btn';
+                        button.textContent = 'List';
+                        statusCell.textContent = 'Unlisted';
+                    }
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message,
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to update product status',
+                    }); 
+                }
+            } catch (error) {
+                console.error('Error during product management:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred during product management',
+                });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -25,9 +25,9 @@ router.post('/logout', userController.postLogoutPage)
 // ==================================================================================================================//
 
 router.get('/',checkBlocked, productController.getHomepage)
-// router.get('/userproducts',checkBlocked,productController.getProductspage)
-// router.get('/productdetail/:id',checkBlocked, productController.getProductDetailPage)
-// router.get('/categoryProducts/:categoryId',checkBlocked,productController.getCategoryProductspage)
+router.get('/userproducts',checkBlocked,productController.getProductspage)
+router.get('/productdetail/:id',checkBlocked, productController.getProductDetailPage)
+router.get('/categoryProducts/:categoryId',checkBlocked,productController.getCategoryProductspage)
 // ==================================================================================================================//
 
 router.get('/auth/google',passport.authenticate('google',{ scope: ['profile','email'] }))

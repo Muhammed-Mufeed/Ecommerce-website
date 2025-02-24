@@ -145,44 +145,61 @@
   background: #ffebee;
   color: #c62828;
 }
-
 .action-buttons {
   display: flex;
   gap: 10px;
-  width: fit-content; /* Only take up as much width as needed */
   margin-top: 20px;
 }
 
-.buy-now-btn, .add-to-cart-btn {
-  padding: 6px 12px;
+.add-to-wishlist-btn, .add-to-cart-btn {
+  padding: 12px 24px;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  min-width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
 }
 
-.buy-now-btn {
+.add-to-wishlist-btn {
+  background-color: white;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.add-to-cart-btn {
   background-color: #ff3e6c;
   color: white;
   border: none;
 }
 
-.add-to-cart-btn {
-  background-color: white;
-  color: #ff3e6c;
-  border: 1px solid #ff3e6c;
-}
-
-.buy-now-btn:hover {
-  background-color: #ff2c54;
+.add-to-wishlist-btn:hover {
+  background-color: #f5f5f5;
+  border-color: #999;
 }
 
 .add-to-cart-btn:hover {
-  background-color: #fff5f7;
+  background-color: #ff2c54;
+}
+
+.add-to-wishlist-btn.active {
+  background-color: #ffe6e6;
+  border-color: #ff3e6c;
+  color: #ff3e6c;
+}
+
+.wishlist-icon {
+  transition: transform 0.3s ease;
+}
+
+.add-to-wishlist-btn:hover .wishlist-icon {
+  transform: scale(1.1);
 }
 
 /* Responsive Design */
@@ -205,7 +222,7 @@
 .product-description {
   max-width: 1200px;
   margin: 40px auto;
-  text-align: center;
+  text-align: start;
   line-height: 1.8;
   color: #333;
   padding: 0 20px;
@@ -419,6 +436,75 @@
   .selling-price {
     font-size: 1.1rem;
   }
+}
+
+
+/* Available Colors Section */
+.available-colors {
+  margin: 20px 0;
+}
+
+.colors-title {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.color-options {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.color-option {
+  display: flex;
+  /* flex-direction: column; */
+  align-items: center;
+  cursor: pointer;
+  padding: 5px;
+  /* border-radius: 8px; */
+  transition: all 0.3s ease;
+}
+
+.color-option.active {
+  background-color: #f5f5f5;
+}
+
+.color-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  margin-bottom: 4px;
+  transition: transform 0.2s ease;
+}
+
+.color-option:hover .color-circle {
+  transform: scale(1.1);
+}
+
+.color-option.active .color-circle {
+  border: 2px solid #1c8b8b;
+}
+
+.color-name {
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+
+/* Update existing thumbnail styles */
+.thumbnail {
+  width: 80px;
+  height: 80px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  object-fit: cover;
+  transition: border-color 0.3s ease;
+}
+
+.thumbnail.active {
+  border: 2px solid #1c8b8b;
 }
 
 /* Zoom Lens Effect */

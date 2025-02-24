@@ -40,7 +40,7 @@
                 <span class="error" id="imageError"></span>
             </div>
 
-            <button type="submit" class="submit-btn">Add Category</button>
+            <button type="submit" class="submit-btn" id="submitButton">Add Category</button>
         </form>
     </div>
 
@@ -56,6 +56,8 @@
             const nameError = document.getElementById('nameError')
             const descriptionError = document.getElementById('descriptionError');
             const imageError = document.getElementById('imageError');
+            
+            const submitButton = document.getElementById('submitButton')
 
             imageInput.addEventListener('change',function (){
                 const file = this.files[0]
@@ -121,6 +123,8 @@
               if(isValid==false){
                 return;
               }
+              submitButton.disabled = true;
+              submitButton.textContent = "Adding...";
 
             
                 try{
@@ -134,6 +138,8 @@
                     const data = await response.json()
 
                     if(data.success){
+                        submitButton.disabled = false; // Re-enable button
+                        submitButton.textContent = "Add Category"; // Restore button text
                         Swal.fire({
                             icon: 'success',
                             title: 'success',
@@ -154,6 +160,8 @@
                             confirmButtonText: 'OK'
 
                         })
+                        submitButton.disabled = false; // Re-enable button
+                        submitButton.textContent = "Add Category"; // Restore button text
                     }
 
                 }
@@ -164,7 +172,9 @@
                         title:'error',
                         text:"An error occurred while adding the category",
                         confirmButtonText:'OK'
-                    })          
+                    })
+                    submitButton.disabled = false; 
+                    submitButton.textContent = "Add Category";          
                 }
 
 

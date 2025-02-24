@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="/user/css/partial.css" />
     <link rel="stylesheet" href="/user/css/product-detail.css" />
     <title>Product Detail Page</title>
-   
 </head>
 <body>
     <%-include('../partials/user/header')%>
@@ -19,10 +18,10 @@
         </div>
     </div>
     
-    
     <div class="product-container">
+        <!-- Thumbnails -->
         <div class="product-images">
-            <% productData.images.forEach((image, index) => { %>
+            <% selectedVariant.images.forEach((image, index) => { %>
                 <img src="<%= image %>" 
                      alt="Product thumbnail <%= index + 1 %>" 
                      class="thumbnail <%= index === 0 ? 'active' : '' %>"
@@ -30,13 +29,15 @@
             <% }) %>
         </div>
         
+        <!-- Main Image -->
         <div class="main-image-container">
-            <img src="<%= productData.images.length > 0 ? productData.images[0] : '/default-image.jpg' %>" 
+            <img src="<%= selectedVariant.images.length > 0 ? selectedVariant.images[0] : '/default-image.jpg' %>" 
                  alt="Main Product Image" 
                  class="main-image" 
                  id="mainImage">
         </div>
 
+        <!-- Product Info -->
         <div class="product-info">
             <span class="online-exclusive">ONLINE EXCLUSIVE</span>
             <h1 class="product-title"><%= productData.name %></h1>
@@ -47,104 +48,112 @@
             </div>
             
             <div class="product-brand">Brand: <%= productData.brand.name %></div>
-            
 
-            <div class="stock-status <%= productData.stock > 0 ? 'in-stock' : 'out-of-stock' %>">
-                <%= productData.stock > 0 ? 'In Stock' : 'Out of Stock' %>
+            <!-- Available Colors -->
+            <div class="available-colors">
+                <h4 class="colors-title">Available Colors</h4>
+                <div class="color-options">
+                    <% productData.variants.forEach((variant) => { %>
+                        <form action="/productdetail/<%= productData._id %>" method="GET" style="display: inline;">
+                            <input type="hidden" name="variantId" value="<%= variant._id %>">
+                            <button type="submit" class="color-option <%= variant._id.toString() === selectedVariant._id.toString() ? 'active' : '' %>">
+                                <div class="color-circle"style="background-color: <%= variant.color %>"></div>
+                                <span class="color-name"><%= variant.colorName %></span>
+                            </button>
+                        </form>
+                    <% }) %>
+                </div>
             </div>
 
+            <!-- Stock Status -->
+            <div class="stock-status <%= selectedVariant.stock > 0 ? 'in-stock' : 'out-of-stock' %>">
+                <%= selectedVariant.stock > 0 ? 'In Stock' : 'Out of Stock' %>
+            </div>
+
+            <!-- Action Buttons -->
             <div class="action-buttons">
-                <button class="buy-now-btn">Buy Now</button>
-                <button class="add-to-cart-btn">Add to Cart</button>
+                <button class="add-to-wishlist-btn" >
+                    <img src="/user/icons/wishlist-2.png" alt="wishlist" width="20" class="wishlist-icon">
+                    <span>Add to Wishlist</span>
+                </button>
+                <button class="add-to-cart-btn" onclick="addToCart('<%= productData._id %>', '<%= selectedVariant._id %>')">Add to Cart</button>
             </div>
-          </div>
+        </div>
     </div>
-    
 
+    <!-- Product Description -->
     <div class="product-description">
-        <%= productData.description %>
+        <h3 class="description-heading">Specification:</h3>
+        <div>
+            <%= productData.description %>
+        </div>
     </div>
 
+    <!-- Product Reviews -->
     <div class="product-reviews">
         <h2 class="reviews-title">Product reviews</h2>
         <div class="rating-bars">
+            <% for(let i = 5; i >= 1; i--){ %>
             <div class="rating-row">
-                <span class="star-number">5 ★</span>
+                <span class="star-number"> ★</span>
                 <div class="rating-bar"></div>
                 <span class="rating-count">0</span>
             </div>
-            <div class="rating-row">
-                <span class="star-number">4 ★</span>
-                <div class="rating-bar"></div>
-                <span class="rating-count">0</span>
-            </div>
-            <div class="rating-row">
-                <span class="star-number">3 ★</span>
-                <div class="rating-bar"></div>
-                <span class="rating-count">0</span>
-            </div>
-            <div class="rating-row">
-                <span class="star-number">2 ★</span>
-                <div class="rating-bar"></div>
-                <span class="rating-count">0</span>
-            </div>
-            <div class="rating-row">
-                <span class="star-number">1 ★</span>
-                <div class="rating-bar"></div>
-                <span class="rating-count">0</span>
-            </div>
+            <% } %>
         </div>
 
         <div class="write-review">
             <button class="write-review-btn">Write a review</button>
         </div>
     </div>
-   <div class="related-products">
-  <h2 class="related-title">Related Products</h2>
-  <div class="products-grid">
-    <% if (relatedProducts.length > 0) { %>
-      <% relatedProducts.forEach(product => { %>
-        <div class="product-card">
-          <a href="/productdetail/<%= product._id %>" class="product-link">
-            <div class="product-image">
-              <img src="<%= product.images[0] %>" alt="<%= product.name %>">
-              <div class="product-wishlist">
-                <img src="/user/icons/wishlist-2.png" alt="wishlist" width="20">
-              </div>
-            </div>
-          </a>
-          <div class="product-details">
-            <h3 class="product-name"><%= product.name %></h3>
-            <div class="price-container">
-              <span class="mrp">M.R.P₹<%= product.actualPrice %></span>
-              <span class="selling-price">₹<%= product.sellingPrice %></span>
-            </div>
-            <div class="product-rating">★★★★☆</div>
-            <button class="add-to-cart">Add to Cart</button>
-          </div>
+
+    <!-- Related Products -->
+    <div class="related-products">
+        <h2 class="related-title">Related Products</h2>
+        <div class="products-grid">
+            <% if (relatedProducts.length > 0) { %>
+                <% relatedProducts.forEach(product => { %>
+                    <div class="product-card">
+                        <a href="/productdetail/<%= product._id %>?variantId=<%=product.variants[0]._id %>" class="product-link">
+                            <div class="product-image">
+                                <img src="<%= product.variants.length > 0 && product.variants[0].images.length > 0  ? product.variants[0].images[0]  : '/default-image.jpg ' %> " alt="<%= product.name %>">
+                                <div class="product-wishlist">
+                                    <img src="/user/icons/wishlist-2.png" alt="wishlist" width="20">
+                                </div>
+                            </div>
+                        </a>
+                        <div class="product-details">
+                            <h3 class="product-name"><%= product.name %></h3>
+                            <div class="price-container">
+                                <span class="mrp">M.R.P₹<%= product.actualPrice %></span>
+                                <span class="selling-price">₹<%= product.sellingPrice %></span>
+                            </div>
+                            <div class="product-rating">★★★★☆</div>
+                            <button class="add-to-cart">Add to Cart</button>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p>No related products found.</p>
+            <% } %>
         </div>
-      <% }) %>
-    <% } else { %>
-      <p>No related products found.</p>
-    <% } %>
-  </div>
-</div>
-    
+    </div>
+
     <script>
+        // Function to update the main image when a thumbnail is clicked
         function updateMainImage(thumbnail) {
-            // Update main image
             const mainImage = document.getElementById('mainImage');
             mainImage.src = thumbnail.src;
-            
+
             // Update active state of thumbnails
-            const thumbnails = document.querySelectorAll('.thumbnail');
-            thumbnails.forEach(thumb => thumb.classList.remove('active'));
+            document.querySelectorAll('.thumbnail').forEach(thumb => thumb.classList.remove('active'));
             thumbnail.classList.add('active');
         }
 
 
+
         //zoom
-        document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function () {
     const mainImageContainer = document.querySelector(".main-image-container");
     const mainImage = document.getElementById("mainImage");
 
@@ -173,10 +182,28 @@
 });
 
 
-
-
+        // Function to add product to cart
+        // function addToCart(productId, variantId) {
+        //     fetch('/add-to-cart', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify({ productId, variantId }),
+        //     })
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         if (data.success) {
+        //             alert('Product added to cart successfully');
+        //         } else {
+        //             alert('Failed to add product to cart');
+        //         }
+        //     })
+        //     .catch((error) => {
+        //         console.error('Error:', error);
+        //     });
+        // }
     </script>
-   <%-include('../partials/user/footer')%>
-
+    <%-include('../partials/user/footer')%>
 </body>
-</html>    -->
+</html>

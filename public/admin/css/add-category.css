@@ -24,12 +24,12 @@
 }
 
 .back-btn {
-  padding: 8px 16px;
-  background: #f0f0f0;
-  color: #333;
+  background-color: #34495e;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
   text-decoration: none;
-  border-radius: 4px;
-  transition: background 0.3s;
+  transition: background-color 0.3sease;
 }
 
 .back-btn:hover {

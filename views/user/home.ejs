@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -18,27 +18,25 @@
         <div class="banner-content">
           <h1>Welcome to PackSmart</h1>
           <p>Your ultimate destination for packing products</p>
-          <a href="/userproducts">
-            <button>Shop Now</button>
-          </a>
-          
+          <a href="/userproducts"><button>Shop Now</button></a>
         </div>
       </div>
+      
       <div class="banner-slide" style="background-image: url('/user/images/banner2.jpg')">
         <div class="banner-content">
           <h1>Discover Smart Packing Solutions</h1>
           <p>Quality Products, Unmatched Convenience</p>
-          <a href="/userproducts">
-            <button>Shop Now</button>
-          </a>
+          <a href="/userproducts"><button>Shop Now</button></a>
         </div>
       </div>
     </div>
+    
     <div class="banner-indicators">
       <span class="indicator active"></span>
       <span class="indicator"></span>
     </div>
   </section>
+  
   
 
 
@@ -69,38 +67,37 @@
   <p>From daily essentials to travel must haves ,pack smart with our exclusive collection</p>
 </div>
 
-<!-- Products Section -->
-<section class="products-section">
-  <div class="products-grid">
-    <!-- <% if (products.length > 0) { %>
-    <% products.forEach((product)=>{  %>
-      <div class="product-card">
-        <a href="/productdetail/<%=product._id%>"  class="product-link">
-          <div class="product-image">
-              <img src="<%=product.images[0]%>" alt="Product Name">
-              <div class="product-wishlist">
+  <!-- Products Section -->
+  <section class="products-section">
+    <div class="products-grid">
+      <% if (products.length > 0) { %>
+        <% products.forEach((product) => { %>
+          <div class="product-card">
+            <!-- Update the product link to include the variantId -->
+            <a href="/productdetail/<%= product._id %>?variantId=<%= product.variants[0]._id %>" class="product-link">
+              <div class="product-image">
+                <img src="<%= product.variants.length > 0 && product.variants[0].images.length > 0 ? product.variants[0].images[0] : '/default-image.jpg' %>" alt="<%= product.name %>">
+                <div class="product-wishlist">
                   <img src="/user/icons/wishlist-2.png" alt="wishlist" width="20">
+                </div>
               </div>
-          </div>
-        </a>
-          <div class="product-details">
-            <h3 class="product-name"><%=product.name%></h3>
-            <div class="price-container">
-                <span class="mrp">M.R.P₹<%=product.actualPrice%></span>
-                <span class="selling-price">₹<%=product.sellingPrice%></span>
+            </a>
+            <div class="product-details">
+              <h3 class="product-name"><%= product.name %></h3>
+              <div class="price-container">
+                <span class="mrp">M.R.P₹<%= product.actualPrice %></span>
+                <span class="selling-price">₹<%= product.sellingPrice %></span>
+              </div>
+              <div class="product-rating">★★★★☆</div>
+              <button class="add-to-cart">Add to Cart</button>
             </div>
-            <div class="product-rating">★★★★☆</div>
-            <button class="add-to-cart">Add to Cart</button>
-        </div>
-      </div>
-      <% }) %>
-      
+          </div>
+        <% }) %>
       <% } else { %>
-        <p>No products found for this category.</p>
-        <% } %> -->
-  </div>
-</section>
-
+        <p>No Related products found for this product.</p>
+      <% } %>
+    </div>
+  </section>
 
 <script>
  document.addEventListener('DOMContentLoaded', () => {
@@ -136,4 +133,4 @@
   <%-include('../partials/user/footer')%>
 
 </body>
-</html>
+</html> 

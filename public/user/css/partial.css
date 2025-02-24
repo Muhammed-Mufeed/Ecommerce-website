@@ -72,17 +72,15 @@ body {
 /* Icons Container Styling */
 .icons {
   display: flex;
-  gap: 24px; /* Reduced spacing between icons */
-  align-items: center;
+  align-items: center; /* Ensures all icons are vertically centered */
+  gap: 24px;
 }
 
 /* Icon Styling */
-.icon {
-  position: relative;
-  cursor: pointer;
-  font-size: 24px; /* Slightly smaller icon size */
-  color: #333; /* Neutral color */
-  transition: transform 0.3s ease, color 0.3s ease;
+.icons {
+  display: flex;
+  align-items: center; /* Aligns icons vertically */
+  gap: 24px;
 }
 
 .icon img {
@@ -95,6 +93,7 @@ body {
 .icon:hover {
   transform: scale(1.1); /* Slight zoom effect */
   color: #ff6f61; /* Matches logo color */
+  cursor: pointer;
 }
 
 /* Cart Icon Specific Styling */
@@ -121,19 +120,22 @@ body {
   position: relative;
   font-size: 24px;
 }
-
 .profile-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  outline: none;
   display: flex;
-  align-items: center;
+  align-items: center; /* Centers the profile icon */
+  justify-content: center;
+  width: 24px; /* Consistent with other icons */
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  position: relative;
+  top: -2px; /* Adjust this value slightly if needed */
 }
 
 .profile-button img {
-  width: 24px; /* Match the size of other icons */
+  width: 24px;
   height: 24px;
   object-fit: contain;
 }
@@ -302,4 +304,37 @@ body {
       display: inline-block;
       margin: 5px 10px;
   }
+}
+
+
+
+
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.breadcrumb a {
+  color: #1c8b8b;
+  text-decoration: none !important; /* Force removal */
+  transition: color 0.2s ease;
+}
+
+.breadcrumb a:hover {
+  color: #156666;
+}
+
+.breadcrumb .separator {
+  margin: 0 8px;  /* Slightly reduced margin for the '>' symbol */
+  color: #999;
+  font-size: 0.8rem;  /* Making the '>' slightly smaller */
+}
+
+/* For the last item (current page) */
+.breadcrumb a:last-of-type {
+  color: #666;
+  pointer-events: none;
 }

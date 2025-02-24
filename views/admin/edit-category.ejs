@@ -43,7 +43,7 @@
                 <span class="error" id="imageError"></span>
             </div>
 
-            <button type="submit" class="submit-btn">Update Category</button>
+            <button type="submit" class="submit-btn" id="submitButton">Update Category</button>
         </form>
     </div>
 
@@ -59,6 +59,8 @@
             const nameError = document.getElementById('nameError')
             const descriptionError = document.getElementById('descriptionError');
             const imageError = document.getElementById('imageError');
+            
+            const submitButton = document.getElementById('submitButton')
 
             imageInput.addEventListener('change',function (){
                 const file = this.files[0]
@@ -121,6 +123,9 @@
                 return;
                 }
 
+                submitButton.textContent = "Updating..."
+                submitButton.disabled = true
+
 
                 try{
 
@@ -154,6 +159,8 @@
                           confirmButtonText: 'OK'
 
                         })
+                        submitButton.disabled = false
+                        submitButton.textContent = "Update Category"
                     }
 
                 }
@@ -164,7 +171,9 @@
                      title:'error',
                      text:"An error occurred while updating the category",
                      confirmButtonText:'OK'
-                    })          
+                    }) 
+                    submitButton.disabled = false
+                    submitButton.textContent = "Update Category"         
                 }
 
 
