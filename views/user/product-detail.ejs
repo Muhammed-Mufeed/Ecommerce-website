@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/user/css/partial.css" />
-    <link rel="stylesheet" href="/user/css/product-detail.css" />
+    <link rel="stylesheet" href="/user/css/product-detail.css" />   
+    <!-- Add SweetAlert  -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Product Detail Page</title>
 </head>
 <body>
@@ -18,126 +20,151 @@
         </div>
     </div>
     
-    <div class="product-container">
-        <!-- Thumbnails -->
-        <div class="product-images">
-            <% selectedVariant.images.forEach((image, index) => { %>
-                <img src="<%= image %>" 
-                     alt="Product thumbnail <%= index + 1 %>" 
-                     class="thumbnail <%= index === 0 ? 'active' : '' %>"
-                     onclick="updateMainImage(this)">
-            <% }) %>
+    <!-- Check if selectedVariant exists -->
+    <% if (!selectedVariant) { %>
+        <div class="product-unavailable">
+            <p>This product is currently unavailable.</p>
         </div>
-        
-        <!-- Main Image -->
-        <div class="main-image-container">
-            <img src="<%= selectedVariant.images.length > 0 ? selectedVariant.images[0] : '/default-image.jpg' %>" 
-                 alt="Main Product Image" 
-                 class="main-image" 
-                 id="mainImage">
-        </div>
-
-        <!-- Product Info -->
-        <div class="product-info">
-            <span class="online-exclusive">ONLINE EXCLUSIVE</span>
-            <h1 class="product-title"><%= productData.name %></h1>
-
-            <div class="price-container">
-                <span class="mrp">MRP: ₹<%= productData.actualPrice %></span>
-                <span class="selling-price">₹<%= productData.sellingPrice %></span>
+    <% } else { %>
+        <div class="product-container">
+            <!-- Thumbnails -->
+            <div class="product-images">
+                <% selectedVariant.images.forEach((image, index) => { %>
+                    <img src="<%= image %>" 
+                         alt="Product thumbnail <%= index + 1 %>" 
+                         class="thumbnail <%= index === 0 ? 'active' : '' %>"
+                         onclick="updateMainImage(this)">
+                <% }) %>
             </div>
             
-            <div class="product-brand">Brand: <%= productData.brand.name %></div>
+            <!-- Main Image -->
+            <div class="main-image-container">
+                <img src="<%= selectedVariant.images.length > 0 ? selectedVariant.images[0] : '/default-image.jpg' %>" 
+                     alt="Main Product Image" 
+                     class="main-image" 
+                     id="mainImage">
+            </div>
 
-            <!-- Available Colors -->
-            <div class="available-colors">
-                <h4 class="colors-title">Available Colors</h4>
-                <div class="color-options">
-                    <% productData.variants.forEach((variant) => { %>
-                        <form action="/productdetail/<%= productData._id %>" method="GET" style="display: inline;">
-                            <input type="hidden" name="variantId" value="<%= variant._id %>">
-                            <button type="submit" class="color-option <%= variant._id.toString() === selectedVariant._id.toString() ? 'active' : '' %>">
-                                <div class="color-circle"style="background-color: <%= variant.color %>"></div>
-                                <span class="color-name"><%= variant.colorName %></span>
-                            </button>
-                        </form>
-                    <% }) %>
+            <!-- Product Info -->
+            <div class="product-info">
+                <span class="online-exclusive">ONLINE EXCLUSIVE</span>
+                <h1 class="product-title"><%= productData.name %></h1>
+
+                <div class="price-container">
+                    <span class="mrp">MRP: ₹<%= productData.actualPrice %></span>
+                    <span class="selling-price">₹<%= productData.sellingPrice %></span>
+                </div>
+                
+                <div class="product-brand">Brand: <%= productData.brand.name %></div>
+
+                <!-- Available Colors -->
+                <div class="available-colors">
+                    <h4 class="colors-title">Available Colors</h4>
+                    <div class="color-options">
+                        <% productData.variants.forEach((variant) => { %>
+                            <!-- Only display listed variants -->
+                            <% if (variant.isListed) { %>
+                                <form action="/productdetail/<%= productData._id %>" method="GET" style="display: inline;">
+                                    <input type="hidden" name="variantId" value="<%= variant._id %>">
+                                    <button type="submit" class="color-option <%= variant._id.toString() === selectedVariant._id.toString() ? 'active' : '' %>">
+                                        <div class="color-circle"style="background-color: <%= variant.color %>"></div>
+                                        <span class="color-name"><%= variant.colorName %></span>
+                                    </button>
+                                </form>
+                            <% } %>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <!-- Stock Status -->
+                <div class="stock-status <%= selectedVariant.stock > 0 ? 'in-stock' : 'out-of-stock' %>">
+                    <% if (selectedVariant.stock > 5) { %>
+                        In Stock
+                    <% } else if (selectedVariant.stock > 0) { %>
+                        Hurry up! Only <%= selectedVariant.stock %> left in stock
+                    <% } else { %>
+                        Out of Stock
+                    <% } %>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="add-to-wishlist-btn">
+                        <img src="/user/icons/wishlist-2.png" alt="wishlist" width="20" class="wishlist-icon">
+                        <span>Add to Wishlist</span>
+                    </button>
+                    <!-- Disable "Add to Cart" button if out of stock -->
+                    <button class="add-to-cart-btn" 
+                            onclick="addToCart('<%= productData._id %>', '<%= selectedVariant._id %>')"
+                            <%= selectedVariant.stock <= 0 ? 'disabled' : '' %>>
+                        Add to Cart
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <!-- Stock Status -->
-            <div class="stock-status <%= selectedVariant.stock > 0 ? 'in-stock' : 'out-of-stock' %>">
-                <%= selectedVariant.stock > 0 ? 'In Stock' : 'Out of Stock' %>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-                <button class="add-to-wishlist-btn" >
-                    <img src="/user/icons/wishlist-2.png" alt="wishlist" width="20" class="wishlist-icon">
-                    <span>Add to Wishlist</span>
-                </button>
-                <button class="add-to-cart-btn" onclick="addToCart('<%= productData._id %>', '<%= selectedVariant._id %>')">Add to Cart</button>
+        <!-- Product Description -->
+        <div class="product-description">
+            <h3 class="description-heading">Specification:</h3>
+            <div>
+                <%= productData.description %>
             </div>
         </div>
-    </div>
 
-    <!-- Product Description -->
-    <div class="product-description">
-        <h3 class="description-heading">Specification:</h3>
-        <div>
-            <%= productData.description %>
-        </div>
-    </div>
-
-    <!-- Product Reviews -->
-    <div class="product-reviews">
-        <h2 class="reviews-title">Product reviews</h2>
-        <div class="rating-bars">
-            <% for(let i = 5; i >= 1; i--){ %>
-            <div class="rating-row">
-                <span class="star-number"> ★</span>
-                <div class="rating-bar"></div>
-                <span class="rating-count">0</span>
+        <!-- Product Reviews -->
+        <div class="product-reviews">
+            <h2 class="reviews-title">Product reviews</h2>
+            <div class="rating-bars">
+                <% for(let i = 5; i >= 1; i--){ %>
+                <div class="rating-row">
+                    <span class="star-number"> ★</span>
+                    <div class="rating-bar"></div>
+                    <span class="rating-count">0</span>
+                </div>
+                <% } %>
             </div>
-            <% } %>
+
+            <div class="write-review">
+                <button class="write-review-btn">Write a review</button>
+            </div>
         </div>
 
-        <div class="write-review">
-            <button class="write-review-btn">Write a review</button>
-        </div>
-    </div>
-
-    <!-- Related Products -->
-    <div class="related-products">
-        <h2 class="related-title">Related Products</h2>
-        <div class="products-grid">
-            <% if (relatedProducts.length > 0) { %>
-                <% relatedProducts.forEach(product => { %>
-                    <div class="product-card">
-                        <a href="/productdetail/<%= product._id %>?variantId=<%=product.variants[0]._id %>" class="product-link">
-                            <div class="product-image">
-                                <img src="<%= product.variants.length > 0 && product.variants[0].images.length > 0  ? product.variants[0].images[0]  : '/default-image.jpg ' %> " alt="<%= product.name %>">
-                                <div class="product-wishlist">
-                                    <img src="/user/icons/wishlist-2.png" alt="wishlist" width="20">
+        <!-- Related Products -->
+        <div class="related-products">
+            <h2 class="related-title">Related Products</h2>
+            <div class="products-grid">
+                <% if (relatedProducts.length > 0) { %>
+                    <% relatedProducts.forEach(product => { %>
+                        <!-- Check if the related product has at least one listed variant -->
+                        <% if (product.variants.some(v => v.isListed)) { %>
+                            <div class="product-card">
+                                <a href="/productdetail/<%= product._id %>?variantId=<%= product.variants.find(v => v.isListed)._id %>" class="product-link">
+                                    <div class="product-image">
+                                        <img src="<%= product.variants.find(v => v.isListed).images.length > 0 ? product.variants.find(v => v.isListed).images[0] : '/default-image.jpg' %>" alt="<%= product.name %>">
+                                        <div class="product-wishlist">
+                                            <img src="/user/icons/wishlist-2.png" alt="wishlist" width="20">
+                                        </div>
+                                    </div>
+                                </a>
+                                <div class="product-details">
+                                    <h3 class="product-name"><%= product.name %></h3>
+                                    <div class="price-container">
+                                        <span class="mrp">M.R.P₹<%= product.actualPrice %></span>
+                                        <span class="selling-price">₹<%= product.sellingPrice %></span>
+                                    </div>
+                                    <div class="product-rating">★★★★☆</div>
+                                    <button class="add-to-cart">Add to Cart</button>
                                 </div>
                             </div>
-                        </a>
-                        <div class="product-details">
-                            <h3 class="product-name"><%= product.name %></h3>
-                            <div class="price-container">
-                                <span class="mrp">M.R.P₹<%= product.actualPrice %></span>
-                                <span class="selling-price">₹<%= product.sellingPrice %></span>
-                            </div>
-                            <div class="product-rating">★★★★☆</div>
-                            <button class="add-to-cart">Add to Cart</button>
-                        </div>
-                    </div>
-                <% }) %>
-            <% } else { %>
-                <p>No related products found.</p>
-            <% } %>
+                        <% } %>
+                    <% }) %>
+                <% } else { %>
+                    <p>No related products found.</p>
+                <% } %>
+            </div>
         </div>
-    </div>
+    <% } %>
+
 
     <script>
         // Function to update the main image when a thumbnail is clicked
@@ -182,27 +209,53 @@
 });
 
 
-        // Function to add product to cart
-        // function addToCart(productId, variantId) {
-        //     fetch('/add-to-cart', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify({ productId, variantId }),
-        //     })
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         if (data.success) {
-        //             alert('Product added to cart successfully');
-        //         } else {
-        //             alert('Failed to add product to cart');
-        //         }
-        //     })
-        //     .catch((error) => {
-        //         console.error('Error:', error);
-        //     });
-        // }
+// Function to add product to cart
+async function addToCart(productId,variantId){
+   try{
+        const response = await fetch('/add-to-cart',{
+            method:'POST',
+            headers: {
+            'Content-Type' : 'application/json'
+            },
+            body:JSON.stringify({productId,variantId}),
+
+        });
+
+         // Check if the response status is 401 (Unauthorized),(Not Logged in users)
+         if(response.status === 401){
+            window.location.href = "/login"
+            return
+         }
+
+        const data = await response.json()
+
+        if(data.success){
+            Swal.fire({
+                icon:'success',
+                title:'Success',
+                text: data.message || "Item added to the Cart",
+                confirmButtonText: "OK"
+            })
+        }
+        else{
+            Swal.fire({
+                icon:'error',
+                title:'Error',
+                text:data.message || "Failed to add Item to the Cart",
+                confirmButtonText:"OK"
+            })
+        }
+    }
+    catch(error){
+     console.log("Error during Add to cart",error)
+     Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while adding in to the Cart',
+        confirmButtonText: 'OK'
+      });
+    }
+}       
     </script>
     <%-include('../partials/user/footer')%>
 </body>

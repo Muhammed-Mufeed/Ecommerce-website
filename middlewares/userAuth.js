@@ -4,7 +4,8 @@ const User = require('../models/userSchema')
 exports.checkLogin = async (req,res,next)=>{
   try {
     if(!req.session.user){
-      return  res.redirect('/login')   // Redirect to login if user session doesn't exist
+      //For API req, use status code 401.
+      return  res.status(401).json({success:false,message:"Unauthorized.Please Login"})   // In checkLogin, we are sending response as json(because we are using fetch for submission).so we are doing like this way.From frontend we are redirecting route('/login)
      }
      else{
        next()

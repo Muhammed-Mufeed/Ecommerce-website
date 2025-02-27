@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/user/css/partial.css" />
+  <link rel="stylesheet" href="/user/css/user-cart.css">
+   <!-- Add SweetAlert  -->
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <title>Cart</title>
+  <style>
+    .strikethrough {
+      text-decoration: line-through;
+      color: #999; /* Optional: Add a lighter color for the actual price */
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/user/header') %>
+
+  <div class="cart-container">
+    <h1>Your Cart</h1>
+    <% if (cartItems.length > 0) { %>
+      <div class="cart-items">
+        <% cartItems.forEach((item, index) => { %>
+          <div class="cart-item" data-product-id="<%= item.product._id %>" data-variant-id="<%= item.variant._id %>">
+            <img
+              src="<%= item.variant.images && item.variant.images[0] ? item.variant.images[0] : '/default-image.jpg' %>"
+              alt="<%= item.product.name %>"
+            />
+            <div class="item-details">
+              <h3><%= item.product.name %></h3>
+              <p>Color: <%= item.variant.colorName %></p>
+              <!-- Display actual price with strikethrough -->
+              <p>
+                <span class="strikethrough">₹<%= item.product.actualPrice %></span>
+                <span> ₹<%= item.product.sellingPrice %></span>
+              </p>
+              <div class="quantity-controls">
+                <button class="decrease-quantity">-</button>
+                <span class="quantity" id="quantity-<%= index %>"><%= item.quantity %></span>
+                <button class="increase-quantity">+</button>
+              </div>
+              <button class="remove-item">Remove</button>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+      <div class="cart-summary">
+        <h3 id="subtotal">Subtotal: ₹<%= subtotal %></h3>
+        <h3 id="estimated-total">Estimated Total: ₹<%= subtotal %></h3>
+        <button class="checkout-btn" id="checkoutbtn">Proceed to Checkout</button>
+      </div>
+    <% } else { %>
+      <p>Your cart is empty.</p>
+    <% } %>
+  </div>
+
+  <%- include('../partials/user/footer') %>
+
+  <script>
+    // Function to calculate and update subtotal and estimated total
+    function updateTotals() {
+      let subtotal = 0;
+
+      // Loop through all cart items and calculate subtotal
+      document.querySelectorAll('.cart-item').forEach((cartItem, index) => {
+        const price = parseFloat(cartItem.querySelector('.item-details p span:not(.strikethrough)').textContent.replace('₹', ''));
+        const quantity = parseInt(document.getElementById(`quantity-${index}`).textContent);
+        subtotal += price * quantity;
+      });
+
+      // Update subtotal and estimated total in the UI
+      document.getElementById('subtotal').textContent = `Subtotal: ₹${subtotal}`;
+      document.getElementById('estimated-total').textContent = `Estimated Total: ₹${subtotal}`;
+    }
+
+    // Add event listeners for quantity controls
+    document.querySelectorAll('.quantity-controls button').forEach(button => {
+      button.addEventListener('click', async (e) => {
+        const cartItem = e.target.closest('.cart-item');
+        const productId = cartItem.dataset.productId;
+        const variantId = cartItem.dataset.variantId;
+        const quantityElement = cartItem.querySelector('.quantity');
+        let quantity = parseInt(quantityElement.textContent);
+
+        if (e.target.classList.contains('increase-quantity')) {
+          quantity += 1;
+        } else if (e.target.classList.contains('decrease-quantity')) {
+          quantity = Math.max(1, quantity - 1);
+        }
+
+        // Update quantity via fetch
+        const response = await fetch('/update-cart', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ productId, variantId, quantity }),
+        });
+
+        if (response.ok) {
+          quantityElement.textContent = quantity; // Update the quantity displayed in the UI
+          updateTotals(); // Update subtotal and estimated total
+        }
+      });
+    });
+
+    // Add event listeners for remove buttons
+    document.querySelectorAll('.remove-item').forEach(button => {
+      button.addEventListener('click', async (e) => {
+        const cartItem = e.target.closest('.cart-item');
+        const productId = cartItem.dataset.productId;
+        const variantId = cartItem.dataset.variantId;
+
+        const response = await fetch('/remove-cart', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ productId, variantId }),
+        });
+
+        if (response.ok) {
+          cartItem.remove(); // Remove the item from the UI
+          updateTotals(); // Update subtotal and estimated total
+        }
+      });
+    });
+
+  document.getElementById('checkoutbtn').addEventListener('click', async (e) => {
+    e.preventDefault(); // Prevent default form submission or link behavior
+
+    
+  // Send a POST request to the server for further validation
+  try {
+    const response = await fetch('/cart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}), // You can send additional data if needed
+    });
+
+    if (response.ok) {
+      // Redirect to the checkout page if the backend validation passes
+      window.location.href = '/checkout';
+    } 
+    else {
+      const data = await response.json();
+        Swal.fire({
+          title: 'Error',
+          text: data.message || 'Something went wrong. Please try again.',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+    }
+
+  } catch (error) {
+    console.error('Error during checkout:', error);
+    Swal.fire({
+      title: 'Error',
+      text: 'Something went wrong. Please try again.',
+      icon: 'error',
+      confirmButtonText: 'OK'
+    });
+  }
+});
+
+
+  </script>
+</body>
+</html>

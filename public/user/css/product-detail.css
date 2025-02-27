@@ -185,7 +185,7 @@
 }
 
 .add-to-cart-btn:hover {
-  background-color: #ff2c54;
+  background-color: #67222e;
 }
 
 .add-to-wishlist-btn.active {
@@ -403,20 +403,6 @@
   margin-bottom: 12px;
 }
 
-.add-to-cart {
-  width: 100%;
-  padding: 10px;
-  background: #1c8b8b;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.add-to-cart:hover {
-  background: #156666;
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {

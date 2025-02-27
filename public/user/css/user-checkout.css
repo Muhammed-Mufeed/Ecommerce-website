@@ -1,0 +1,326 @@
+/* Main Styles */
+:root {
+  --primary-color: #4a90e2;
+  --secondary-color: #f8f9fa;
+  --accent-color: #28a745;
+  --danger-color: #dc3545;
+  --text-color: #333;
+  --border-color: #ddd;
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: #f5f5f5;
+}
+
+/* Checkout Container */
+.checkout-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.checkout-container h1 {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.checkout-container h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+}
+
+.checkout-container h3 {
+  font-size: 1.2rem;
+  margin-top: 1rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Order Summary */
+.order-summary {
+  margin-bottom: 2rem;
+  background-color: var(--secondary-color);
+  padding: 1.5rem;
+  border-radius: 6px;
+}
+
+.order-summary table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.order-summary th, 
+.order-summary td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.order-summary th {
+  background-color: #f0f0f0;
+  font-weight: 600;
+}
+
+.order-summary tr:last-child td {
+  border-bottom: none;
+}
+
+.order-summary tr:hover {
+  background-color: rgba(74, 144, 226, 0.05);
+}
+
+/* Address Field */
+.address-field {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: var(--secondary-color);
+  border-radius: 6px;
+}
+
+.saved-address {
+  background-color: #fff;
+  padding: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 1rem;
+}
+
+.saved-address label,
+.new-address label {
+  display: block;
+  cursor: pointer;
+}
+
+.new-address {
+  background-color: #fff;
+  padding: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+.address-field textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 1rem;
+  margin-top: 0.75rem;
+  resize: vertical;
+}
+
+.address-field textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+.address-field input[type="radio"],
+.payment-options input[type="radio"] {
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+/* Payment Options */
+.payment-options {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: var(--secondary-color);
+  border-radius: 6px;
+}
+
+.payment-options label {
+  display: block;
+  padding: 0.75rem;
+  background-color: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.payment-options label:hover,
+.saved-address label:hover,
+.new-address label:hover {
+  background-color: #f9f9f9;
+}
+
+/* Radio button styles */
+input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  vertical-align: middle;
+}
+
+input[type="radio"]:checked {
+  border-color: var(--primary-color);
+}
+
+input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+}
+
+.saved-address input[type="radio"]:checked + strong,
+.new-address input[type="radio"]:checked + strong,
+.payment-options input[type="radio"]:checked ~ label {
+  color: var(--primary-color);
+}
+
+/* Error messages */
+.error {
+  display: block;
+  color: var(--danger-color);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+/* Place Order Button */
+.place-order {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.place-order button {
+  background-color: var(--accent-color);
+  color: white;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+  max-width: 300px;
+}
+
+.place-order button:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.place-order button:disabled {
+  background-color: #8bc3a1;
+  cursor: not-allowed;
+}
+
+/* Selected states for address options */
+.saved-address.selected,
+.new-address.selected {
+  border-color: var(--primary-color);
+  background-color: rgba(74, 144, 226, 0.05);
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .checkout-container {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .order-summary {
+    padding: 1rem;
+    overflow-x: auto;
+  }
+  
+  .order-summary table {
+    font-size: 0.9rem;
+  }
+  
+  .address-field,
+  .payment-options {
+    padding: 1rem;
+  }
+  
+  .checkout-container h1 {
+    font-size: 1.75rem;
+  }
+  
+  .checkout-container h2 {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .checkout-container {
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+  
+  .order-summary th,
+  .order-summary td {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+  
+  .address-field textarea {
+    min-height: 80px;
+  }
+  
+  .checkout-container h1 {
+    font-size: 1.5rem;
+  }
+  
+  .checkout-container h2 {
+    font-size: 1.2rem;
+  }
+  
+  .place-order button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .saved-address,
+  .new-address,
+  .payment-options label {
+    padding: 0.6rem;
+  }
+  
+  .error {
+    font-size: 0.8rem;
+  }
+}
+
+/* Focus and active states */
+input:focus,
+textarea:focus,
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+button:active {
+  transform: translateY(1px);
+}

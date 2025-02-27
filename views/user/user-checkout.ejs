@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/user/css/partial.css" />
+  <link rel="stylesheet" href="/user/css/checkout.css">
+  <title>Checkout</title>
+</head>
+<body>
+  <%- include('../partials/user/header') %>
+
+  <div class="checkout-container">
+    <h1>Checkout</h1>
+
+    <!-- Order Summary -->
+    <div class="order-summary">
+      <h2>Order Summary</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% cartItems.forEach((item, index) => { %>
+            <tr>
+              <td><%= item.product.name %></td>
+              <td><%= item.quantity %></td>
+              <td>₹<%= item.product.sellingPrice %></td>
+              <td>₹<%= item.product.sellingPrice * item.quantity %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <h3>Subtotal: ₹<%= subtotal %></h3>
+    </div>
+
+    <!-- Address Field -->
+    <div class="address-field">
+      <h2>Shipping Address</h2>
+      <% if (userAddress) { %>
+        <div class="saved-address">
+          <label>
+            <input type="radio" name="address" value="<%= userAddress %>" id="saved-address">
+            <strong>Saved Address:</strong> <%= userAddress %>
+          </label>
+        </div>
+      <% } %>
+      <div class="new-address">
+        <label>
+          <input type="radio" name="address" value="" id="new-address">
+          <strong>Add New Address:</strong>
+        </label>
+        <textarea id="address" placeholder="Enter your shipping address"></textarea>
+      </div>
+      <span class="error address-error" id="address-error"></span>
+    </div>
+
+    <!-- Payment Options -->
+    <div class="payment-options">
+      <h2>Payment Options</h2>
+      <label>
+        <input type="radio" name="payment" value="cash-on-delivery" id="cash-on-delivery">
+        Cash on Delivery
+      </label>
+      <span class="error payment-error" id="payment-error"></span>
+    </div>
+
+    <!-- Place Order Button -->
+    <div class="place-order">
+      <button id="place-order" disabled>Place Order</button>
+    </div>
+  </div>
+
+  <%- include('../partials/user/footer') %>
+
+  <script>
+    // Handle Cash on Delivery Button Click
+    document.getElementById('cash-on-delivery').addEventListener
+
+    
+  </script>
+</body>
+</html>
