@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Address</title>
+    <link rel="stylesheet" href="/user/css/profile-sidebar.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #f9fafb;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Wrapper for Layout */
+        .wrapper {
+            display: flex;
+            min-height: calc(100vh - 80px); /* Full height minus navbar */
+        }
+
+        /* Main Content Styling */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #f9fafb;
+            min-height: calc(100vh - 80px);
+        }
+
+        .add-address-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .add-address-container h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #ff6f61;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .address-type-container {
+            display: flex;
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        .address-type-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .address-type-option input[type="radio"] {
+            width: auto;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .error-message {
+            color: #ff6f61;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .button-group button[type="submit"] {
+            background-color: #ff6f61;
+            color: #fff;
+            margin-right: 10px;
+        }
+
+        .button-group button[type="submit"]:hover {
+            background-color: #e5645a;
+        }
+
+        .button-group button[type="button"] {
+            background-color: #6c757d;
+            color: #fff;
+        }
+
+        .button-group button[type="button"]:hover {
+            background-color: #5a6268;
+        }
+
+        @media (max-width: 768px) {
+            .wrapper {
+                flex-direction: column;
+            }
+
+            .main-content {
+                padding: 10px;
+                min-height: auto;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .add-address-container {
+                padding: 16px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .button-group button[type="submit"] {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%-include('../partials/user/profile-sidebar-header')%>
+    
+    <div class="wrapper">
+        <!-- The sidebar will be included from the header partial -->
+        
+        <div class="main-content">
+            <div class="add-address-container">
+                <h1>Add New Address</h1>
+                <form id="add-address-form">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name">
+                        <div id="name-error" class="error-message"></div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="pincode">Pincode</label>
+                            <input type="text" id="pincode" name="pincode">
+                            <div id="pincode-error" class="error-message"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="mobile">Mobile Number</label>
+                            <input type="tel" id="mobile" name="mobile">
+                            <div id="mobile-error" class="error-message"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="locality">Locality</label>
+                        <input type="text" id="locality" name="locality">
+                        <div id="locality-error" class="error-message"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Address (Area and Street)</label>
+                        <input type="text" id="address" name="address">
+                        <div id="address-error" class="error-message"></div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City/District/Town</label>
+                            <input type="text" id="city" name="city">
+                            <div id="city-error" class="error-message"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" name="state">
+                            <div id="state-error" class="error-message"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="landmark">Landmark (Optional)</label>
+                        <input type="text" id="landmark" name="landmark">
+                        <div id="landmark-error" class="error-message"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Type of Address</label>
+                        <div class="address-type-container">
+                            <div class="address-type-option">
+                                <input type="radio" id="home" name="addressType" value="Home" checked>
+                                <label for="home">Home</label>
+                            </div>
+                            <div class="address-type-option">
+                                <input type="radio" id="work" name="addressType" value="Work">
+                                <label for="work">Work</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="submit">Save Address</button>
+                        <button type="button" onclick="window.location.href='/userAddress'">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <%-include('../partials/user/profile-sidebar-footer')%>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const form = document.getElementById('add-address-form');
+            const nameInput = document.getElementById('name');
+            const pincodeInput = document.getElementById('pincode');
+            const mobileInput = document.getElementById('mobile');
+            const localityInput = document.getElementById('locality');
+            const addressInput = document.getElementById('address');
+            const cityInput = document.getElementById('city');
+            const stateInput = document.getElementById('state');
+            const landmarkInput = document.getElementById('landmark');
+    
+            const nameError = document.getElementById('name-error');
+            const pincodeError = document.getElementById('pincode-error');
+            const mobileError = document.getElementById('mobile-error');
+            const localityError = document.getElementById('locality-error');
+            const addressError = document.getElementById('address-error');
+            const cityError = document.getElementById('city-error');
+            const stateError = document.getElementById('state-error');
+            const landmarkError = document.getElementById('landmark-error');
+    
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault(); // Prevent default form submission
+    
+                // Reset error messages
+                nameError.textContent = '';
+                pincodeError.textContent = '';
+                mobileError.textContent = '';
+                localityError.textContent = '';
+                addressError.textContent = '';
+                cityError.textContent = '';
+                stateError.textContent = '';
+                landmarkError.textContent = '';
+    
+                let isValid = true;
+    
+                
+                if (nameInput.value.trim() === '') {
+                    nameError.textContent = 'Name is required.';
+                    isValid = false;
+                }
+    
+               
+                if (pincodeInput.value.trim() === '') {
+                    pincodeError.textContent = 'Pincode is required.';
+                    isValid = false;
+                } else if (!/^\d{6}$/.test(pincodeInput.value.trim())) {
+                    pincodeError.textContent = 'Pincode must be 6 digits.';
+                    isValid = false;
+                }
+    
+               
+                if (mobileInput.value.trim() === '') {
+                    mobileError.textContent = 'Mobile number is required.';
+                    isValid = false;
+                } else if (!/^\d{10}$/.test(mobileInput.value.trim())) {
+                    mobileError.textContent = 'Mobile number must be 10 digits.';
+                    isValid = false;
+                }
+    
+                if (localityInput.value.trim() === '') {
+                    localityError.textContent = 'Locality is required.';
+                    isValid = false;
+                }
+    
+               
+                if (addressInput.value.trim() === '') {
+                    addressError.textContent = 'Address is required.';
+                    isValid = false;
+                }
+    
+              
+                if (cityInput.value.trim() === '') {
+                    cityError.textContent = 'City is required.';
+                    isValid = false;
+                }
+    
+               
+                if (stateInput.value.trim() === '') {
+                    stateError.textContent = 'State is required.';
+                    isValid = false;
+                }
+    
+                // If all fields are valid, send data using Fetch API
+                if (isValid) {
+                    try {
+                        const formData = {
+                            name: nameInput.value.trim(),
+                            pincode: pincodeInput.value.trim(),
+                            mobile: mobileInput.value.trim(),
+                            locality: localityInput.value.trim(),
+                            address: addressInput.value.trim(),
+                            city: cityInput.value.trim(),
+                            state: stateInput.value.trim(),
+                            landmark: landmarkInput.value.trim(),
+                            addressType: document.querySelector('input[name="addressType"]:checked').value,
+                        };
+    
+                        const response = await fetch('/addAddress', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(formData),
+                        });
+    
+                        const data = await response.json();
+    
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Address Added!',
+                                text: 'Your address has been successfully added.',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.href = '/userAddress'; // Redirect to addresses page
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message,
+                                confirmButtonText: 'OK'
+                            });
+                        }
+    
+                    } catch (error) {
+                        console.error('Error while adding address :', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred while adding your address.',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                }
+            });
+        });
+    </script>    
+</body>
+</html>

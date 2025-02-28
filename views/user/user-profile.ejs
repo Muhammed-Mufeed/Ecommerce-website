@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Information</title>
+    <link rel="stylesheet" href="/user/css/profile-sidebar.css" />
+    <link rel="stylesheet" href="/user/css/user-profile.css" />
+    
+</head>
+<body>
+  <%-include('../partials/user/profile-sidebar-header')%>
+  <div class="container">
+    <!-- Place edit button next to each section title -->
+    <section class="info-section">
+        <div class="header-container">
+            <h1 class="section-title">Personal Information</h1>
+            <a href="/editUserProfile" class="edit-button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                </svg>
+                Edit Profile
+            </a>
+        </div>
+        <div class="info-item">
+            <h2 class="field-label">Full Name</h2>
+            <p class="field-value"><%= user.name %></p>
+        </div>
+    </section>
+
+    <section class="info-section">
+        <h1 class="section-title">Contacts</h1>
+        <div class="info-item">
+            <h2 class="field-label">Email Address</h2>
+            <p class="field-value"><%= user.email %></p>
+        </div>
+        <div class="info-item">
+            <h2 class="field-label">Phone Number</h2>
+            <p class="field-value"><%= user.phone || 'None' %></p>
+        </div>
+    </section>
+
+    <section class="info-section">
+        <h1 class="section-title">Account Settings</h1>
+        <div class="info-item">
+            <h2 class="field-label">Account Status</h2>
+            <p class="field-value"><%= user.isBlocked ? 'Blocked' : 'Active' %></p>
+        </div>
+    </section>
+
+    <section class="info-section">
+        <h1 class="section-title">Password</h1>
+        <p class="password-text">Do you want to change your password?</p>
+        <a href="/changePassword" class="change-password-btn">Change Password</a>
+    </section>
+</div>
+<%-include('../partials/user/profile-sidebar-footer')%>
+</body>
+</html>

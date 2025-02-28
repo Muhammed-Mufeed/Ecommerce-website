@@ -85,7 +85,7 @@ const postSignupPage=async(req,res)=>{
 
 
 
- const expiresAt = new Date(Date.now() + 30 * 1000) //OTP expires in 30 seconds
+ const expiresAt = new Date(Date.now() + 60 * 1000) //OTP expires in 30 seconds
 
  
  const saveOtp = new Otp({
@@ -177,7 +177,7 @@ const postResendOtp = async (req,res)=>{
   console.log(`Generated OTP(resend): ${otp}`); // debugging
 
    // Set expiration time for the new OTP
-   const expiresAt = new Date(Date.now() + 30 * 1000)  
+   const expiresAt = new Date(Date.now() + 60 * 1000)  
 
    const newOtpSave = new Otp({
     otp:otp,
@@ -299,7 +299,6 @@ try {
 
 // ================================================================================================================================//
 
-
 module.exports={
    getpageNotFound,
    getSignupPage,
@@ -309,5 +308,5 @@ module.exports={
    getLoginPage,
    postLoginPage,
    postLogoutPage,
-   googleLogin
+   googleLogin,
   }

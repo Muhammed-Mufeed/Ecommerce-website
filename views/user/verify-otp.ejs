@@ -26,14 +26,14 @@
     </form>
     <hr>
     <!-- Timer display -->
-    <div class="timer" id="timer">Resend OTP in 30 seconds</div>
+    <div class="timer" id="timer">Resend OTP in 60 seconds</div>
     <!-- Resend OTP button -->
     <button id="resendOtpButton" class="btn btn-secondary w-100 mt-2" disabled>Resend OTP</button>
   </div>
 
     <script>
     // Timer logic for the Resend OTP button
-    let timerDuration = 30; 
+    let timerDuration = 60; 
     let timerElement = document.getElementById("timer"); 
     let resendButton = document.getElementById("resendOtpButton"); 
     let resendAllowed = false; 

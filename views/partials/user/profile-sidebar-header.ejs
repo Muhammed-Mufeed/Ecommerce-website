@@ -1,0 +1,65 @@
+<!-- views/partials/header.ejs -->
+<!-- Navbar -->
+<div class="navbar">
+  <!-- Top Row: Logo, Menu Items, Icons -->
+  <div class="top-row">
+    <!-- Logo -->
+    <div class="logo">PackSmart</div>
+    <!-- Menu Items -->
+    <div class="menu">
+      <a href="/">Home</a>
+      <a href="/userproducts">Products</a>
+      <a href="#">Help Center</a>
+      <a href="#">About Us</a>
+    </div>
+    <!-- Icons -->
+    <div class="icons">
+      <div class="icon">
+        <img src="/user/icons/wishlist-2.png" alt="wishlist">
+      </div>
+      
+      <div class="user-profile">
+        <!-- User Profile Button -->
+        <button class="profile-button">
+          <img src="/user/icons/profile-icon.png" alt="profile-icon">
+        </button>
+        <!-- Dropdown Menu -->
+        <div class="dropdown">
+          <% if (userData) { %> <!-- Check if user is logged in -->
+            <a href="/userProfile">Profile</a>
+            <form action="/logout" method="POST" style="display: inline;">
+              <button type="submit" style="background: none; border: none; color: inherit; cursor: pointer;">
+                Logout
+              </button>
+            </form>
+          <% } else { %> <!-- Show Signup and Login if not logged in -->
+            <a href="/signup">Signup</a>
+            <a href="/login">Login</a>
+          <% } %>
+        </div>
+      </div>
+      <div class="cart icon">
+        <a href="/cart">
+          <img src="/user/icons/cart.png" alt="cart">
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Wrapper for Content -->
+<div class="wrapper">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">Hello <%=userData.name%></div>
+    <ul class="sidebar-menu">
+      <li><a href="/userProfile" >Profile Information</a></li>
+      <li><a href="/userAddress" >Manage Addresses</a></li>
+      <li><a href="/orders" >My Orders</a></li>
+      <li><a href="/wishlist" >My Wishlist</a></li>
+      <li><a href="/wallet" >My Wallet</a></li>
+    </ul>
+  </div>
+  
+  <!-- Main Content Area -->
+  <div class="main-content">

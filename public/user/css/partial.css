@@ -147,7 +147,7 @@ body {
 .dropdown {
   display: none; /* Initially hidden */
   position: absolute;
-  top: 40px; /* Position below the button */
+  top: 23px; /* Position below the button */
   right: 0;
   background-color: #fff; /* White background */
   border-radius: 8px;

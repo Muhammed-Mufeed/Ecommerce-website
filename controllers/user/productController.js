@@ -1,8 +1,7 @@
-const User=require('../../models/userSchema')
 
 const Category = require('../../models/categorySchema')
 const Product = require('../../models/productSchema')
-const Cart = require('../../models/cartSchema')
+
 
 
 
@@ -77,7 +76,7 @@ exports.getProductDetailPage = async (req, res) => {
       .populate('brand');
 
     if (!productData) {
-      return res.redirect('/pageNotFound');
+      return res.status(404).json({success:false,message:"Product  not found."})
     }
 
     // Filter out unlisted variants
