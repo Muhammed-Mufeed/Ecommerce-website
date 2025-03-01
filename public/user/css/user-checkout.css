@@ -1,326 +1,276 @@
-/* Main Styles */
-:root {
-  --primary-color: #4a90e2;
-  --secondary-color: #f8f9fa;
-  --accent-color: #28a745;
-  --danger-color: #dc3545;
-  --text-color: #333;
-  --border-color: #ddd;
-  --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
+/* checkout.css */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
-  color: var(--text-color);
-  background-color: #f5f5f5;
+  background-color: #f5f7fa;
+  margin: 0;
+  padding: 0;
+  color: #333;
 }
 
-/* Checkout Container */
 .checkout-container {
   max-width: 1000px;
-  margin: 2rem auto;
-  padding: 2rem;
+  margin: 30px auto;
+  padding: 30px;
   background-color: #fff;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+}
+
+h1 {
+  color: #2c3e50;
+  font-size: 28px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #f0f2f5;
+  padding-bottom: 15px;
+}
+
+h2 {
+  color: #3498db;
+  font-size: 20px;
+  margin: 20px 0 15px;
+}
+
+.address-section, .payment-section, .order-summary {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eaedf2;
+}
+
+.add-address-link {
+  display: inline-block;
+  margin: 10px 0;
+  color: #3498db;
+  background-color: transparent;
+  border: 1px solid #3498db;
+  padding: 8px 15px;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.add-address-link:hover {
+  background-color: #3498db;
+  color: #fff;
+}
+
+.address-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.address-card {
+  border: 1px solid #e1e5eb;
+  padding: 15px;
   border-radius: 8px;
-  box-shadow: var(--shadow);
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
 }
 
-.checkout-container h1 {
-  font-size: 2rem;
-  color: var(--primary-color);
-  margin-bottom: 1.5rem;
-  text-align: center;
+.address-card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
 }
 
-.checkout-container h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: var(--text-color);
+.address-card input[type="radio"] {
+  margin-right: 12px;
+  accent-color: #3498db;
 }
 
-.checkout-container h3 {
-  font-size: 1.2rem;
-  margin-top: 1rem;
-  font-weight: 600;
+.address-card label {
+  display: inline-flex;
+  align-items: flex-start;
+  width: calc(100% - 30px);
+}
+
+.address-card p {
+  margin: 4px 0;
+  line-height: 1.4;
+}
+
+.payment-option {
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid #e1e5eb;
+  border-radius: 8px;
+}
+
+.payment-option input[type="radio"] {
+  margin-right: 10px;
+  accent-color: #3498db;
+}
+
+.order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background-color: #f9fafc;
+  border-radius: 6px;
+  border: 1px solid #e1e5eb;
+}
+
+.order-total {
+  margin-top: 20px;
   text-align: right;
-}
-
-/* Order Summary */
-.order-summary {
-  margin-bottom: 2rem;
-  background-color: var(--secondary-color);
-  padding: 1.5rem;
+  font-size: 1.1em;
+  padding: 12px;
+  background-color: #f9fafc;
   border-radius: 6px;
 }
 
-.order-summary table {
+.place-order-btn {
+  display: block;
   width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 1rem;
-}
-
-.order-summary th, 
-.order-summary td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.order-summary th {
-  background-color: #f0f0f0;
+  padding: 14px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1em;
   font-weight: 600;
-}
-
-.order-summary tr:last-child td {
-  border-bottom: none;
-}
-
-.order-summary tr:hover {
-  background-color: rgba(74, 144, 226, 0.05);
-}
-
-/* Address Field */
-.address-field {
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background-color: var(--secondary-color);
-  border-radius: 6px;
-}
-
-.saved-address {
-  background-color: #fff;
-  padding: 0.75rem;
-  border-radius: 4px;
-  border: 1px solid var(--border-color);
-  margin-bottom: 1rem;
-}
-
-.saved-address label,
-.new-address label {
-  display: block;
   cursor: pointer;
+  box-shadow: 0 3px 5px rgba(52, 152, 219, 0.2);
 }
 
-.new-address {
-  background-color: #fff;
-  padding: 0.75rem;
-  border-radius: 4px;
-  border: 1px solid var(--border-color);
+.place-order-btn:hover {
+  background-color: #2980b9;
 }
 
-.address-field textarea {
+/* Compact Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  min-height: 100px;
-  padding: 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-family: inherit;
-  font-size: 1rem;
-  margin-top: 0.75rem;
-  resize: vertical;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  overflow: auto;
 }
 
-.address-field textarea:focus {
-  border-color: var(--primary-color);
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
-}
-
-.address-field input[type="radio"],
-.payment-options input[type="radio"] {
-  margin-right: 0.5rem;
-  vertical-align: middle;
-}
-
-/* Payment Options */
-.payment-options {
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background-color: var(--secondary-color);
-  border-radius: 6px;
-}
-
-.payment-options label {
-  display: block;
-  padding: 0.75rem;
-  background-color: #fff;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: border-color 0.2s, background-color 0.2s;
-}
-
-.payment-options label:hover,
-.saved-address label:hover,
-.new-address label:hover {
-  background-color: #f9f9f9;
-}
-
-/* Radio button styles */
-input[type="radio"] {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
-  border: 2px solid var(--border-color);
-  border-radius: 50%;
-  outline: none;
-  cursor: pointer;
-  position: relative;
-  vertical-align: middle;
-}
-
-input[type="radio"]:checked {
-  border-color: var(--primary-color);
-}
-
-input[type="radio"]:checked::after {
-  content: '';
+.modal-content {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: var(--primary-color);
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-.saved-address input[type="radio"]:checked + strong,
-.new-address input[type="radio"]:checked + strong,
-.payment-options input[type="radio"]:checked ~ label {
-  color: var(--primary-color);
+.modal-content h2 {
+  margin-top: 0;
+  font-size: 18px;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eaedf2;
 }
 
-/* Error messages */
-.error {
-  display: block;
-  color: var(--danger-color);
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
-  font-weight: 500;
-}
-
-/* Place Order Button */
-.place-order {
-  text-align: center;
-  margin-top: 2rem;
-}
-
-.place-order button {
-  background-color: var(--accent-color);
-  color: white;
-  padding: 1rem 2rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1.1rem;
+.close {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #aaa;
   cursor: pointer;
-  transition: background-color 0.2s;
+  line-height: 0.8;
+}
+
+.close:hover {
+  color: #333;
+}
+
+#modal-add-address-form {
+  margin-top: 10px;
+}
+
+/* Compact Form Styles */
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group select {
   width: 100%;
-  max-width: 300px;
+  padding: 8px 10px;
+  border: 1px solid #dcdfe6;
+  border-radius: 5px;
+  font-size: 14px;
+  box-sizing: border-box;
 }
 
-.place-order button:hover:not(:disabled) {
-  background-color: #218838;
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
 }
 
-.place-order button:disabled {
-  background-color: #8bc3a1;
-  cursor: not-allowed;
+#modal-add-address-form button[type="submit"] {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 8px;
+}
+.error-message {
+  color: #ff6f61;
+  font-size: 12px;
+  margin-top: 4px;
 }
 
-/* Selected states for address options */
-.saved-address.selected,
-.new-address.selected {
-  border-color: var(--primary-color);
-  background-color: rgba(74, 144, 226, 0.05);
+#modal-add-address-form button[type="submit"]:hover {
+  background-color: #2980b9;
 }
 
-/* Media Queries */
+/* Two-column layout for form fields */
+@media (min-width: 500px) {
+  .form-row {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .form-row .form-group {
+    flex: 1;
+  }
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .checkout-container {
-    margin: 1rem;
-    padding: 1.5rem;
+    padding: 15px;
+    margin: 10px;
   }
   
-  .order-summary {
-    padding: 1rem;
-    overflow-x: auto;
+  .modal-content {
+    width: 95%;
+    padding: 15px;
   }
-  
-  .order-summary table {
-    font-size: 0.9rem;
-  }
-  
-  .address-field,
-  .payment-options {
-    padding: 1rem;
-  }
-  
-  .checkout-container h1 {
-    font-size: 1.75rem;
-  }
-  
-  .checkout-container h2 {
-    font-size: 1.25rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .checkout-container {
-    margin: 0.5rem;
-    padding: 1rem;
-  }
-  
-  .order-summary th,
-  .order-summary td {
-    padding: 0.5rem;
-    font-size: 0.85rem;
-  }
-  
-  .address-field textarea {
-    min-height: 80px;
-  }
-  
-  .checkout-container h1 {
-    font-size: 1.5rem;
-  }
-  
-  .checkout-container h2 {
-    font-size: 1.2rem;
-  }
-  
-  .place-order button {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-  }
-  
-  .saved-address,
-  .new-address,
-  .payment-options label {
-    padding: 0.6rem;
-  }
-  
-  .error {
-    font-size: 0.8rem;
-  }
-}
-
-/* Focus and active states */
-input:focus,
-textarea:focus,
-button:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
-}
-
-button:active {
-  transform: translateY(1px);
 }

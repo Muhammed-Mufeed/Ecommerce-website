@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/user/css/partial.css">
+  <link rel="stylesheet" href="/user/css/user-checkout.css">
+  <!-- Add SweetAlert -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <title>Checkout</title>
+  <style>
+    /* Add your custom styles here */
+  </style>
+</head>
+<body>
+  <%- include('../partials/user/header') %>
+
+  <div class="checkout-container">
+    <h1>Checkout</h1>
+
+    <!-- Address Section -->
+    <div class="address-section">
+      <h2>Shipping Address</h2>
+      <button id="open-modal" class="add-address-link">+ Add New Address</button>
+
+      <!-- Display Existing Addresses -->
+      <div class="address-list">
+        <% if (addresses.length > 0) { %>
+          <% addresses.forEach(address => { %>
+            <div class="address-card">
+              <input type="radio" name="selectedAddress" value="<%= address._id %>" id="address-<%= address._id %>">
+              <label for="address-<%= address._id %>">
+                <p><strong><%= address.name %></strong></p>
+                <p><%= address.address %>, <%= address.locality %></p>
+                <p><%= address.city %>, <%= address.state %> - <%= address.pincode %></p>
+                <p>Mobile: <%= address.mobile %></p>
+                <p>Type: <%= address.addressType %></p>
+              </label>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <p>No addresses found. Please add an address.</p>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Payment Options -->
+    <div class="payment-section">
+      <h2>Payment Options</h2>
+      <div class="payment-option">
+        <input type="radio" name="paymentMethod" value="cod" id="cod" checked>
+        <label for="cod">Cash on Delivery</label>
+      </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="order-summary">
+      <h2>Order Summary</h2>
+      <div class="order-items">
+        <% cartItems.forEach(item => { %>
+          <div class="order-item">
+            <p><%= item.product.name %> (x<%= item.quantity %>)</p>
+            <p>₹<%= item.product.sellingPrice * item.quantity %></p>
+          </div>
+        <% }) %>
+      </div>
+      <div class="order-total">
+        <p><strong>Subtotal:</strong> ₹<%= subtotal %></p>
+      </div>
+    </div>
+
+    <!-- Place Order Button -->
+    <button id="place-order-btn" class="place-order-btn">Place Order</button>
+  </div>
+
+  <!-- Add Address Modal -->
+  <div id="addAddressModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Add New Address</h2>
+      <form id="modal-add-address-form">
+        <div class="form-group">
+          <label for="modal-name">Name</label>
+          <input type="text" id="modal-name" name="name" >
+          <div id="modal-name-error" class="error-message"></div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="modal-pincode">Pincode</label>
+            <input type="text" id="modal-pincode" name="pincode" >
+            <div id="modal-pincode-error" class="error-message"></div>
+          </div>
+          <div class="form-group">
+            <label for="modal-mobile">Mobile</label>
+            <input type="tel" id="modal-mobile" name="mobile" >
+            <div id="modal-mobile-error" class="error-message"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="modal-locality">Locality</label>
+          <input type="text" id="modal-locality" name="locality" >
+          <div id="modal-locality-error" class="error-message"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="modal-address">Address</label>
+          <input type="text" id="modal-address" name="address" >
+          <div id="modal-address-error" class="error-message"></div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="modal-city">City</label>
+            <input type="text" id="modal-city" name="city" >
+            <div id="modal-city-error" class="error-message"></div>
+          </div>
+          <div class="form-group">
+            <label for="modal-state">State</label>
+            <input type="text" id="modal-state" name="state" >
+            <div id="modal-state-error" class="error-message"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="modal-addressType">Address Type</label>
+          <select id="modal-addressType" name="addressType" >
+            <option value="Home">Home</option>
+            <option value="Work">Work</option>
+          </select>
+        </div>
+
+        <button type="submit">Save Address</button>
+      </form>
+    </div>
+  </div>
+
+  <%- include('../partials/user/footer') %>
+
+  <script>
+    // Open Modal
+    document.getElementById('open-modal').addEventListener('click', function (event) {
+      event.preventDefault();
+      document.getElementById('addAddressModal').style.display = 'block';
+    });
+
+    // Close Modal
+    document.querySelector('.close').addEventListener('click', function () {
+      document.getElementById('addAddressModal').style.display = 'none';
+    });
+
+    // Close Modal when clicking outside
+    window.addEventListener('click', function (event) {
+      if (event.target === document.getElementById('addAddressModal')) {
+        document.getElementById('addAddressModal').style.display = 'none';
+      }
+    });
+
+    // DOM Validation for Add Address Form
+    document.getElementById('modal-add-address-form').addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      // Reset error messages
+      document.querySelectorAll('.error-message').forEach(error => error.textContent = '');
+
+      // Validate fields
+      let isValid = true;
+
+      const name = document.getElementById('modal-name').value.trim();
+      const pincode = document.getElementById('modal-pincode').value.trim();
+      const mobile = document.getElementById('modal-mobile').value.trim();
+      const locality = document.getElementById('modal-locality').value.trim();
+      const address = document.getElementById('modal-address').value.trim();
+      const city = document.getElementById('modal-city').value.trim();
+      const state = document.getElementById('modal-state').value.trim();
+
+      if (name === '') {
+        document.getElementById('modal-name-error').textContent = 'Name is required.';
+        isValid = false;
+      }
+
+      if (pincode === '') {
+        document.getElementById('modal-pincode-error').textContent = 'Pincode is required.';
+        isValid = false;
+      } else if (!/^\d{6}$/.test(pincode)) {
+        document.getElementById('modal-pincode-error').textContent = 'Pincode must be 6 digits.';
+        isValid = false;
+      }
+
+      if (mobile === '') {
+        document.getElementById('modal-mobile-error').textContent = 'Mobile is required.';
+        isValid = false;
+      } else if (!/^\d{10}$/.test(mobile)) {
+        document.getElementById('modal-mobile-error').textContent = 'Mobile must be 10 digits.';
+        isValid = false;
+      }
+
+      if (locality === '') {
+        document.getElementById('modal-locality-error').textContent = 'Locality is required.';
+        isValid = false;
+      }
+
+      if (address === '') {
+        document.getElementById('modal-address-error').textContent = 'Address is required.';
+        isValid = false;
+      }
+
+      if (city === '') {
+        document.getElementById('modal-city-error').textContent = 'City is required.';
+        isValid = false;
+      }
+
+      if (state === '') {
+        document.getElementById('modal-state-error').textContent = 'State is required.';
+        isValid = false;
+      }
+
+      // If all fields are valid, submit the form
+      if (isValid) {
+        const formData = {
+          name,
+          pincode,
+          mobile,
+          locality,
+          address,
+          city,
+          state,
+          addressType: document.getElementById('modal-addressType').value,
+        };
+
+        try {
+          const response = await fetch('/Checkout_addAddress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Success!',
+              text: 'Address added successfully.',
+              confirmButtonText: 'OK',
+            }).then(() => {
+              document.getElementById('addAddressModal').style.display = 'none';
+              location.reload(); // Refresh the page to update the address list
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: data.message || 'Failed to add address.',
+              confirmButtonText: 'OK',
+            });
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong. Please try again.',
+            confirmButtonText: 'OK',
+          });
+        }
+      }
+    });
+
+          // Place Order Button
+      document.getElementById('place-order-btn').addEventListener('click', async () => {
+        // Get selected address and payment method
+        const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+
+        // Validate address and payment method
+        if (!selectedAddress) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Please select a shipping address.',
+            confirmButtonText: 'OK',
+          });
+          return;
+        }
+
+        if (!selectedPaymentMethod) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Please select a payment method.',
+            confirmButtonText: 'OK',
+          });
+          return;
+        }
+
+        // Prepare order data
+        const orderData = {
+          addressId: selectedAddress.value,
+          paymentMethod: selectedPaymentMethod.value,
+        };
+
+        try {
+          // Send order data to the server
+          const response = await fetch('/checkout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(orderData),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Show success message and redirect
+            Swal.fire({
+              icon: 'success',
+              title: 'Order Placed!',
+              text: 'Your order has been placed successfully.',
+              confirmButtonText: 'OK',
+            }).then(() => {
+              window.location.href = ''; // Redirect to order confirmation page
+            });
+          } else {
+            // Show error message
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: data.message || 'Failed to place order.',
+              confirmButtonText: 'OK',
+            });
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong. Please try again.',
+            confirmButtonText: 'OK',
+          });
+        }
+      });
+  </script>
+</body>
+</html>

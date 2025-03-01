@@ -41,7 +41,7 @@ const addressSchema = new Schema({
     },
     addressType: {
         type: String,
-        enum: ['Home', 'Work'], // Only allow 'Home' or 'Work' as values
+        enum: ['Home', 'Work'], 
         default: 'Home'
     },
     isListed:{

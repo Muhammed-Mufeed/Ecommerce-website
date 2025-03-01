@@ -75,7 +75,6 @@
       document.getElementById('estimated-total').textContent = `Estimated Total: ₹${subtotal}`;
     }
 
-    // Add event listeners for quantity controls
     document.querySelectorAll('.quantity-controls button').forEach(button => {
       button.addEventListener('click', async (e) => {
         const cartItem = e.target.closest('.cart-item');
@@ -129,10 +128,10 @@
     });
 
   document.getElementById('checkoutbtn').addEventListener('click', async (e) => {
-    e.preventDefault(); // Prevent default form submission or link behavior
+    e.preventDefault(); 
 
     
-  // Send a POST request to the server for further validation
+  
   try {
     const response = await fetch('/cart', {
       method: 'POST',

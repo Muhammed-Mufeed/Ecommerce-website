@@ -176,7 +176,7 @@ exports.postCartTocheckout = async (req,res) => {
     const cart = await Cart.findOne({user: userId}).populate('items.product')
 
     if(!cart){
-      return res.status(404).json({success:false, message:"Cart"})
+      return res.status(404).json({success:false, message:"Cart Items not found.please add Items in to the cart "})
     }
 
     // Validate quantity limit and stock availability

@@ -70,7 +70,9 @@ router.delete('/remove-cart',checkLogin,cartManagement.deleteRemoveCart)
 router.post('/cart',checkLogin,cartManagement.postCartTocheckout)
 
 // ==================================================================================================================//
-router.get('/checkout',checkLogin,orderManagement.getCheckoutPage)
+router.post('/Checkout_addAddress', checkLogin,orderManagement.postCheckoutAddaddress)
+router.get('/checkout',checkBlocked,orderManagement.getCheckoutPage)
+router.post('/checkout',checkLogin,orderManagement.postCheckoutpage)
 
 // ==================================================================================================================//
 
