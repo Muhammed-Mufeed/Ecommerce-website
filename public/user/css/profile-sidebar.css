@@ -1,12 +1,27 @@
 /* General Styles */
-body {
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
   font-family: 'Roboto', sans-serif;
-  background-color: #f9fafb; /* Light gray background */
+}
+
+body {
+  background-color: #f9fafb;
   color: #333;
   margin: 0;
   padding: 0;
 }
 
+
+
+/* Main Content Styling */
+.main-content {
+  flex: 1;
+  padding: 20px;
+  background-color: #f9fafb;
+  min-height: calc(100vh - 80px);
+}
 /* Navbar Styling */
 .navbar {
   display: flex;

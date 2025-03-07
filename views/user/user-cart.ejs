@@ -52,12 +52,14 @@
         <button class="checkout-btn" id="checkoutbtn">Proceed to Checkout</button>
       </div>
     <% } else { %>
-      <p>Your cart is empty.</p>
+      <div class="empty-cart">
+       <p>Your cart is empty.</p>
+       <a href="/userProducts" class="btn-shop">Start Shopping</a>
+      </div>
     <% } %>
-  </div>
 
-  <%- include('../partials/user/footer') %>
-
+    
+   
   <script>
     // Function to calculate and update subtotal and estimated total
     function updateTotals() {
@@ -90,18 +92,63 @@
         }
 
         // Update quantity via fetch
-        const response = await fetch('/update-cart', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ productId, variantId, quantity }),
-        });
+        try{
+            const response = await fetch('/update-cart', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ productId, variantId, quantity }),
+          });
 
-        if (response.ok) {
-          quantityElement.textContent = quantity; // Update the quantity displayed in the UI
-          updateTotals(); // Update subtotal and estimated total
-        }
+          const data = await response.json()
+
+            if (response.ok && data.success) {
+              quantityElement.textContent = quantity; // Update the quantity displayed in the UI
+              updateTotals(); // Update subtotal and estimated total
+             
+               // Disable the "+" button if the quantity reaches the stock limit
+                  const increaseButton = cartItem.querySelector('.increase-quantity');
+                  if (quantity >= data.stock) {
+                    increaseButton.disabled = true; // Disable the button immediately
+                    increaseButton.style.opacity = '0.5'; // Optional: Visual feedback
+
+                    // Show error message after 2 seconds
+                    setTimeout(() => {
+                      Swal.fire({
+                        icon: 'error',
+                        title: 'Out of Stock',
+                        text: 'You cannot add more than the available stock.',
+                        confirmButtonText: 'OK',
+                      });
+                    }, 2000); // 2000 milliseconds = 2 seconds
+
+                  } else {
+                    increaseButton.disabled = false;
+                    increaseButton.style.opacity = '1'; // Optional: Visual feedback
+                  }
+                
+            }
+            
+           else {
+              Swal.fire({
+                icon:'error',
+                title:'error',
+                text:data.message || 'Failed to update quantity',
+                confirmButtonText: 'OK'
+              })
+
+            }
+          } catch(error){
+            console.log("Error while updating the quantity in the cart",error)
+            Swal.fire({
+                icon:'error',
+                title:'error',
+                text:data.message,
+                confirmButtonText: 'OK'
+              })
+          }
+       
       });
     });
 
@@ -120,9 +167,10 @@
           body: JSON.stringify({ productId, variantId }),
         });
 
-        if (response.ok) {
+        if (response.ok ) {
           cartItem.remove(); // Remove the item from the UI
           updateTotals(); // Update subtotal and estimated total
+          window.location.reload()
         }
       });
     });
@@ -166,7 +214,8 @@
   }
 });
 
-
   </script>
+  </div>
+  <%- include('../partials/user/footer') %>
 </body>
 </html>

@@ -155,7 +155,7 @@ const postverifyOtp = async (req,res)=>{
   
   }
   catch(error){
-   console.error("Error verifying OTP",error)
+   console.log("Error verifying OTP",error)
    res.status(500).json({success:false,message:"An error occured"})
   }
 }
@@ -202,7 +202,7 @@ const postResendOtp = async (req,res)=>{
     }
   }
   catch(error){
-    console.error("Error resending OTP",error)
+    console.log("Error resending OTP",error)
     res.status(500).json({success:false,message:"Internal Server Error.Please try again"})
   }
 }
@@ -212,9 +212,9 @@ const postResendOtp = async (req,res)=>{
 const getLoginPage = async (req, res) => {
   try {
     const message = req.query.message || null;
-    res.render('login',{errorMessage:message});
+    return res.render('login',{errorMessage:message});
   } catch (error) {
-    res.redirect('/pageNotFound');
+     return  res.redirect('/pageNotFound');
   }
 };
 
@@ -247,12 +247,12 @@ const postLoginPage = async (req,res)=>{
       isBlocked:findUser.isBlocked  
     }
     
-    res.redirect('/')
+    return res.redirect('/')
   }
 
   catch(error){
     console.error("Login error",error)
-    res.render('login',{errorMessage:"Login failed.Please try again later"})
+    return res.render('login',{errorMessage:"Login failed.Please try again later"})
   }
 }
 
@@ -266,7 +266,7 @@ const googleLogin = async(req,res) => {
   }
   catch(error){
    console.error("Erro during Google Login",error)
-   res.status(500).send("Internal Server Error")
+   return res.status(500).send("Internal Server Error")
   }
   
 }
@@ -297,7 +297,131 @@ try {
 }
 
 
-// ================================================================================================================================//
+
+// ==========================================Forgot Password-GET=========================================================================//
+const getForgotPasswordPage = async (req, res) => {
+  try {
+    return res.render('forgot-password');
+  } catch (error) {
+    console.log("Forgot password page is not found", error);
+    res.status(500).send("Server error");
+  }
+};
+
+// ==========================================Reset Password-POST=========================================================================//
+const postResetPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      return res.render('forgot-password', { errorMessage: "User with this email does not exist." });
+    }
+
+    // Generate a random 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log(`Generated OTP: ${otp}`);
+
+    const expiresAt = new Date(Date.now() + 60 * 1000); // OTP expires in 1 minute
+
+    const saveOtp = new Otp({
+      otp: otp,
+      userId: email,
+      expiresAt: expiresAt
+    });
+
+    await saveOtp.save();
+
+    const emailSent = await sendVerificationEmail(email, otp);
+
+    if (!emailSent) {
+      return res.json({ success: false, message: "Failed to send OTP. Please try again." });
+    }
+
+    req.session.userData = {email} ;
+
+    res.render('forgot-verify-otp');
+    console.log("OTP sent successfully", otp);
+
+  } catch (error) {
+    console.error("Error during OTP verification", error);
+    res.redirect('/pageNotFound');
+  }
+};
+
+// ==========================================Forgot Verify OTP-GET=========================================================================//
+const getForgotVerifyOtpPage = async (req, res) => {
+  try {
+    return res.render('forgot-verify-otp');
+  } catch (error) {
+    console.log("Forgot verify OTP page is not found", error);
+    res.status(500).send("Server error");
+  }
+};
+
+// ==========================================Forgot Verify OTP-POST=========================================================================//
+const postForgotVerifyOtp = async (req, res) => {
+  try {
+    const { otp } = req.body;
+    const { email } = req.session.userData;
+
+    const otpRecord = await Otp.findOne({ userId: email, otp: otp });
+
+    if (!otpRecord) {
+      return res.status(400).json({ success: false, message: "Invalid OTP, Please try again." });
+    }
+
+    if (otpRecord.expiresAt < new Date()) {
+      return res.status(400).json({ success: false, message: "OTP has expired. Please request a new one." });
+    }
+
+    // OTP is valid, redirect to reset password page
+    res.status(200).json({ success: true, redirectUrl: "/forgot-confirm-password" });
+
+  } catch (error) {
+    console.error("Error verifying OTP", error);
+    res.status(500).json({ success: false, message: "An error occurred" });
+  }
+};
+
+// ==========================================Forgot Confirm Password-GET=========================================================================//
+const getForgotConfirmPasswordPage = async (req, res) => {
+  try {
+    return res.render('forgot-reset-password');
+  } catch (error) {
+    console.log("Forgot confirm password page is not found", error);
+    res.status(500).send("Server error");
+  }
+};
+
+// ==========================================Forgot Confirm Password-POST=========================================================================//
+const postForgotConfirmPassword = async (req, res) => {
+  try {
+    const { newPassword, confirmPassword } = req.body;
+    const { email } = req.session.userData;
+
+    if (newPassword !== confirmPassword) {
+      return res.render('forgot-reset-password', { errorMessage: "Passwords do not match." });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+
+    await User.findOneAndUpdate(
+      { email }, 
+      { password: passwordHash },
+      {new:true}
+    );
+
+    delete req.session.userData;             //Delete userData from session (no longer needed,after saving password)
+
+    return res.status(200).json({ success: true, message: "Password reset successfully. Redirecting to login...", redirectUrl: "/login" });
+
+  } catch (error) {
+    console.error("Error resetting password", error);
+    res.status(500).json({ success: false, message: "An error occurred" });
+  }
+};
+
 
 module.exports={
    getpageNotFound,
@@ -309,4 +433,11 @@ module.exports={
    postLoginPage,
    postLogoutPage,
    googleLogin,
+   getForgotPasswordPage,
+   postResetPassword,
+   getForgotVerifyOtpPage,
+   postForgotVerifyOtp,
+   getForgotConfirmPasswordPage,
+   postForgotConfirmPassword,
+  
   }

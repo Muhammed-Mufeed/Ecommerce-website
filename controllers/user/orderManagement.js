@@ -28,16 +28,12 @@ const Order = require('../../models/orderSchema')
     res.status(200).json({ success: true, message: 'Address added successfully.' });
    } catch (error) {
     console.error('Error adding address:', error);
-    res.status(500).json({ success: false, message: 'Failed to add address.' });
+    res.status(500).json({ success: false, message: 'Failed to add address.'});
    }
  }
    
  
-
-
 // ===============================================CheckoutPage-GET===================================================================//
-
-
 
 exports.getCheckoutPage = async (req, res) => {
   try {
@@ -53,38 +49,36 @@ exports.getCheckoutPage = async (req, res) => {
       return res.redirect('/cart'); // Redirect to cart if it's empty
     }
 
-    // Calculate subtotal and filter out unlisted products and variants
+    
     let subtotal = 0;
     const validCartItems = cart.items
       .map((item) => {
         const product = item.product;
         const variant = product.variants.id(item.variant);
 
-        // Check if the product and variant are listed
+        
         if (!product.isListed || !variant || !variant.isListed) {
           return null; // Skip unlisted items
         }
 
-        // Calculate subtotal
         subtotal += product.sellingPrice * item.quantity;
 
-        // Return the valid cart item
+       
         return {
           product,
           variant,
           quantity: item.quantity,
         };
       })
-      .filter((item) => item !== null); // Remove null values
-
+      .filter((item) => item !== null); 
     if (validCartItems.length === 0) {
-      return res.redirect('/cart'); // Redirect if no valid items are left
+      return res.redirect('/cart'); 
     }
 
-    // Fetch the user's addresses
+    
     const addresses = await Address.find({ userId, isListed: true });
 
-    // Render the checkout page with the necessary data
+    
     res.render('user-checkout', {
       cartItems: validCartItems,
       addresses,
@@ -98,47 +92,61 @@ exports.getCheckoutPage = async (req, res) => {
 
 // ===============================================CheckoutPage-POST===================================================================//
 
-exports.postCheckoutpage = async (req,res) =>{
+exports.postPlaceOrder = async (req,res) =>{
   try {
     const userId = req.session.user.id;
     const { addressId, paymentMethod } = req.body;
 
-    // Fetch the user's cart and populate product details
+    
     const cart = await Cart.findOne({ user: userId }).populate('items.product');
     if (!cart || cart.items.length === 0) {
       return res.status(400).json({ success: false, message: 'Cart is empty.' });
     }
 
-    // Fetch the selected address
+   
     const address = await Address.findOne({ _id: addressId, userId });
     if (!address) {
       return res.status(400).json({ success: false, message: 'Invalid address.' });
     }
 
-    // Calculate subtotal and validate products/variants
+    
     let subtotal = 0;
     const orderItems = cart.items.map((item) => {
-      const product = item.product;
-      const variant = product.variants.id(item.variant);
+        const product = item.product;
+        const variant = product.variants.id(item.variant);
 
-      // Check if the product and variant are listed and in stock
-      if (!product.isListed || !variant || !variant.isListed || variant.stock < item.quantity) {
-        throw new Error(`Product "${product.name}" (${variant.colorName}) is out of stock or unavailable.`);
-      }
+      
+        if (!product.isListed || !variant || !variant.isListed || variant.stock < item.quantity) {
+          throw new Error(`Product "${product.name}" (${variant.colorName}) is out of stock or unavailable.`);
+        }
 
-      // Calculate subtotal
-      subtotal += product.sellingPrice * item.quantity;
+              
+        subtotal += product.sellingPrice * item.quantity;
 
-      // Return order item details
-      return {
-        product: product._id,
-        variant: variant._id,
+      
+        return {
+
+        productId: product._id,
+        variantId: variant._id,
+        product: {
+          name: product.name,
+          actualPrice: product.actualPrice,
+          sellingPrice: product.sellingPrice,
+        },
+
+        variant: {
+          color: variant.color,
+          colorName: variant.colorName,
+          images: variant.images
+        },
+
         quantity: item.quantity,
         price: product.sellingPrice,
-      };
+        status: 'Pending'   // Set initial status for each item
+        };
     });
 
-    // Create the order
+    //create order
     const order = new Order({
       user:userId,
       items: orderItems,
@@ -154,10 +162,9 @@ exports.postCheckoutpage = async (req,res) =>{
       },
       paymentMethod,
       finalAmount: subtotal,
-      status: paymentMethod === 'cod' ? 'Pending' : 'Paid', // Update status based on payment method
     });
 
-    // Save the order
+    
     await order.save();
 
     // Reduce stock for each product variant
@@ -166,7 +173,7 @@ exports.postCheckoutpage = async (req,res) =>{
       const variant = product.variants.id(item.variant);
 
       if (variant) {
-        variant.stock -= item.quantity; // Reduce stock
+        variant.stock -= item.quantity; 
         await product.save();
       }
     }
@@ -174,12 +181,108 @@ exports.postCheckoutpage = async (req,res) =>{
     // Clear the user's cart
     await Cart.findOneAndDelete({ user: userId });
 
-    // Send success response
-    res.status(200).json({ success: true, message: 'Order placed successfully.' });
+    
+    return res.status(200).json({ success: true, message: 'Order placed successfully.',redirectUrl:"/" });
   } catch (error) {
     console.error('Error placing order:', error);
+    return res.status(500).json({ success: false, message: error.message || 'Failed to place order.' });
+  }
+};
 
-    // Send error response to the client
-    res.status(500).json({ success: false, message: error.message || 'Failed to place order.' });
+// ===============================================userOrdersList-GET===================================================================//
+exports.getUserOrderList = async (req,res) => {
+  try {
+    if(!req.session.user) {
+      return res.redirect('/login')
+    } 
+    
+    const userId = req.session.user.id
+    
+    // Fetch the user's orders
+    const orders = await Order.find({user:userId}).sort({createdAt : -1})
+
+    return res.render('user-orders',{orders})
+  } catch (error) {
+    console.error('Error loading user orders Listing page:', error);
+    return res.redirect('/pageNotFound'); 
+  }
+}
+
+// ===============================================userOrdersHistory-GET===================================================================//
+exports.getUserOrderHistory = async (req,res) =>{
+  try {
+
+    if(!req.session.user) {
+      return res.redirect('/login')
+    } 
+
+    const orderId = req.params.orderId;
+    const userId = req.session.user.id;
+
+    const order = await Order.findOne({ _id: orderId, user: userId })
+
+    if (!order) {
+      return res.status(404).render('error', { message: 'Order not found.' });
+    }
+
+    return res.render('user-orderDetails', { order }); 
+    
+  } catch (error) {
+    console.error('Error fetching order details:', error);
+    return res.redirect('/pageNotFound');
+  }
+}
+
+// ===============================================CancelOrder-PATCH===================================================================//
+
+exports.patchCancelItem = async (req, res) => {
+  try {
+    const { orderId, itemId } = req.params;
+    const {reason} = req.body
+    const userId = req.session.user.id;
+
+    const order = await Order.findOne({ _id: orderId, user: userId });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found.' });
+    }
+
+    const item = order.items.id(itemId); // Use item._id to find the item
+
+    if (!item) {
+      return res.status(404).json({ success: false, message: 'Item not found.' });
+    }
+
+    if (item.status !== 'Pending' && item.status !== 'Shipped') {
+      return res.status(400).json({ success: false, message: 'Item cannot be cancelled.' });
+    }
+    
+    // Find the product and variant
+    const product = await Product.findById(item.productId)
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found.' });
+    }
+
+    const variant = product.variants.id(item.variantId);
+    if (!variant) {
+      return res.status(404).json({ success: false, message: 'Variant not found.' });
+    }
+
+    // Increment the stock of the variant after return 
+    variant.stock += item.quantity
+    
+    await product.save()
+
+
+    item.status = 'Cancelled';
+    item.cancellationReason = reason; // Store the cancellation reason
+
+
+    await order.save();
+
+    return res.status(200).json({ success: true, message: 'Item cancelled successfully.' });
+  } catch (error) {
+    console.error('Error cancelling item:', error);
+    return res.status(500).json({ success: false, message: 'Failed to cancel the item.' });
   }
 };

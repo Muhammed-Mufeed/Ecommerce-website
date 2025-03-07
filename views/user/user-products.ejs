@@ -1,15 +1,17 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/user/css/partial.css" />
-    <link rel="stylesheet" href="/user/css/home.css" />
+    <link rel="stylesheet" href="/user/css/user-products.css" />
+    <!-- Add SweetAlert  -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!--Include AddtoCart Fn-->
+    <script src="/user/js/addToCart.js"></script>
   </head>
-
 <body>
   <%-include('../partials/user/header')%>
-
   <div class="breadcrumb-container">
     <div class="breadcrumb">
       <a href="/" >Home</a>
@@ -17,38 +19,105 @@
       <a href="/userproducts" >Products</a>
     </div>
   </div>
-  <div class="products-grid">
-    <% if (products.length > 0) { %>
-      <% products.forEach((product) => { %>
-        <!-- Check if the product has at least one listed variant -->
-        <% if (product.variants.some(v => v.isListed)) { %>
-          <div class="product-card">
-            <% const listedVariant = product.variants.find(v => v.isListed); %>
-            <a href="/productdetail/<%= product._id %>?variantId=<%= listedVariant._id %>" class="product-link">
-              <div class="product-image">
-                <img src="<%= listedVariant.images.length > 0 ? listedVariant.images[0] : '/default-image.jpg' %>" alt="<%= product.name %>">
-                <div class="product-wishlist">
-                  <img src="/user/icons/wishlist-2.png" alt="wishlist" width="20">
+  <div class="content-wrapper">
+    <div class="filter-container">
+      <h3 class="filter-heading">Filters</h3>
+      <form id="filter-form" action="/userproducts" method="GET">
+         <!-- Sort Filter -->
+        <div class="filter-section">
+          <h4>Sort</h4>
+          <select name="sort">
+            <option value="">-- Select --</option>
+            <option value="aZ">aA - zZ (Ascending)</option>
+            <option value="zA">zZ - aA (Descending)</option>
+          </select>
+        </div>
+        <div class="filter-section">
+          <h4>Availability</h4>
+          <label><input type="checkbox" name="availability" value="inStock"> In Stock</label>
+        </div>
+        <!-- <div class="filter-section">
+          <h4>Discount</h4>
+          <label><input type="checkbox" name="discount" value="10"> 10% or more</label>
+          <label><input type="checkbox" name="discount" value="20"> 20% or more</label>
+          <label><input type="checkbox" name="discount" value="30"> 30% or more</label>
+        </div> -->
+        <div class="filter-section">
+          <h4>Price Range</h4>
+          <input type="number" name="minPrice" placeholder="Min Price" id="minPrice">
+          <input type="number" name="maxPrice" placeholder="Max Price" id="maxPrice">
+        </div>
+        <div class="filter-section">
+          <h4>Categories</h4>
+          <% categories.forEach(category => { %>
+            <label><input type="checkbox" name="category" value="<%= category._id %>"> <%= category.name %></label>
+          <% }) %>
+        </div>
+        <div class="filter-section">
+          <h4>Brands</h4>
+          <% brands.forEach(brand => { %>
+            <label><input type="checkbox" name="brand" value="<%= brand._id %>"> <%= brand.name %></label>
+          <% }) %>
+        </div>
+        <button type="submit" class="apply-filter-btn">Apply Filters</button>
+      </form>
+    </div>
+    <div class="products-grid">
+      <% if (products.length > 0) { %>
+        <% products.forEach((product) => { %>
+          <!-- Check if the product has at least one listed variant -->
+          <% if (product.variants.some(v => v.isListed)) { %>
+            <div class="product-card">
+              <% const listedVariant = product.variants.find(v => v.isListed); %>
+              <a href="/productdetail/<%= product._id %>?variantId=<%= listedVariant._id %>" class="product-link">
+                <div class="product-image">
+                  <img src="<%= listedVariant.images.length > 0 ? listedVariant.images[0] : '/default-image.jpg' %>" alt="<%= product.name %>">
+                  <div class="product-wishlist">
+                    <img src="/user/icons/wishlist-2.png" alt="wishlist" width="15">
+                  </div>
                 </div>
+              </a>
+              <div class="product-details">
+                <h3 class="product-name"><%= product.name %></h3>
+                <div class="price-container">
+                  <span class="mrp">M.R.P₹<%= product.actualPrice %></span>
+                  <span class="selling-price">₹<%= product.sellingPrice %></span>
+                </div>
+                <div class="product-rating">★★★★☆</div>
+                <button class="add-to-cart" onclick="addToCart('<%= product._id %>', '<%= listedVariant._id %>')">
+                  Add to Cart
+                </button>
               </div>
-            </a>
-            <div class="product-details">
-              <h3 class="product-name"><%= product.name %></h3>
-              <div class="price-container">
-                <span class="mrp">M.R.P₹<%= product.actualPrice %></span>
-                <span class="selling-price">₹<%= product.sellingPrice %></span>
-              </div>
-              <div class="product-rating">★★★★☆</div>
-              <button class="add-to-cart">Add to Cart</button>
             </div>
-          </div>
-        <% } %>
-      <% }) %>
-    <% } else { %>
-      <p>No products found.</p>
-    <% } %>
+          <% } %>
+        <% }) %>
+      <% } else { %>
+        <p>No products found.</p>
+      <% } %>
+    </div>
   </div>
+ 
   <%-include('../partials/user/footer')%>
+
+  <!-- Add this script to handle empty price fields -->
+  <script>
+    document.getElementById('filter-form').addEventListener('submit', function(event) {
+      const minPrice = document.getElementById('minPrice').value;
+      const maxPrice = document.getElementById('maxPrice').value;
+      const sort = document.querySelector('select[name="sort"]').value;
+
+      // Remove minPrice and maxPrice fields if they are empty
+      if (minPrice === '') {
+        document.getElementById('minPrice').disabled = true;
+      }
+      if (maxPrice === '') {
+        document.getElementById('maxPrice').disabled = true;
+      }
+
+      if (sort === '') {
+       document.querySelector('select[name="sort"]').disabled = true;
+      }
+    });
+  </script>
 </body>
 </html>
-   

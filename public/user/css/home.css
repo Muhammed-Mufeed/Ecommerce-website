@@ -292,6 +292,7 @@ body {
     max-width: 1200px;
     margin: 40px auto;
     padding: 0 20px;
+   
 }
 
 .products-grid {
@@ -299,6 +300,7 @@ body {
     grid-template-columns: repeat(4, 1fr);
     gap: 25px;
     margin-top: 30px;
+    
 }
 
 /* Product Card */
@@ -308,6 +310,7 @@ body {
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border: 1px solid #eee;
+    
 }
 
 .product-card:hover {

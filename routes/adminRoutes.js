@@ -5,6 +5,7 @@
   const categoryManagement = require('../controllers/admin/categoryManagement')
   const productManagement = require('../controllers/admin/productManagement')
   const brandManagement = require('../controllers/admin/brandManagement')
+  const orderManagement = require('../controllers/admin/orderManagement')
 
 
   const{checkLogin,checkLogout} = require('../middlewares/adminAuth')
@@ -51,6 +52,10 @@
   router.get('/brands/edit/:id',checkLogin, brandManagement.getEditBrand);
   router.put('/brands/edit/:id', brandManagement.putEditBrand);
   router.patch('/brands/:brandId/update-BrandStatus',brandManagement.patchUpdateBrandStatus);
+  // ==================================================================================================================//
+  router.get('/orders',checkLogin,orderManagement.getOrderListPage)
+  router.get('/orders/:orderId',checkLogin,orderManagement.getOrderDetailspage)
+  router.patch('/orders/:orderId/items/:itemId/update-status',checkLogin,orderManagement.updateOrderStatus)
 
-
+  
   module.exports = router

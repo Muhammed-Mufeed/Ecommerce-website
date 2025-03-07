@@ -28,6 +28,14 @@ router.get('/login', checkLogout, userController.getLoginPage)
 router.post('/login',userController.postLoginPage)
 router.post('/logout', userController.postLogoutPage)
 
+
+router.get('/forgot-password', userController.getForgotPasswordPage);
+router.post('/reset-password', userController.postResetPassword);
+router.get('/forgot-verify-otp', userController.getForgotVerifyOtpPage);
+router.post('/forgot-verify-otp', userController.postForgotVerifyOtp);
+router.get('/forgot-confirm-password', userController.getForgotConfirmPasswordPage);
+router.post('/forgot-confirm-password', userController.postForgotConfirmPassword);
+
 // ==================================================================================================================//
 
 
@@ -57,10 +65,9 @@ router.put('/editAddress/:addressId',checkLogin,addressManagement.putUpdateAddre
 router.delete('/deleteAddress/:addressId',checkLogin,addressManagement.deleteAddress)
 
 
-
-
-
-
+router.get('/userOrders',checkBlocked,orderManagement.getUserOrderList)
+router.get('/userOrders/:orderId',checkBlocked,orderManagement.getUserOrderHistory)
+router.patch('/userOrders/:orderId/cancelItem/:itemId',checkLogin,orderManagement.patchCancelItem)
 
 // ==================================================================================================================//
 router.post('/add-to-cart',checkLogin,cartManagement.postAddtoCart)
@@ -72,7 +79,7 @@ router.post('/cart',checkLogin,cartManagement.postCartTocheckout)
 // ==================================================================================================================//
 router.post('/Checkout_addAddress', checkLogin,orderManagement.postCheckoutAddaddress)
 router.get('/checkout',checkBlocked,orderManagement.getCheckoutPage)
-router.post('/checkout',checkLogin,orderManagement.postCheckoutpage)
+router.post('/checkout',checkLogin,orderManagement.postPlaceOrder)
 
 // ==================================================================================================================//
 

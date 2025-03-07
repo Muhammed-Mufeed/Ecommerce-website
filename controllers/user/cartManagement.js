@@ -9,7 +9,7 @@ exports.postAddtoCart = async (req,res)=>{
     const{productId,variantId} = req.body
     const userId = req.session.user.id
 
-    // Fetch the product and check variant stock
+    
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found" });
@@ -24,20 +24,24 @@ exports.postAddtoCart = async (req,res)=>{
       return res.status(400).json({ success: false, message: "Out of stock" });
     }
 
-    // Find the user's cart
+    
     let cart = await Cart.findOne({user: userId})
 
-    // If no cart exists, create a new one
+   
     if(!cart){
       cart = new Cart({user: userId , items:[]})
     }
 
-    // Check if the item already exists in the cart
+    
     const existingItem = cart.items.find( (item) => item.product.toString() === productId && item.variant.toString() === variantId) 
 
     if(existingItem){
 
-      existingItem.quantity += 1;       // If item exists, increment the quantity
+      if (existingItem.quantity + 1 > variant.stock) {
+        return res.status(400).json({ success: false, message: "Insufficient stock" });
+      }
+      
+      existingItem.quantity += 1;       
     
     }
     else{
@@ -58,9 +62,9 @@ exports.postAddtoCart = async (req,res)=>{
 exports.getCartPage = async (req,res)=>{
   try {
 
-    // Check if user is logged in
+    
     if (!req.session.user) {
-      return res.redirect('/login'); // Redirect to login page
+      return res.redirect('/login'); 
     }
 
     const userId = req.session.user.id
@@ -73,10 +77,10 @@ exports.getCartPage = async (req,res)=>{
     }
      
     
-    // Calculate subtotal
+    
     let subtotal = 0;
 
-    // Manually fetch the correct variant from the product's `variants` array
+    //  fetching  the correct variant from the product's `variants` array
     const cartItems = cart.items.map((item) => {
       const product = item.product 
       const variant = product.variants.id(item.variant) // Fetch variant manually from array
@@ -93,7 +97,7 @@ exports.getCartPage = async (req,res)=>{
         quantity:item.quantity
       }
 
-    }).filter(item => item !== null)  // Remove any null values
+    }).filter(item => item !== null)  // Remove any null values using filter()method.
 
 
     return res.render('user-cart',{cartItems,subtotal})
@@ -110,6 +114,23 @@ exports.putUpdateCartPage = async (req,res)=>{
     const {productId,variantId,quantity} = req.body
     const userId = req.session.user.id
 
+
+    // Fetch the product and variant to check stock
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found." });
+    }
+
+    const variant = product.variants.id(variantId);
+    if (!variant) {
+      return res.status(404).json({ success: false, message: "Variant not found." });
+    }
+
+    // Check if the requested quantity exceeds the stock
+    if (quantity > variant.stock) {
+      return res.status(400).json({success:false,message:`Insufficient stock for ${product.name} ${variant.colorName} color.` })
+    } 
+
     const cart = await Cart.findOne({user:userId})
 
     if(!cart){
@@ -122,14 +143,17 @@ exports.putUpdateCartPage = async (req,res)=>{
     )
 
     if(item){
+     
       // Update the quantity
       item.quantity = quantity;
       await cart.save()
-      return res.status(200).json({success:true,message:"Cart updated."})
+
+      return res.status(200).json({success:true,message:"Cart updated.",stock:variant.stock})
     }
     else{
       return res.status(404).json({success:false, message:"Item not found in cart"})
     }
+
   } catch (error) {
     console.error('Error updating cart:', error);
     res.status(500).json({ success: false, message: 'Internal Server Error' });
@@ -153,7 +177,7 @@ exports.deleteRemoveCart = async(req,res) => {
       return res.status(404).json({success:false, message:" Cart not found "})
     }
 
-    //If cart is empty after removal , consider deleting it
+    //If cart is empty after removal , just deleting it
     if(removedCart.items.length === 0){
       await Cart.deleteOne({ user: userId})
       return res.json({success:true , message: " Item removed and cart deleted "})
@@ -179,7 +203,7 @@ exports.postCartTocheckout = async (req,res) => {
       return res.status(404).json({success:false, message:"Cart Items not found.please add Items in to the cart "})
     }
 
-    // Validate quantity limit and stock availability
+    
     for(const item of cart.items){
       const product = item.product;
       const variant = product.variants.id(item.variant)

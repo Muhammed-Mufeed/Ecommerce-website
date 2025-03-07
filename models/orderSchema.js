@@ -2,24 +2,74 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const orderItemSchema = new Schema({
+  _id: {
+     type: Schema.Types.ObjectId,
+      auto: true 
+    }, 
+
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product',
+      required: true,
+    },
+
+    variantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+    },
+
   product: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product',
-    required: true,
+    name: {
+      type: String,
+      required: true,
+    },
+    actualPrice: {
+      type: Number,
+      required: true,
+    },
+    sellingPrice: {
+      type: Number,
+      required: true,
+    }
+  
   },
   variant: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
+    color: {
+      type: String,
+      required: true,
+    },
+    colorName: {
+      type: String,
+      required: true,
+    },
+    images: [{
+      type: String,
+      required: true,
+    }],
   },
+
   quantity: {
     type: Number,
     required: true,
   },
+
   price: {
     type: Number,
     required: true,
   },
+
+  status: {
+    type: String,
+    enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'],
+    default: 'Pending',
+  },
+
+  cancellationReason: {
+    type:String,
+    default:null
+  }
 });
+
 
 const addressSchema = new Schema({
   name: {
@@ -65,7 +115,6 @@ const orderSchema = new Schema({
   orderId: {
     type: String,
     unique: true,
-    
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -80,14 +129,10 @@ const orderSchema = new Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['cod'], 
+    enum: ['cod'],
     required: true,
   },
-  status: {
-    type: String,
-    enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'],
-    default: 'Pending',
-  },
+ 
 }, { timestamps: true });
 
 // Generate a unique order ID before saving

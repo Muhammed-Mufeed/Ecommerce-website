@@ -8,17 +8,11 @@
   <!-- Add SweetAlert -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <title>Checkout</title>
-  <style>
-    /* Add your custom styles here */
-  </style>
 </head>
 <body>
   <%- include('../partials/user/header') %>
 
   <div class="checkout-container">
-    <h1>Checkout</h1>
-
-    <!-- Address Section -->
     <div class="address-section">
       <h2>Shipping Address</h2>
       <button id="open-modal" class="add-address-link">+ Add New Address</button>
@@ -42,35 +36,39 @@
           <p>No addresses found. Please add an address.</p>
         <% } %>
       </div>
-    </div>
 
-    <!-- Payment Options -->
-    <div class="payment-section">
-      <h2>Payment Options</h2>
-      <div class="payment-option">
-        <input type="radio" name="paymentMethod" value="cod" id="cod" checked>
-        <label for="cod">Cash on Delivery</label>
+      <!-- Payment Options -->
+      <div class="payment-section">
+        <h2>Payment Options</h2>
+        <div class="payment-option">
+          <input type="radio" name="paymentMethod" value="cod" id="cod" checked>
+          <label for="cod">Cash on Delivery</label>
+        </div>
       </div>
     </div>
 
-    <!-- Order Summary -->
     <div class="order-summary">
-      <h2>Order Summary</h2>
-      <div class="order-items">
-        <% cartItems.forEach(item => { %>
-          <div class="order-item">
-            <p><%= item.product.name %> (x<%= item.quantity %>)</p>
-            <p>₹<%= item.product.sellingPrice * item.quantity %></p>
-          </div>
-        <% }) %>
-      </div>
-      <div class="order-total">
-        <p><strong>Subtotal:</strong> ₹<%= subtotal %></p>
+      <h1>Checkout</h1>
+
+      <!-- Order Summary Details -->
+      <div class="order-summary-details">
+        <h2>Order Summary</h2>
+        <div class="order-items">
+          <% cartItems.forEach(item => { %>
+            <div class="order-item">
+              <p><%= item.product.name %> (x<%= item.quantity %>)</p>
+              <p>₹<%= item.product.sellingPrice * item.quantity %></p>
+            </div>
+          <% }) %>
+        </div>
+        <div class="order-total">
+          <p><strong>Subtotal:</strong> ₹<%= subtotal %></p>
+        </div>
+
+        <!-- Place Order Button -->
+        <button id="place-order-btn" class="place-order-btn">Place Order</button>
       </div>
     </div>
-
-    <!-- Place Order Button -->
-    <button id="place-order-btn" class="place-order-btn">Place Order</button>
   </div>
 
   <!-- Add Address Modal -->
@@ -156,6 +154,9 @@
         document.getElementById('addAddressModal').style.display = 'none';
       }
     });
+
+// Additional CSS to ensure modal is hidden by default
+document.getElementById('addAddressModal').style.display = 'none';
 
     // DOM Validation for Add Address Form
     document.getElementById('modal-add-address-form').addEventListener('submit', async function (event) {

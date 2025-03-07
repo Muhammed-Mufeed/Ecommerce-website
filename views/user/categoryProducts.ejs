@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/user/css/partial.css" />
     <link rel="stylesheet" href="/user/css/categoryProducts.css" />
+    <!-- Add SweetAlert  -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!--Include AddtoCart Fn-->
+    <script src="/user/js/addToCart.js"></script>
 
     <title></title>
   </head>
@@ -16,7 +20,7 @@
     <div class="breadcrumb">
       <a href="/" >Home</a>
       <span class="separator">></span>
-      <a href="/categoryProducts/:categoryId" >Related Products</a>
+      <a href="/categoryProducts/:categoryId" ><%=category.name%></a>
     </div>
   </div>
 
@@ -46,7 +50,9 @@
                 <span class="selling-price">₹<%= product.sellingPrice %></span>
               </div>
               <div class="product-rating">★★★★☆</div>
-              <button class="add-to-cart">Add to Cart</button>
+              <button class="add-to-cart" onclick="addToCart('<%= product._id %>', '<%= listedVariant._id %>')">
+                Add to Cart
+            </button>
             </div>
           </div>
         <% } %>

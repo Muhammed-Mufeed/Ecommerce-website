@@ -8,50 +8,69 @@
     <title>Login Page</title>
 </head>
 <body>
-  <div class="login-container">
-      <h1>User Login</h1>
-      <form action="/login" method="POST">
-          <div class="form-group">
-              <label for="email">Email Address</label>
-              <input type="email" id="email" name="email" placeholder="Enter your email">
+  <div class="login-wrapper">
+      <div class="login-image">
+          <div class="image-overlay">
+              <h2>Welcome to PackSmart</h2>
+              <p>Your one-stop shop for smart packaging solutions</p>
           </div>
-          <div class="form-group">
-              <label for="password">Password</label>
-              <div class="password-field">
-                  <input type="password" id="password" name="password" placeholder="Enter your password">
-                  <i class="toggle-password fas fa-eye-slash"></i>
-              </div>
-          </div>
-          <% if(errorMessage){ %>
-            <div class="alert alert-danger text-center">
-              <p><%= errorMessage %></p>
-            </div>
-          <% } %>
-          <button type="submit" class="login-btn">Login</button>
-      </form>
-      <div class="google-login">
-        <a href="/auth/google" class="google-btn">
-            <span class="google-icon">
-                <i class="fab fa-google"></i>
-            </span>
-            <span class="btn-text">Sign in with Google</span>
-        </a>
-    </div>
+      </div>
       
-    
-      <div class="signup-link">
-          Not registered? <a href="/signup">Sign up</a>
+      <div class="login-content">
+          <div class="login-container">
+              <h1>User Login</h1>
+              
+              <form action="/login" method="POST">
+                  <div class="form-group">
+                      <label for="email">Email Address</label>
+                      <input type="email" id="email" name="email" placeholder="Enter your email">
+                  </div>
+                  
+                  <div class="form-group">
+                      <label for="password">Password</label>
+                      <div class="password-field">
+                          <input type="password" id="password" name="password" placeholder="Enter your password">
+                          <i class="toggle-password fas fa-eye-slash"></i>
+                      </div>
+                  </div>
+                  
+                  <div class="forgot-password">
+                      <a href="/forgot-password">Forgot Password?</a>
+                  </div>
+                  
+                  <% if(errorMessage){ %>
+                      <div class="alert">
+                          <p><%= errorMessage %></p>
+                      </div>
+                  <% } %>
+                  
+                  <button type="submit" class="login-btn">Login</button>
+                  
+                  <div class="google-login">
+                      <a href="/auth/google" class="google-btn">
+                          <span class="google-icon">
+                              <i class="fab fa-google"></i>
+                          </span>
+                          <span class="btn-text">Sign in with Google</span>
+                      </a>
+                  </div>
+                  
+                  <div class="signup-link">
+                      Not registered? <a href="/signup">Sign up</a>
+                  </div>
+              </form>
+          </div>
       </div>
   </div>
 
   <script>
-    document.querySelector('.toggle-password').addEventListener('click', function() {
-        const passwordInput = document.querySelector('#password');
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
-        this.classList.toggle('fa-eye');
-        this.classList.toggle('fa-eye-slash');
-    });
+      document.querySelector('.toggle-password').addEventListener('click', function() {
+          const passwordInput = document.querySelector('#password');
+          const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordInput.setAttribute('type', type);
+          this.classList.toggle('fa-eye');
+          this.classList.toggle('fa-eye-slash');
+      });
   </script>
 </body>
 </html>

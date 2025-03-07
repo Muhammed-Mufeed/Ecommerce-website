@@ -8,175 +8,242 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Roboto', sans-serif;
-        }
+       * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
 
-        body {
-            background-color: #f9fafb;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
+:root {
+    --primary-bg: #f4f7ff;
+    --card-bg: #ffffff;
+    --text-primary: #1a1e23;
+    --text-secondary: #4b5563;
+    --border-color: #e9ecef;
+    --primary-color: #6366f1;
+    --primary-color-dark: #4338ca;
+    --success-color: #10b981;
+    --success-color-dark: #059669;
+    --danger-color: #ef4444;
+    --danger-color-dark: #dc2626;
+    --shadow-subtle: 0 4px 15px rgba(0, 0, 0, 0.05);
+    --shadow-medium: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
 
-        /* Wrapper for Layout */
-        .wrapper {
-            display: flex;
-            min-height: calc(100vh - 80px); /* Full height minus navbar */
-        }
+body {
+    background-color: var(--primary-bg);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
 
-        /* Main Content Styling */
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            background-color: #f9fafb;
-            min-height: calc(100vh - 80px);
-        }
-
-        .addresses-container {
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        .addresses-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .addresses-header h1 {
-            font-size: 24px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .add-address-btn {
-            background-color: #ff6f61;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .add-address-btn:hover {
-            background-color: #e5645a;
-        }
-
-        .addresses-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        /* Updated Address Card Styling */
-.address-card {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+.wrapper {
+    display: flex;
+    flex: 1;
     padding: 20px;
+}
+
+.main-content {
+    flex: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.addresses-container {
+    background-color: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: var(--shadow-medium);
+    overflow: hidden;
+}
+
+.addresses-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+}
+
+.addresses-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.8px;
+}
+
+.add-address-btn {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.add-address-btn:hover {
+    background-color: var(--primary-color-dark);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.addresses-list {
+    display: grid;
+    gap: 16px;
+    padding: 24px 32px;
+}
+
+.address-card {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 20px;
+    align-items: center;
+    background-color: var(--primary-bg);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
     position: relative;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .address-card:hover {
+    box-shadow: var(--shadow-subtle);
     transform: translateY(-3px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 .address-type {
-    background-color: #f0f0f0;
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
-    margin-bottom: 15px;
-}
-
-.address-type.home {
-    background-color: #e1f5fe;
-    color: #0288d1;
-}
-
-.address-type.work {
-    background-color: #e8f5e9;
-    color: #388e3c;
-}
-
-.address-name {
-    font-size: 16px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 0.8rem;
     font-weight: 600;
-    margin-bottom: 12px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 8px;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 6px;
+    color: white;
+    background-color: var(--primary-color);
 }
+
+.address-type.home { background-color: #10b981; }
+.address-type.work { background-color: #6366f1; }
+.address-type.other { background-color: #6b7280; }
 
 .address-details {
-    font-size: 14px;
-    color: #555;
-    line-height: 1.6;
+    flex-grow: 1;
+}
+
+.address-details h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
 }
 
 .address-line {
     display: block;
-    margin-bottom: 3px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
 }
 
 .address-landmark {
+    display: block;
+    color: #6b7280;
     font-style: italic;
-    color: #666;
-    margin-top: 5px;
+    font-size: 0.9rem;
+    margin-top: 6px;
 }
 
 .address-contact {
-    font-size: 14px;
-    margin-top: 12px;
-    padding-top: 10px;
-    border-top: 1px solid #eee;
+    color: var(--text-secondary);
+    font-weight: 500;
 }
 
 .address-actions {
     display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-    margin-top: 15px;
+    gap: 12px;
 }
 
 .edit-btn, .delete-btn {
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
     border: none;
-    background: none;
-    font-size: 14px;
-    font-weight: 500;
     cursor: pointer;
-    padding: 5px 10px;
-    border-radius: 4px;
-    transition: background-color 0.2s ease;
+    font-size: 0.9rem;
 }
 
 .edit-btn {
-    color: #ff6f61;
+    background-color: var(--success-color);
+    color: white;
 }
 
 .edit-btn:hover {
-    background-color: #fff1f0;
+    background-color: var(--success-color-dark);
+    transform: translateY(-2px);
 }
 
 .delete-btn {
-    color: #dc3545;
+    background-color: var(--danger-color);
+    color: white;
 }
 
 .delete-btn:hover {
-    background-color: #fff5f5;
+    background-color: var(--danger-color-dark);
+    transform: translateY(-2px);
+}
+
+.no-addresses {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: var(--primary-bg);
+}
+
+.no-addresses p {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .wrapper {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .addresses-container {
+        border-radius: 0;
+    }
+
+    .addresses-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .address-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .address-actions {
+        justify-content: center;
+        width: 100%;
+        margin-top: 15px;
+    }
 }
     </style>
 </head>
