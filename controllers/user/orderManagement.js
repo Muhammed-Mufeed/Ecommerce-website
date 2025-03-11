@@ -2,7 +2,8 @@ const Product = require('../../models/productSchema')
 const Cart = require('../../models/cartSchema')
 const Address = require('../../models/addressSchema')
 const Order = require('../../models/orderSchema')
-
+const Offer = require('../../models/offerSchema')
+const Coupon = require('../../models/couponSchema')
 
 
 // ===============================================CheckoutPage-POST===================================================================//
@@ -46,10 +47,17 @@ exports.getCheckoutPage = async (req, res) => {
     // Fetch the user's cart and populate product details
     const cart = await Cart.findOne({ user: userId }).populate('items.product');
     if (!cart || cart.items.length === 0) {
-      return res.redirect('/cart'); // Redirect to cart if it's empty
+      return res.redirect('/');     // Redirect to home if it's empty
     }
 
-    
+    const categoryOffers =  await Offer.find({isActive:true});
+
+    const categoryDiscounts = {};
+    categoryOffers.forEach((offer) => {
+      categoryDiscounts[offer.categoryId.toString()] = offer.categoryDiscount
+    })
+
+
     let subtotal = 0;
     const validCartItems = cart.items
       .map((item) => {
@@ -61,11 +69,22 @@ exports.getCheckoutPage = async (req, res) => {
           return null; // Skip unlisted items
         }
 
-        subtotal += product.sellingPrice * item.quantity;
+        const productOffer = product.productDiscount || 0;
+        const categoryOffer = categoryDiscounts[product.category.toString()] || 0
+
+        const maxDiscount = Math.max(productOffer,categoryOffer)
+
+        const discountedPrice = Math.round(product.actualPrice - (product.actualPrice * maxDiscount) / 100)
+
+        subtotal += discountedPrice * item.quantity;
+
 
        
         return {
-          product,
+          product: {
+            ...product.toObject(),
+            sellingPrice:discountedPrice  //changed Selling Price
+          },
           variant,
           quantity: item.quantity,
         };
@@ -77,12 +96,21 @@ exports.getCheckoutPage = async (req, res) => {
 
     
     const addresses = await Address.find({ userId, isListed: true });
-
     
+    const currentDate = new Date();
+    const coupons = await Coupon.find({
+      isActive: true,
+      validFrom: { $lte: currentDate },
+      validTo: { $gte: currentDate },
+      usageLimit: { $gt: 0 },
+      usedBy: { $ne: userId }
+    });
+
     res.render('user-checkout', {
       cartItems: validCartItems,
       addresses,
       subtotal,
+      coupons
     });
   } catch (error) {
     console.error('Error loading checkout page:', error);
@@ -90,12 +118,14 @@ exports.getCheckoutPage = async (req, res) => {
   }
 };
 
+
+
 // ===============================================CheckoutPage-POST===================================================================//
 
 exports.postPlaceOrder = async (req,res) =>{
   try {
     const userId = req.session.user.id;
-    const { addressId, paymentMethod } = req.body;
+    const { addressId, paymentMethod,couponCode } = req.body;
 
     
     const cart = await Cart.findOne({ user: userId }).populate('items.product');
@@ -109,6 +139,13 @@ exports.postPlaceOrder = async (req,res) =>{
       return res.status(400).json({ success: false, message: 'Invalid address.' });
     }
 
+    // Fetch category offers (same as getCheckoutPage)
+    const categoryOffers = await Offer.find({ isActive: true });
+    const categoryDiscounts = {};
+    categoryOffers.forEach((offer) => {
+      categoryDiscounts[offer.categoryId.toString()] = offer.categoryDiscount;
+    });
+
     
     let subtotal = 0;
     const orderItems = cart.items.map((item) => {
@@ -120,8 +157,14 @@ exports.postPlaceOrder = async (req,res) =>{
           throw new Error(`Product "${product.name}" (${variant.colorName}) is out of stock or unavailable.`);
         }
 
+        // Apply product and category discounts (same logic as getCheckoutPage)
+        const productOffer = product.productDiscount || 0;
+        const categoryOffer = categoryDiscounts[product.category.toString()] || 0;
+        const maxDiscount = Math.max(productOffer, categoryOffer);
+        const discountedPrice = Math.round(product.actualPrice - (product.actualPrice * maxDiscount) / 100);
+
               
-        subtotal += product.sellingPrice * item.quantity;
+        subtotal += discountedPrice * item.quantity;
 
       
         return {
@@ -131,7 +174,7 @@ exports.postPlaceOrder = async (req,res) =>{
         product: {
           name: product.name,
           actualPrice: product.actualPrice,
-          sellingPrice: product.sellingPrice,
+          sellingPrice: discountedPrice,
         },
 
         variant: {
@@ -141,10 +184,43 @@ exports.postPlaceOrder = async (req,res) =>{
         },
 
         quantity: item.quantity,
-        price: product.sellingPrice,
+        price: discountedPrice,
         status: 'Pending'   // Set initial status for each item
         };
     });
+
+    
+    let discountAmount = 0;
+    let appliedCouponCode = null;
+    
+    if (couponCode) {
+      const coupon = await Coupon.findOne({
+        couponCode,
+        isActive: true,
+        validFrom: { $lte: new Date() },
+        validTo: { $gte: new Date() },
+        usageLimit: { $gt: 0 },
+        usedBy: { $ne: userId }
+      });
+
+      if (!coupon) { 
+        return res.status(400).json({  success: false,  message: 'Invalid or expired coupon.'});
+      }
+
+      if (subtotal < coupon.minPurchaseAmount) {
+        return res.status(400).json({  success: false,  message: `Minimum purchase amount for this coupon is ₹${coupon.minPurchaseAmount}`});
+      }
+
+      discountAmount = coupon.discountAmount;
+      appliedCouponCode = coupon.couponCode;
+
+      coupon.usedBy.push(userId);
+      coupon.usageLimit -= 1;
+      await coupon.save();
+    }
+
+    const finalAmount = subtotal - discountAmount; 
+    console.log('Subtotal:', subtotal, 'Discount:', discountAmount, 'Final Amount:', finalAmount);    
 
     //create order
     const order = new Order({
@@ -161,10 +237,13 @@ exports.postPlaceOrder = async (req,res) =>{
         addressType: address.addressType,
       },
       paymentMethod,
-      finalAmount: subtotal,
+      finalAmount,
+      coupon: {
+        couponCode: appliedCouponCode,
+        discountAmount: discountAmount
+      },
     });
 
-    
     await order.save();
 
     // Reduce stock for each product variant
@@ -185,7 +264,7 @@ exports.postPlaceOrder = async (req,res) =>{
     return res.status(200).json({ success: true, message: 'Order placed successfully.',redirectUrl:"/" });
   } catch (error) {
     console.error('Error placing order:', error);
-    return res.status(500).json({ success: false, message: error.message || 'Failed to place order.' });
+    return res.status(500).json({ success: false, message: 'Failed to place order.' });
   }
 };
 

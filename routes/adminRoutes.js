@@ -6,6 +6,8 @@
   const productManagement = require('../controllers/admin/productManagement')
   const brandManagement = require('../controllers/admin/brandManagement')
   const orderManagement = require('../controllers/admin/orderManagement')
+  const offerManagement = require('../controllers/admin/offerManagement')
+  const couponManagement = require('../controllers/admin/couponManagement')
 
 
   const{checkLogin,checkLogout} = require('../middlewares/adminAuth')
@@ -56,6 +58,25 @@
   router.get('/orders',checkLogin,orderManagement.getOrderListPage)
   router.get('/orders/:orderId',checkLogin,orderManagement.getOrderDetailspage)
   router.patch('/orders/:orderId/items/:itemId/update-status',checkLogin,orderManagement.updateOrderStatus)
+  // ==================================================================================================================//
+  router.get('/offers',checkLogin,offerManagement.getCategoryOffers)
+  router.get('/offers/add',checkLogin,offerManagement.getAddCategoryOffer)
+  router.post('/offers/add',offerManagement.postAddCategoryOffer)
+  router.get('/offers/edit/:id',checkLogin,offerManagement.getEditCategoryOffer)
+  router.put('/offers/edit/:id',offerManagement.putEditCategoryOffer)
+  router.patch('/offers/:id/update-offerStatus',offerManagement.patchUpdateOfferStatus)
+   // ==================================================================================================================//
+  router.get('/coupons',checkLogin,couponManagement.getCoupons)
+  router.get('/coupons/add',checkLogin,couponManagement.getAddCoupon)
+  router.post('/coupons/add',couponManagement.postAddCoupon)
+  router.get('/coupons/edit/:id',checkLogin,couponManagement.getEditCoupon)
+  router.put('/coupons/edit/:id',couponManagement.putEditCoupon)
+  router.patch('/coupons/:id/update-Couponstatus',couponManagement.patchUpdateCouponStatus)
 
-  
+
+
+
+
+   // ==================================================================================================================//
+
   module.exports = router

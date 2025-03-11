@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Coupon - Admin Dashboard</title>
+    <link rel="stylesheet" href="/admin/css/add-coupons.css">
+    <link rel="stylesheet" href="/admin/css/partial.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <%-include('../partials/admin/header')%>
+    
+    <div class="add-coupon-page">
+        <div class="header-section">
+            <h3>Add New Coupon</h3>
+            <a href="/admin/coupons" class="back-btn">Back to Coupons</a>
+        </div>
+
+        <form id="couponForm" class="coupon-form" novalidate>
+            <div class="form-group">
+                <label for="couponCode">Coupon Code</label>
+                <input type="text" id="couponCode" name="couponCode" placeholder="Enter coupon code">
+                <span class="error" id="couponCodeError"></span>
+            </div>
+
+            
+            <div class="form-group">
+                <label for="minPurchaseAmount">Minimum Purchase Amount</label>
+                <input type="number" id="minPurchaseAmount" name="minPurchaseAmount" step="1" min="0">
+                <span class="error" id="minPurchaseAmountError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="minPurchaseAmount">Discount Amount</label>
+                <input type="number" id="discountAmount" name="discountAmount" step="1" min="0">
+                <span class="error" id="discountAmountError"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="validFrom">Valid From</label>
+                <input type="date" id="validFrom" name="validFrom">
+                <span class="error" id="validFromError"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="validTo">Valid To</label>
+                <input type="date" id="validTo" name="validTo">
+                <span class="error" id="validToError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="usageLimit">Usage Limit</label>
+                <input type="number" id="usageLimit" name="usageLimit" step="1" min="1">
+                <span class="error" id="usageLimitError"></span>
+            </div>
+
+           
+
+            <button type="submit" class="submit-btn" id="submitButton">Add Coupon</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const couponForm = document.getElementById('couponForm');
+            const couponCodeInput = document.getElementById('couponCode');
+            const minPurchaseAmountInput = document.getElementById('minPurchaseAmount');
+            const discountAmountInput = document.getElementById('discountAmount') 
+            const validFromInput = document.getElementById('validFrom');
+            const validToInput = document.getElementById('validTo');
+            const usageLimitInput = document.getElementById('usageLimit');
+            
+            // Error elements
+            const couponCodeError = document.getElementById('couponCodeError');
+            const minPurchaseAmountError = document.getElementById('minPurchaseAmountError');
+            const discountAmountError = document.getElementById('discountAmountError') 
+            const validFromError = document.getElementById('validFromError');
+            const validToError = document.getElementById('validToError');
+            const usageLimitError = document.getElementById('usageLimitError');
+            
+            // Form submission and validation
+            couponForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                // Clear previous error messages
+                document.querySelectorAll('.error').forEach(error => error.textContent = '');
+                
+                let isValid = true;
+                
+                // Validation
+                if (couponCodeInput.value.trim() === '') {
+                    couponCodeError.textContent = 'Coupon code is required';
+                    isValid = false;
+                } else if (couponCodeInput.value.length < 3 || couponCodeInput.value.length > 15) {
+                    couponCodeError.textContent = 'Coupon code must be between 3 and 20 characters';
+                    isValid = false;
+                }
+                
+              
+                
+                if (minPurchaseAmountInput.value.trim() === '') {
+                    minPurchaseAmountError.textContent = 'Minimum purchase amount is required';
+                    isValid = false;
+                } else {
+                    const minPurchaseValue = parseInt(minPurchaseAmountInput.value);
+                    if (isNaN(minPurchaseValue) || !Number.isInteger(minPurchaseValue)) {
+                        minPurchaseAmountError.textContent = 'Minimum purchase amount must be a whole number';
+                        isValid = false;
+                    } else if (minPurchaseValue < 0) {
+                        minPurchaseAmountError.textContent = 'Minimum purchase amount cannot be negative';
+                        isValid = false;
+                    }
+                }
+
+                if(discountAmountInput.value.trim() === ''){
+                    discountAmountError.textContent = "Discount Amount is required"
+                    isValid = false;
+                }else {
+                    const discountAmountValue = parseInt(discountAmountInput.value);
+                    if (isNaN(discountAmountValue) || !Number.isInteger(discountAmountValue)) {
+                        discountAmountError.textContent = 'Discount amount must be a whole number';
+                        isValid = false;
+                    } else if (discountAmountValue < 0) {
+                       discountAmountError.textContent = 'Discount amount cannot be negative';
+                        isValid = false;
+                    }
+                }
+
+
+
+                
+                if (validFromInput.value === '') {
+                    validFromError.textContent = 'Valid from date is required';
+                    isValid = false;
+                }
+                
+                if (validToInput.value === '') {
+                    validToError.textContent = 'Valid to date is required';
+                    isValid = false;
+                } else if (validToInput.value < validFromInput.value) {
+                    validToError.textContent = 'Valid to date cannot be before valid from date';
+                    isValid = false;
+                }
+                
+                if (usageLimitInput.value.trim() === '') {
+                    usageLimitError.textContent = 'Usage limit is required';
+                    isValid = false;
+                } else {
+                    const usageLimitValue = parseInt(usageLimitInput.value);
+                    if (isNaN(usageLimitValue) || !Number.isInteger(usageLimitValue)) {
+                        usageLimitError.textContent = 'Usage limit must be a whole number';
+                        isValid = false;
+                    } else if (usageLimitValue < 1) {
+                        usageLimitError.textContent = 'Usage limit must be at least 1';
+                        isValid = false;
+                    }
+                }
+               
+                
+                if (!isValid) {
+                    return;
+                }
+                
+                try {
+                    const couponData = {
+                        couponCode: couponCodeInput.value.trim().toUpperCase(),
+                        minPurchaseAmount: parseInt(minPurchaseAmountInput.value),
+                        discountAmount: parseInt(discountAmountInput.value),
+                        validFrom: validFromInput.value,
+                        validTo: validToInput.value,
+                        usageLimit: parseInt(usageLimitInput.value),
+                    };
+                    
+                    // Send the data to the server
+                    const response = await fetch('/admin/coupons/add', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(couponData)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message || 'Coupon added successfully',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/admin/coupons';
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Failed to add coupon',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error during add coupon:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while adding the coupon',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -31,6 +31,7 @@
                     <th>Product Name</th>
                     <th>Description</th>
                     <th>Actual Price</th>
+                    <th>Offer Percentage</th>
                     <th>Selling Price</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -44,6 +45,7 @@
                             <td ><%= product.name %></td>
                             <td><%= product.description %></td>
                             <td>₹<%= product.actualPrice %></td>
+                            <td><%= product.productDiscount %>%</td>
                             <td>₹<%= product.sellingPrice %></td>
                             <td id="status-<%= product._id %>"><%= product.isListed ? 'Listed' : 'Unlisted' %></td>
                             <td>

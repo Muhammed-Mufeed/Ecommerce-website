@@ -1,5 +1,6 @@
 const Product = require('../../models/productSchema')
 const Cart = require('../../models/cartSchema')
+const Offer = require('../../models/offerSchema')
 
 
 // =========================================================AddtoCart-POST===================================================//
@@ -49,64 +50,79 @@ exports.postAddtoCart = async (req,res)=>{
     }
 
     await cart.save()
-    res.status(200).json({success:true,message:"Item added to the Cart"})
+    return res.status(200).json({success:true,message:"Item added to the Cart"})
 
   } catch (error) {
     console.log("Error While posting in the Product detail page",error)
-    res.status(500).json({success:false,message:"Internal Server Error"})
-    return
+    return res.status(500).json({success:false,message:"Internal Server Error"})
+   
   }
 }
 
 // =========================================================CartPage-GET============================================================//
-exports.getCartPage = async (req,res)=>{
+exports.getCartPage = async (req, res) => {
   try {
-
-    
     if (!req.session.user) {
       return res.redirect('/login'); 
     }
 
-    const userId = req.session.user.id
+    const userId = req.session.user.id;
 
-    const cart = await Cart.findOne({user:userId}).populate('items.product') //forEg: Here, items.product stores only the _id of the product, not the actual product data.Without populate, you would only have the _id of the product, which is not useful for displaying product information
-    
-    if(!cart){
-      return res.render('user-cart',{cartItems: [] , subtotal: 0})
+    const cart = await Cart.findOne({ user: userId }).populate('items.product');
 
+    if (!cart) {
+      return res.render('user-cart', { cartItems: [], subtotal: 0 });
     }
-     
-    
-    
+
+    const categoryOffers = await Offer.find({ isActive: true });
+
+    // Map category discounts for quick lookup
+    const categoryDiscounts = {};
+    categoryOffers.forEach((offer) => {
+      categoryDiscounts[offer.categoryId.toString()] = offer.categoryDiscount;
+    });
+
     let subtotal = 0;
 
-    //  fetching  the correct variant from the product's `variants` array
+    // Fetch the correct variant and apply discount
     const cartItems = cart.items.map((item) => {
-      const product = item.product 
-      const variant = product.variants.id(item.variant) // Fetch variant manually from array
+      const product = item.product;
+      const variant = product.variants.id(item.variant); 
       
-      if(!variant || !variant.isListed){
-        return null
+      if (!variant || !variant.isListed) {
+        return null;
       }
 
-      subtotal += product.sellingPrice * item.quantity
+      // Get product and category discounts
+      const productOffer = product.productDiscount || 0;
+      const categoryOffer = categoryDiscounts[product.category.toString()] || 0;
+
+      
+      const maxDiscount = Math.max(productOffer, categoryOffer);
+
+      // Calculate the discounted price
+      const discountedPrice = Math.round(product.actualPrice - (product.actualPrice * maxDiscount) / 100);
+
+      subtotal += discountedPrice * item.quantity;
 
       return {
-        product,
-        variant, 
-        quantity:item.quantity
-      }
+        product: {
+          ...product.toObject(),
+          sellingPrice: discountedPrice, // Changed selling price
+        },
+        variant,
+        quantity: item.quantity,
+      };
+    }).filter((item) => item !== null);
 
-    }).filter(item => item !== null)  // Remove any null values using filter()method.
-
-
-    return res.render('user-cart',{cartItems,subtotal})
+    return res.render('user-cart', { cartItems, subtotal });
 
   } catch (error) {
-    console.log("Error in loading Cart Page",error)
-    return res.redirect('/pageNotFound') 
+    console.log("Error in loading Cart Page", error);
+    return res.redirect('/pageNotFound');
   }
-}
+};
+
 
 // =========================================================UpdateCartPage-POST============================================================//
 exports.putUpdateCartPage = async (req,res)=>{

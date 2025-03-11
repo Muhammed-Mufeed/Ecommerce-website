@@ -52,7 +52,7 @@ exports.getAddProduct = async(req,res)=>{
 
 exports.postAddProduct = async(req,res)=>{
   try {
-    const{name,description,category,brand,actualPrice,sellingPrice} = req.body
+    const{name,description,category,brand,actualPrice,productDiscount,sellingPrice} = req.body
     
     if(sellingPrice <= 0 || actualPrice <=0){
      return  res.status(400).json({success:false,message:" price must be greater than 0"})
@@ -60,15 +60,21 @@ exports.postAddProduct = async(req,res)=>{
     else if(actualPrice <= sellingPrice){
      return  res.status(400).json({success:false,message:"Selling price must be less than actual price"})
     }
+    else if(offerPercentage < 0 ){
+      return res.status(400).json({success:false,message:"Offer percentage cannot be negative."})
+    }
 
   
-    const product =await new Product({
+    
+
+    const product =  new Product({
       name,
       description,
       category,
       brand,
       actualPrice,
-      sellingPrice,
+      productDiscount: productDiscount || 0, // Default to 0 if not provided
+      sellingPrice 
      
     })
 
@@ -108,7 +114,7 @@ exports.getEditProduct = async (req,res)=>{
 exports.putEditProduct = async(req,res)=>{
   try {
     const productId = req.params.id
-    const{name,description,category,brand,actualPrice,sellingPrice} = req.body
+    const{name,description,category,brand,actualPrice,productDiscount,sellingPrice} = req.body
 
     if(sellingPrice <= 0 || actualPrice <=0){
       return  res.status(400).json({success:false,message:" price must be greater than 0"})
@@ -116,15 +122,21 @@ exports.putEditProduct = async(req,res)=>{
     else if(actualPrice <= sellingPrice){
       return  res.status(400).json({success:false,message:"Selling price must be less than actual price"})
     }
+    else if (offerPercentage < 0) {
+      return res.status(400).json({ success: false, message: "Offer percentage Cannot be negative." });
+    }
+
 
     const existingProduct = await Product.findById(productId)
     if(!existingProduct){
       return res.status(404).json({success:false,message:"Product is not Found"})
     }
 
+
+
     const updatedProduct = await Product.findByIdAndUpdate(
       productId,
-      {name,description,category,brand,actualPrice,sellingPrice},
+      {name,description,category,brand,actualPrice,productDiscount,sellingPrice},
       {new:true}
     )
     return res.status(200).json({success:true,message:"Product Updated Successfully",product:updatedProduct})

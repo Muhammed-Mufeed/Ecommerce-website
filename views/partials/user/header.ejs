@@ -55,3 +55,15 @@
       <a href="#">About Us</a>
     </div>
   </div>
+
+  <button class="mobile-menu-toggle">☰</button>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+  const menuToggle = document.querySelector('.mobile-menu-toggle');
+  const menu = document.querySelector('.menu');
+  
+  menuToggle.addEventListener('click', function() {
+    menu.classList.toggle('active');
+  });
+});
+  </script>

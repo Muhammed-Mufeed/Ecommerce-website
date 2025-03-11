@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Category Offer - Admin Dashboard</title>
+    <link rel="stylesheet" href="/admin/css/add-offer.css">
+    <link rel="stylesheet" href="/admin/css/partial.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <%-include('../partials/admin/header')%>
+    
+    <div class="add-offer-page">
+        <div class="header-section">
+            <h3>Edit Category Offer</h3>
+            <a href="/admin/offers" class="back-btn">Back to Offers</a>
+        </div>
+
+        <form id="offerForm" class="offer-form" novalidate>
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" name="category">
+                    <option value="">Select Category</option>
+                    <% categories.forEach(category => { %>
+                        <option value="<%= category._id %>" <%= category._id.toString() === offer.categoryId.toString() ? 'selected' : '' %>><%= category.name %></option>
+                    <% }); %>
+                </select>
+                <span class="error" id="categoryError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="discountPercentage">Discount Percentage (%)</label>
+                <input type="number" id="discountPercentage" name="discountPercentage" step="1" min="1" max="99" value="<%= offer.categoryDiscount%>">
+                <span class="error" id="discountPercentageError"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="validFrom">Valid From</label>
+                <input type="date" id="validFrom" name="validFrom" value="<%= offer.validFrom.toISOString().split('T')[0] %>">
+                <span class="error" id="validFromError"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="validTo">Valid To</label>
+                <input type="date" id="validTo" name="validTo" value="<%= offer.validTo.toISOString().split('T')[0] %>">
+                <span class="error" id="validToError"></span>
+            </div>
+            <button type="submit" class="submit-btn" id="submitButton">Update Category Offer</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const offerForm = document.getElementById('offerForm');
+            const categorySelect = document.getElementById('category');
+            const discountPercentageInput = document.getElementById('discountPercentage');
+            const validFromInput = document.getElementById('validFrom');
+            const validToInput = document.getElementById('validTo');
+            
+            // Error elements
+            const categoryError = document.getElementById('categoryError');
+            const discountPercentageError = document.getElementById('discountPercentageError');
+            const validFromError = document.getElementById('validFromError');
+            const validToError = document.getElementById('validToError');
+            
+            // Form submission and validation
+            offerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                // Clear previous error messages
+                document.querySelectorAll('.error').forEach(error => error.textContent = '');
+                
+                let isValid = true;
+                
+                // Validation
+                if (categorySelect.value === '') {
+                    categoryError.textContent = 'Category is required';
+                    isValid = false;
+                }
+                
+                if (discountPercentageInput.value.trim() === '') {
+                    discountPercentageError.textContent = 'Discount percentage is required';
+                    isValid = false;
+                } else {
+                    const discountValue = parseInt(discountPercentageInput.value);
+                    if (isNaN(discountValue) || !Number.isInteger(discountValue)) {
+                        discountPercentageError.textContent = 'Discount percentage must be a whole number';
+                        isValid = false;
+                    } else if (discountValue < 1 || discountValue > 99) {
+                        discountPercentageError.textContent = 'Discount percentage must be between 1 and 99';
+                        isValid = false;
+                    }
+                }
+                
+                if (validFromInput.value === '') {
+                    validFromError.textContent = 'Valid from date is required';
+                    isValid = false;
+                }
+                
+                if (validToInput.value === '') {
+                    validToError.textContent = 'Valid to date is required';
+                    isValid = false;
+                } else if (validToInput.value < validFromInput.value) {
+                    validToError.textContent = 'Valid to date cannot be before valid from date';
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    return;
+                }
+                
+                try {
+                    const offerData = {
+                        categoryId: categorySelect.value,
+                        categoryDiscount: parseInt(discountPercentageInput.value),
+                        validFrom: validFromInput.value,
+                        validTo: validToInput.value,
+                    };
+                    
+                    // Send the data to the server
+                    const response = await fetch(`/admin/offers/edit/<%= offer._id %>`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(offerData)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message || 'Category offer updated successfully',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/admin/offers';
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Failed to update category offer',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error during update category offer:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while updating the category offer',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

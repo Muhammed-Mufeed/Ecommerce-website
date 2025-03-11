@@ -17,7 +17,7 @@
             <a href="/admin/products" class="back-btn">Back to Products</a>
         </div>
 
-        <form id="productForm" class="product-form">
+        <form id="productForm" class="product-form" novalidate>
             <div class="form-group">
                 <label for="name">Product Name</label>
                 <input type="text" id="name" name="name">
@@ -54,16 +54,21 @@
 
             <div class="form-group">
                 <label for="actualPrice">Actual Price (₹)</label>
-                <input type="number" id="actualPrice" name="actualPrice"  step="0.01">
+                <input type="number" id="actualPrice" name="actualPrice" step="1">
                 <span class="error" id="actualPriceError"></span>
             </div>
-
+            
+            <div class="form-group">
+                <label for="offerPercentage">Offer Percentage (%)</label>
+                <input type="number" id="offerPercentage" name="offerPercentage" step="1">
+                <span class="error" id="offerPercentageError"></span>
+            </div>
+            
             <div class="form-group">
                 <label for="sellingPrice">Selling Price (₹)</label>
-                <input type="number" id="sellingPrice" name="sellingPrice"  step="0.01">
+                <input type="number" id="sellingPrice" name="sellingPrice" step="1" >
                 <span class="error" id="sellingPriceError"></span>
             </div>
-
 
             <button type="submit" class="submit-btn" id="submitButton">Add Product</button>
         </form>
@@ -79,6 +84,7 @@
        const brandSelect = document.getElementById('brand');
        const actualPriceInput = document.getElementById('actualPrice')
        const sellingPriceInput = document.getElementById('sellingPrice');
+       const offerPercentageInput = document.getElementById('offerPercentage');
 
        //Error Elements
        const nameError = document.getElementById('nameError')
@@ -88,6 +94,37 @@
        const actualPriceError = document.getElementById('actualPriceError');
        const sellingPriceError = document.getElementById('sellingPriceError');
        const submitButton = document.getElementById('submitButton');
+
+       
+    // Function to calculate selling price based on offer percentage
+    function calculateSellingPrice() {
+        const actualPrice = parseFloat(actualPriceInput.value);
+        const offerPercentage = parseFloat(offerPercentageInput.value);
+
+        if (!isNaN(actualPrice) && !isNaN(offerPercentage) && offerPercentage >= 0) {
+            const discountAmount = (actualPrice * offerPercentage) / 100;
+            const sellingPrice = actualPrice - discountAmount;
+            sellingPriceInput.value = Math.round(sellingPrice) ;
+        }
+    }
+
+    // Function to calculate offer percentage based on selling price
+    function calculateOfferPercentage() {
+        const actualPrice = parseFloat(actualPriceInput.value);
+        const sellingPrice = parseFloat(sellingPriceInput.value);
+
+        if (!isNaN(actualPrice) && !isNaN(sellingPrice)) {
+            const discountAmount = actualPrice - sellingPrice;
+            const offerPercentage = (discountAmount / actualPrice) * 100;
+            offerPercentageInput.value = Math.round(offerPercentage);
+        }
+    }
+
+    // Event listeners for dynamic calculation
+    actualPriceInput.addEventListener('input', calculateSellingPrice);
+    offerPercentageInput.addEventListener('input', calculateSellingPrice);
+    sellingPriceInput.addEventListener('input', calculateOfferPercentage);
+
 
        //Form submission and validation:
        productForm.addEventListener('submit',async(e)=>{
@@ -129,11 +166,24 @@
          if (actualPriceInput.value.trim() === '') {
             actualPriceError.textContent = 'Actual price is required';
             isValid = false;
+         }else if (!Number.isInteger(parseFloat(actualPriceInput.value))) {
+            actualPriceError.textContent = 'Actual price must be a whole number';
+            isValid = false;
          }
 
+         if(offerPercentageInput.value.trim() === ''){
+            offerPercentageError.textContent = "Offer Percentage is required"
+         }else if (!Number.isInteger(parseFloat(offerPercentageInput.value))) {
+            offerPercentageError.textContent = 'Offer percentage must be a whole number';
+            isValid = false;
+         }
+         
 
          if (sellingPriceInput.value.trim() === '') {
             sellingPriceError.textContent = 'Selling price is required';
+            isValid = false;
+         }else if (!Number.isInteger(parseFloat(sellingPriceInput.value))) {
+            sellingPriceError.textContent = 'Selling price must be a whole number';
             isValid = false;
          }
 
@@ -151,8 +201,9 @@
             description: descriptionInput.value.trim(),
             category: categorySelect.value,
             brand: brandSelect.value,
-            actualPrice: parseFloat(actualPriceInput.value),
-            sellingPrice: parseFloat(sellingPriceInput.value),
+            actualPrice: Math.round( parseFloat(actualPriceInput.value)),
+            productDiscount:Math.round(parseFloat(offerPercentageInput.value)) ,
+            sellingPrice: Math.round(parseFloat(sellingPriceInput.value)) ,
             };
            
 

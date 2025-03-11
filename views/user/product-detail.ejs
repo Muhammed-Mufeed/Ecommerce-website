@@ -57,6 +57,9 @@
                 <div class="price-container">
                     <span class="mrp">MRP: ₹<%= productData.actualPrice %></span>
                     <span class="selling-price">₹<%= productData.sellingPrice %></span>
+                    <% if (productData.appliedDiscount > 0) { %>
+                        <span class="offer"><%= productData.appliedDiscount %>% Off</span>
+                      <% } %>
                 </div>
                 
                 <div class="product-brand">Brand: <%= productData.brand.name %></div>

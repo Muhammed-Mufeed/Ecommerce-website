@@ -122,17 +122,32 @@ const orderSchema = new Schema({
     required: true,
   },
   items: [orderItemSchema],
+
   address: addressSchema,
+
   finalAmount: {
     type: Number,
     required: true,
   },
+
   paymentMethod: {
     type: String,
-    enum: ['cod'],
+    enum: ['cod','online'],
     required: true,
   },
- 
+  
+  coupon: {
+
+    couponCode: {
+      type: String,
+      default: null,
+    },
+    discountAmount: {
+      type: Number,
+      default: 0,
+    },
+
+  },
 }, { timestamps: true });
 
 // Generate a unique order ID before saving

@@ -115,6 +115,13 @@
   color: #000;
 }
 
+.offer {
+  color: #ff3e6c;
+  font-weight: bold;
+  margin-left: 10px;
+  font-size: 20px;
+}
+
 .product-brand {
   margin-bottom: 15px;
   color: #666;

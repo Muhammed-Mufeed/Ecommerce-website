@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offers - Admin Dashboard</title>
+    <link rel="stylesheet" href="/admin/css/offers.css">
+    <link rel="stylesheet" href="/admin/css/partial.css">
+    <!-- Add SweetAlert  -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <%-include('../partials/admin/header')%>
+    
+    <!-- Offers Page Content -->
+    <div class="offers-page">
+        <div class="header-section">
+            <h3>Offers List</h3>
+            <a href="/admin/offers/add" class="add-offer-btn">Add Category Offer</a>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" id="offer-search" placeholder="Search Offers..." value="<%= search %>">
+        </div>
+
+        <!-- Offers Table -->
+        <table class="offers-table" id="offers-table">
+            <thead>
+                <tr>
+                    <th>SI No</th>
+                    <th>Category Name</th>
+                    <th>Discount Percentage</th>
+                    <th>Valid From</th>
+                    <th>Valid To</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (offers.length > 0) { %>
+                    <% offers.forEach((offer, index) => { %>
+                        <tr>
+                            <td><%= (currentPage - 1) * 5 + index + 1 %></td>
+                            <td><%= offer.categoryName%></td>
+                            <td><%= offer.categoryDiscount %>%</td>
+                            <td><%= new Date(offer.validFrom).toLocaleDateString() %></td>
+                            <td><%= new Date(offer.validTo).toLocaleDateString() %></td>
+                            <td id="status-<%= offer._id %>"><%= offer.isActive ? 'Active' : 'Inactive' %></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="/admin/offers/edit/<%= offer._id %>" class="edit-btn">Edit</a>
+                                    <button 
+                                    class="<%= offer.isActive ? 'deactivate-btn' : 'activate-btn' %>"
+                                    onclick="updateOfferStatus('<%= offer._id %>', this)"
+                                    >
+                                    <%= offer.isActive ? 'Deactivate' : 'Activate' %>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="7" style="text-align: center;">No offers found</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+
+        <!-- Pagination Section -->
+        <% if (offers.length > 0) { %>
+            <div class="pagination">
+                <% if (currentPage > 1) { %>
+                    <a href="/admin/offers?page=<%= currentPage - 1 %>&search=<%= search %>" class="page-link">Previous</a>
+                <% } %>
+
+                <% for(let i = 1; i <= totalPages; i++) { %>
+                    <a href="/admin/offers?page=<%= i %>&search=<%= search %>" 
+                        class="page-link <%= currentPage === i ? 'active' : '' %>">
+                        <%= i %>
+                    </a>
+                <% } %>
+
+                <% if (currentPage < totalPages) { %>
+                    <a href="/admin/offers?page=<%= currentPage + 1 %>&search=<%= search %>" class="page-link">Next</a>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+
+    <script>
+        // Search functionality
+        const searchInput = document.getElementById('offer-search');
+        let searchTimeout;
+
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const searchValue = e.target.value.trim();
+                window.location.href = `/admin/offers?search=${searchValue}&page=1`;
+            }, 500);
+        });
+
+        // Offer status update
+        async function updateOfferStatus(offerId, button) {
+            try {
+                const response = await fetch(`/admin/offers/${offerId}/update-offerStatus`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                // Access the status cell using its unique ID
+                const statusCell = document.getElementById(`status-${offerId}`);
+                
+                if (data.success) {
+                    if (data.isActive) {
+                        button.className = 'deactivate-btn';
+                        button.textContent = 'Deactivate';
+                        statusCell.textContent = 'Active'; // Update status in the table
+                    } else {
+                        button.className = 'activate-btn';
+                        button.textContent = 'Activate';
+                        statusCell.textContent = 'Inactive';
+                    }
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message,
+                    });
+                } 
+                else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to update offer status',
+                    });
+                }
+            } 
+            catch (error) {
+                console.error('Error during offer management:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred during offer management',
+                });
+            }
+        }
+    </script>
+</body>
+</html>

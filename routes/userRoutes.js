@@ -38,7 +38,6 @@ router.post('/forgot-confirm-password', userController.postForgotConfirmPassword
 
 // ==================================================================================================================//
 
-
 router.get('/auth/google',passport.authenticate('google',{ scope: ['profile','email'] }))
 router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }),userController.googleLogin);
 //Here session auth middleware(no need to give authmiddleware) is present, if loged failed goes to '/login'. else goes to '/'(that callbackFn written in cntrller) 

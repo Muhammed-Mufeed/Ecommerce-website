@@ -50,7 +50,6 @@
     <div class="order-summary">
       <h1>Checkout</h1>
 
-      <!-- Order Summary Details -->
       <div class="order-summary-details">
         <h2>Order Summary</h2>
         <div class="order-items">
@@ -61,11 +60,34 @@
             </div>
           <% }) %>
         </div>
-        <div class="order-total">
-          <p><strong>Subtotal:</strong> ₹<%= subtotal %></p>
+
+        <div class="coupon-section">
+          <h3>Available Coupons</h3>
+          <select id="coupon-select">
+            <option value="">Select a coupon</option>
+            <% if (coupons.length > 0) { %>
+              <% coupons.forEach(coupon => { %>
+                <option 
+                  value="<%= coupon.couponCode %>"
+                  data-discount="<%= coupon.discountAmount %>"
+                  data-min-amount="<%= coupon.minPurchaseAmount %>"
+                >
+                  <%= coupon.couponCode %> (₹<%= coupon.discountAmount %> off, Min: ₹<%= coupon.minPurchaseAmount %>)
+                </option>
+              <% }) %>
+            <% } else { %>
+              <option value="" disabled>No coupons found</option>
+            <% } %>
+          </select>
+          <div id="coupon-error" class="error-message"></div>
         </div>
 
-        <!-- Place Order Button -->
+        <div class="order-total">
+          <p><span>Subtotal:</span> <span id="subtotal">₹<%= subtotal %></span></p>
+          <p><span>Discount:</span> <span id="discount">₹0</span></p>
+          <p><strong>Total:</strong> <span id="total">₹<%= subtotal %></span></p>
+        </div>
+
         <button id="place-order-btn" class="place-order-btn">Place Order</button>
       </div>
     </div>
@@ -269,6 +291,49 @@ document.getElementById('addAddressModal').style.display = 'none';
       }
     });
 
+
+    // Coupon handling
+    const couponSelect = document.getElementById('coupon-select');
+    const subtotalVal = document.getElementById('subtotal');
+    const discountVal = document.getElementById('discount');
+    const totalVal= document.getElementById('total');
+    const couponError = document.getElementById('coupon-error');
+    const subtotal = parseInt('<%= subtotal %>');
+    let selectedCoupon = null;
+
+    couponSelect.addEventListener('change', function(e) {
+      couponError.textContent = '';
+      const selectedOption = e.target.options[e.target.selectedIndex];
+      
+      if (!selectedOption.value) {
+        discountVal.textContent = '₹0';
+        totalVal.textContent = `₹${subtotal}`;
+        selectedCoupon = null;
+        return;
+      }
+
+      const discount = parseInt(selectedOption.dataset.discount);
+      const minAmount = parseInt(selectedOption.dataset.minAmount);
+
+      if (subtotal < minAmount) {
+        couponError.textContent = `Minimum purchase amount for this coupon is ₹${minAmount}`;
+        e.target.value = '';
+        discountVal.textContent = '₹0';
+        totalVal.textContent = `₹${subtotal}`;
+        selectedCoupon = null;
+        return;
+      }
+
+      selectedCoupon = selectedOption.value;
+      const total = Math.max(subtotal - discount,0);
+      
+      discountVal.textContent = `₹${discount}`;
+      totalVal.textContent = `₹${total}`;
+    });
+
+
+
+
           // Place Order Button
       document.getElementById('place-order-btn').addEventListener('click', async () => {
         // Get selected address and payment method
@@ -300,6 +365,7 @@ document.getElementById('addAddressModal').style.display = 'none';
         const orderData = {
           addressId: selectedAddress.value,
           paymentMethod: selectedPaymentMethod.value,
+          couponCode: selectedCoupon || ''
         };
 
         try {
@@ -322,7 +388,7 @@ document.getElementById('addAddressModal').style.display = 'none';
               text: 'Your order has been placed successfully.',
               confirmButtonText: 'OK',
             }).then(() => {
-              window.location.href = ''; // Redirect to order confirmation page
+              window.location.href = data.redirectUrl; 
             });
           } else {
             // Show error message

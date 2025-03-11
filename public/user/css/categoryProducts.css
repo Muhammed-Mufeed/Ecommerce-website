@@ -82,6 +82,21 @@ body {
   cursor: pointer;
 }
 
+.offer-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #972626;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+
 .product-image img {
   width: 100%;
   height: 100%;

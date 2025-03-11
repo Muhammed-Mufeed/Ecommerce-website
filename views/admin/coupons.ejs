@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coupons - Admin Dashboard</title>
+    <link rel="stylesheet" href="/admin/css/coupons.css">
+    <link rel="stylesheet" href="/admin/css/partial.css">
+    <!-- Add SweetAlert  -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <%-include('../partials/admin/header')%>
+    
+    <!-- Coupons Page Content -->
+    <div class="coupons-page">
+        <div class="header-section">
+            <h3>Coupons List</h3>
+            <a href="/admin/coupons/add" class="add-coupon-btn">Add New Coupon</a>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" id="coupon-search" placeholder="Search Coupons..." value="<%= search %>">
+        </div>
+
+        <!-- Coupons Table -->
+        <table class="coupons-table" id="coupons-table">
+            <thead>
+                <tr>
+                    <th>SI No</th>
+                    <th>Coupon Code</th>
+                    <th>Minimum Purchase</th>
+                    <th>Valid From</th>
+                    <th>Valid To</th>
+                    <th>Usage Limit</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (coupons.length > 0) { %>
+                    <% coupons.forEach((coupon, index) => { %>
+                        <tr>
+                            <td><%= (currentPage - 1) * 5 + index + 1 %></td>
+                            <td><%= coupon.couponCode %></td>
+                            <td>₹<%= coupon.minPurchaseAmount %></td>
+                            <td><%= new Date(coupon.validFrom).toLocaleDateString() %></td>
+                            <td><%= new Date(coupon.validTo).toLocaleDateString() %></td>
+                            <td><%= coupon.usageLimit %></td>
+                            <td id="status-<%= coupon._id %>"><%= coupon.isActive ? 'Active' : 'Inactive' %></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="/admin/coupons/edit/<%= coupon._id %>" class="edit-btn">Edit</a>
+                                    <button 
+                                        class="<%= coupon.isActive ? 'deactivate-btn' : 'activate-btn' %>"
+                                        onclick="updateCouponStatus('<%= coupon._id %>', this)"
+                                    >
+                                        <%= coupon.isActive ? 'Deactivate' : 'Activate' %>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="8" style="text-align: center;">No coupons found</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+
+        <!-- Pagination Section -->
+        <% if (coupons.length > 0) { %>
+            <div class="pagination">
+                <% if (currentPage > 1) { %>
+                    <a href="/admin/coupons?page=<%= currentPage - 1 %>&search=<%= search %>" class="page-link">Previous</a>
+                <% } %>
+
+                <% for(let i = 1; i <= totalPages; i++) { %>
+                    <a href="/admin/coupons?page=<%= i %>&search=<%= search %>" 
+                        class="page-link <%= currentPage === i ? 'active' : '' %>">
+                        <%= i %>
+                    </a>
+                <% } %>
+
+                <% if (currentPage < totalPages) { %>
+                    <a href="/admin/coupons?page=<%= currentPage + 1 %>&search=<%= search %>" class="page-link">Next</a>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+
+    <script>
+        // Search functionality
+        const searchInput = document.getElementById('coupon-search');
+        let searchTimeout;
+
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const searchValue = e.target.value.trim();
+                window.location.href = `/admin/coupons?search=${searchValue}&page=1`;
+            }, 500);
+        });
+
+        // Coupon status update
+        async function updateCouponStatus(couponId, button) {
+            try {
+                const response = await fetch(`/admin/coupons/${couponId}/update-Couponstatus`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                // Access the status cell using its unique ID
+                const statusCell = document.getElementById(`status-${couponId}`);
+                
+                if (data.success) {
+                    if (data.isActive) {
+                        button.className = 'deactivate-btn';
+                        button.textContent = 'Deactivate';
+                        statusCell.textContent = 'Active'; // Update status in the table
+                    } else {
+                        button.className = 'activate-btn';
+                        button.textContent = 'Activate';
+                        statusCell.textContent = 'Inactive';
+                    }
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message,
+                    });
+                } 
+                else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to update coupon status',
+                    });
+                }
+            } 
+            catch (error) {
+                console.error('Error during coupon management:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred during coupon management',
+                });
+            }
+        }
+    </script>
+</body>
+</html>
