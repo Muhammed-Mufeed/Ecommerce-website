@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/user/css/user-checkout.css">
   <!-- Add SweetAlert -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <title>Checkout</title>
 </head>
 <body>
@@ -40,9 +41,15 @@
       <!-- Payment Options -->
       <div class="payment-section">
         <h2>Payment Options</h2>
+
         <div class="payment-option">
           <input type="radio" name="paymentMethod" value="cod" id="cod" checked>
           <label for="cod">Cash on Delivery</label>
+        </div>
+
+        <div class="payment-option">
+          <input type="radio" name="paymentMethod" value="online" id="online">
+          <label for="online">Online Payment</label>
         </div>
       </div>
     </div>
@@ -159,6 +166,7 @@
   <%- include('../partials/user/footer') %>
 
   <script>
+  
     // Open Modal
     document.getElementById('open-modal').addEventListener('click', function (event) {
       event.preventDefault();
@@ -177,17 +185,14 @@
       }
     });
 
-// Additional CSS to ensure modal is hidden by default
-document.getElementById('addAddressModal').style.display = 'none';
+    document.getElementById('addAddressModal').style.display = 'none';
 
-    // DOM Validation for Add Address Form
+
     document.getElementById('modal-add-address-form').addEventListener('submit', async function (event) {
       event.preventDefault();
 
-      // Reset error messages
       document.querySelectorAll('.error-message').forEach(error => error.textContent = '');
 
-      // Validate fields
       let isValid = true;
 
       const name = document.getElementById('modal-name').value.trim();
@@ -376,22 +381,84 @@ document.getElementById('addAddressModal').style.display = 'none';
               'Content-Type': 'application/json',
             },
             body: JSON.stringify(orderData),
+           
           });
+          console.log(response)
 
           const data = await response.json();
 
           if (data.success) {
-            // Show success message and redirect
-            Swal.fire({
-              icon: 'success',
-              title: 'Order Placed!',
-              text: 'Your order has been placed successfully.',
-              confirmButtonText: 'OK',
-            }).then(() => {
-              window.location.href = data.redirectUrl; 
-            });
-          } else {
-            // Show error message
+
+            if (selectedPaymentMethod.value === 'online' && data.orderId) {
+              // Razorpay payment flow
+              const options = {
+                key: '<%= process.env.RAZORPAY_KEY_ID %>', // Pass Key ID from server
+                amount: data.finalAmount * 100, // Amount in paise (multiply by 100)
+                currency: 'INR',
+                name: 'PackSmart',
+                description: 'Test Transaction',
+                order_id: data.orderId, // Razorpay order ID from server
+                handler: async function (response) {
+                  // After successful payment, verify it on the server
+                  const paymentData = {
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                  };  
+
+                  const verifyResponse = await fetch('/verify-Onlinepayment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(paymentData),
+                  });
+
+                  const verifyData = await verifyResponse.json();
+
+                  if (verifyData.success) {
+                    Swal.fire({
+                      icon: 'success',
+                      title: 'Order Placed!',
+                      text: 'Payment successful and order placed.',
+                      confirmButtonText: 'OK',
+                    }).then(() => {
+                      window.location.href = verifyData.redirectUrl;
+                    });
+                  } else {
+                    Swal.fire({
+                      icon: 'error',
+                      title: 'Payment Failed',
+                      text: verifyData.message || 'Payment verification failed.',
+                      confirmButtonText: 'OK',
+                    });
+                  }
+                },
+                prefill: {
+                  name: '<%= user.name %>', 
+                  email: '<%= user.email %>', 
+                  contact: '<%= user.mobile %>', 
+                },
+                theme: {
+                  color: '#F37254',
+                },
+              };
+
+              const rzp = new Razorpay(options);
+              rzp.open();
+            } 
+            else {
+              // COD flow
+              Swal.fire({
+                icon: 'success',
+                title: 'Order Placed!',
+                text: 'Your order has been placed successfully.',
+                confirmButtonText: 'OK',
+              }).then(() => {
+                window.location.href = data.redirectUrl;
+              });
+            }
+
+          }
+          else {
             Swal.fire({
               icon: 'error',
               title: 'Error',
@@ -400,7 +467,7 @@ document.getElementById('addAddressModal').style.display = 'none';
             });
           }
         } catch (error) {
-          console.error('Error:', error);
+          console.error('Error during order placement', error);
           Swal.fire({
             icon: 'error',
             title: 'Error',
@@ -408,7 +475,6 @@ document.getElementById('addAddressModal').style.display = 'none';
             confirmButtonText: 'OK',
           });
         }
-      });
-  </script>
-</body>
-</html>
+  });
+
+</script>

@@ -79,6 +79,7 @@ router.post('/cart',checkLogin,cartManagement.postCartTocheckout)
 router.post('/Checkout_addAddress', checkLogin,orderManagement.postCheckoutAddaddress)
 router.get('/checkout',checkBlocked,orderManagement.getCheckoutPage)
 router.post('/checkout',checkLogin,orderManagement.postPlaceOrder)
+router.post('/verify-Onlinepayment',checkLogin, orderManagement.verifyOnlinePayment);
 
 // ==================================================================================================================//
 

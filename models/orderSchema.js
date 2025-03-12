@@ -132,10 +132,34 @@ const orderSchema = new Schema({
 
   paymentMethod: {
     type: String,
-    enum: ['cod','online'],
+    enum: ['cod', 'online'], 
     required: true,
   },
+
+  paymentStatus: {
+    type: String,
+    enum: ['Pending', 'Paid', 'Failed'],
+    default: 'Pending',
+  },
+
+  paymentDetails: {
+    
+    razorpayOrderId: {
+      type: String,
+      default: null,
+    },
   
+    razorpayPaymentId: {
+      type: String,
+      default: null,
+    },
+  
+    razorpaySignature: {
+      type: String,
+      default: null,
+    },
+  },
+
   coupon: {
 
     couponCode: {
