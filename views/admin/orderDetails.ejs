@@ -10,110 +10,111 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <%-include('../partials/admin/header')%>
-
+    <%- include('../partials/admin/header') %>
     <div class="order-details-page">
-        <h3>Order Details</h3>
-
-        <!-- Order Header -->
-        <div class="order-header">
-            <div>
-                <span class="order-id">Order #<%= order.orderId %></span>
-                <div class="order-date">Ordered on <%= new Date(order.createdAt).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %></div>
-            </div>
+      <h3>Order Details</h3>
+      <div class="order-header">
+        <div>
+          <span class="order-id">Order #<%= order.orderId %></span>
+          <div class="order-date">Ordered on <%= new Date(order.createdAt).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %></div>
         </div>
-
-        <!-- Order Items -->
-        <div class="order-items">
-            <% order.items.forEach(item => { %>
-                <div class="item">
-                    <img class="item-image" src="<%= item.variant.images[0] || '/images/placeholder.jpg' %>" alt="<%= item.product.name %>">
-                    <div class="item-info">
-                        <div class="item-name"><%= item.product.name %></div>
-                        <div class="item-variant">Color: <%= item.variant.colorName %></div>
-                        <div class="item-price">₹<%= item.price.toFixed(2) %></div>
-                        <div class="item-quantity">Qty: <%= item.quantity %></div>
-                    </div>
-
-                    <!-- Action Buttons for Each Item -->
-                    <div class="item-actions">
-                        <% if (item.status === 'Pending') { %>
-                            <button class="btn btn-confirm" onclick="updateItemStatus('<%= order._id %>', '<%= item._id %>', 'Confirmed')">Confirm</button>
-                        <% } else if (item.status === 'Confirmed') { %>
-                            <button class="btn btn-ship" onclick="updateItemStatus('<%= order._id %>', '<%= item._id %>', 'Shipped')">Ship</button>
-                        <% } else if (item.status === 'Shipped') { %>
-                            <button class="btn btn-deliver" onclick="updateItemStatus('<%= order._id %>', '<%= item._id %>', 'Delivered')">Deliver</button>
-                        <% } else if (item.status === 'Cancelled'){ %>
-                            <button class="btn btn-disabled" disabled>Cancelled</button>
-                        <% }else { %>
-                            <button class="btn btn-disabled" disabled>Delivered</button>
-                        <% } %>
-                    </div>
-                </div>
-            <% }) %>
-        </div>
-
-        <!-- Order Summary -->
-        <div class="order-summary">
-            <div class="address-details">
-                <div class="address-title">Delivered to:</div>
-                <div class="address-text">
-                    <%= order.address.name %><br>
-                    <%= order.address.address %>, <%= order.address.locality %><br>
-                    <%= order.address.city %>, <%= order.address.state %> - <%= order.address.pincode %><br>
-                    Phone: <%= order.address.mobile %>
-                </div>
+      </div>
+      <div class="order-items">
+        <% order.items.forEach(item => { %>
+          <div class="item">
+            <img class="item-image" src="<%= item.variant.images[0] || '/images/placeholder.jpg' %>" alt="<%= item.product.name %>">
+            <div class="item-info">
+              <div class="item-name"><%= item.product.name %></div>
+              <div class="item-variant">Color: <%= item.variant.colorName %></div>
+              <div class="item-price">₹<%= item.price.toFixed(2) %></div>
+              <div class="item-quantity">Qty: <%= item.quantity %></div>
+              <div class="item-status">Status: <%= item.status %></div>
+              <% if (item.return && item.return.status) { %>
+                <div>Return Status: <%= item.return.status %></div>
+                <div>Return Reason: <%= item.return.reason %></div>
+              <% } %>
             </div>
-            <div class="payment-details">
-                <div class="payment-method">
-                    Payment: <%= order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod %>
-                </div>
-                <div class="total-amount">Total: ₹<%= order.finalAmount.toFixed(2) %></div>
+            <div class="item-actions">
+              <% if (item.status === 'Pending') { %>
+                <button class="btn btn-confirm" onclick="updateItemStatus('<%= order._id %>', '<%= item._id %>', 'Confirmed')">Confirm</button>
+              <% } else if (item.status === 'Confirmed') { %>
+                <button class="btn btn-ship" onclick="updateItemStatus('<%= order._id %>', '<%= item._id %>', 'Shipped')">Ship</button>
+              <% } else if (item.status === 'Shipped') { %>
+                <button class="btn btn-deliver" onclick="updateItemStatus('<%= order._id %>', '<%= item._id %>', 'Delivered')">Deliver</button>
+              <% } else if (item.status === 'Delivered' && item.return?.status === 'Requested') { %>
+                <button class="btn btn-confirm" onclick="approveReturn('<%= order._id %>', '<%= item._id %>')">Approve Return</button>
+                <button class="btn btn-cancel" onclick="rejectReturn('<%= order._id %>', '<%= item._id %>')">Reject Return</button>
+              <% } else { %>
+                <button class="btn btn-disabled" disabled><%= item.status %></button>
+              <% } %>
             </div>
+          </div>
+        <% }) %>
+      </div>
+      <div class="order-summary">
+        <div class="address-details">
+          <div class="address-title">Delivered to:</div>
+          <div class="address-text">
+            <%= order.address.name %><br>
+            <%= order.address.address %>, <%= order.address.locality %><br>
+            <%= order.address.city %>, <%= order.address.state %> - <%= order.address.pincode %><br>
+            Phone: <%= order.address.mobile %>
+          </div>
         </div>
+        <div class="payment-details">
+          <div class="payment-method">
+            Payment: <%= order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod %>
+          </div>
+          <div class="total-amount">Total: ₹<%= order.finalAmount.toFixed(2) %></div>
+        </div>
+      </div>
     </div>
-
+  
     <script>
-        // Function to update item status
         async function updateItemStatus(orderId, itemId, status) {
-            try {
-                const response = await fetch(`/admin/orders/${orderId}/items/${itemId}/update-status`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ status }),
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Item Status Updated!',
-                        text: `Item status updated to ${status}.`,
-                        confirmButtonText: 'OK',
-                    }).then(() => {
-                        window.location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: data.message || 'Failed to update item status.',
-                        confirmButtonText: 'OK',
-                    });
-                }
-            } catch (error) {
-                console.error('Error while updating item status:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Something went wrong. Please try again.',
-                    confirmButtonText: 'OK',
-                });
-            }
+      try {
+        const response = await fetch(`/admin/orders/${orderId}/items/${itemId}/update-status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          Swal.fire({ icon: 'success', title: 'Success', text: data.message }).then(() => location.reload());
+        } else {
+          Swal.fire({ icon: 'error', title: 'Error', text: data.message });
         }
+      } catch (error) {
+        console.log("Error due to changing status of order",error)
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong.' });
+      }
+    }
+
+    async function approveReturn(orderId, itemId) {
+      const response = await fetch(`/admin/orders/${orderId}/items/${itemId}/approve-return`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await response.json();
+      if (data.success) {
+        Swal.fire({ icon: 'success', title: 'Success', text: data.message }).then(() => location.reload());
+      } else {
+        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+      }
+    }
+
+    async function rejectReturn(orderId, itemId) {
+      const response = await fetch(`/admin/orders/${orderId}/items/${itemId}/reject-return`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await response.json();
+      if (data.success) {
+        Swal.fire({ icon: 'success', title: 'Success', text: data.message }).then(() => location.reload());
+      } else {
+        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+      }
+    }
     </script>
 </body>
 </html>

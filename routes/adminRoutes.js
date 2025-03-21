@@ -20,7 +20,9 @@
   router.post('/login', adminController.postAdminLogin)
   // ==================================================================================================================//
   router.post('/logout',  adminController.postAdminLogout)
-  router.get('/dashboard', checkLogin ,adminController.getAdminDashboard)
+  router.get('/sales-report',checkLogin, adminController.getSalesReport);
+  router.get('/download-report',checkLogin, adminController.downloadSalesReport);
+
   // ==================================================================================================================//
   router.get('/customers',checkLogin,customerManagement.getuserManagement)
   router.patch('/customers/:userId/update-status',customerManagement.patchUpdateUserStatus)
@@ -58,6 +60,8 @@
   router.get('/orders',checkLogin,orderManagement.getOrderListPage)
   router.get('/orders/:orderId',checkLogin,orderManagement.getOrderDetailspage)
   router.patch('/orders/:orderId/items/:itemId/update-status',checkLogin,orderManagement.updateOrderStatus)
+  router.patch('/orders/:orderId/items/:itemId/approve-return', checkLogin, orderManagement.approveReturn);
+router.patch('/orders/:orderId/items/:itemId/reject-return', checkLogin, orderManagement.rejectReturn);
   // ==================================================================================================================//
   router.get('/offers',checkLogin,offerManagement.getCategoryOffers)
   router.get('/offers/add',checkLogin,offerManagement.getAddCategoryOffer)

@@ -7,8 +7,10 @@
     <link rel="stylesheet" href="/user/css/product-detail.css" />   
     <!-- Add SweetAlert  -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!--Include AddtoCart Fn-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!--Include AddtoCart Fn,AddtoWishlist Fn-->
     <script src="/user/js/addToCart.js"></script>
+    <script src="/user/js/addToWishlist.js"></script>
     <title>Product Detail Page</title>
 </head>
 <body>
@@ -96,9 +98,14 @@
 
                 <!-- Action Buttons -->
                 <div class="action-buttons">
-                    <button class="add-to-wishlist-btn">
-                        <img src="/user/icons/wishlist-2.png" alt="wishlist" width="20" class="wishlist-icon">
-                        <span>Add to Wishlist</span>
+                    <button class="wishlist-button" 
+                            onclick="addToWishlist('<%= productData._id %>', '<%= selectedVariant._id %>')">
+                        <i class="fas fa-heart wishlist-icon <%= isInWishlist ? 'active' : '' %>" 
+                           data-product="<%= productData._id %>" 
+                           data-variant="<%= selectedVariant._id %>"></i>
+                        <span class="wishlist-text">
+                            <%= isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' %>
+                        </span>
                     </button>
                     <!-- Disable "Add to Cart" button if out of stock -->
                     <button class="add-to-cart-btn" 
@@ -141,33 +148,45 @@
             <h2 class="related-title">Related Products</h2>
             <div class="products-grid">
                 <% if (relatedProducts.length > 0) { %>
-                    <% relatedProducts.forEach(product => { %>
-                        <!-- Check if the related product has at least one listed variant -->
-                        <% if (product.variants.some(v => v.isListed)) { %>
-                            <div class="product-card">
-                                <a href="/productdetail/<%= product._id %>?variantId=<%= product.variants.find(v => v.isListed)._id %>" class="product-link">
-                                    <div class="product-image">
-                                        <img src="<%= product.variants.find(v => v.isListed).images.length > 0 ? product.variants.find(v => v.isListed).images[0] : '/default-image.jpg' %>" alt="<%= product.name %>">
-                                        <div class="product-wishlist">
-                                            <img src="/user/icons/wishlist-2.png" alt="wishlist" width="20">
-                                        </div>
-                                    </div>
-                                </a>
-                                <div class="product-details">
-                                    <h3 class="product-name"><%= product.name %></h3>
-                                    <div class="price-container">
-                                        <span class="mrp">M.R.P₹<%= product.actualPrice %></span>
-                                        <span class="selling-price">₹<%= product.sellingPrice %></span>
-                                    </div>
-                                    <div class="product-rating">★★★★☆</div>
-                                    <button class="add-to-cart">Add to Cart</button>
-                                </div>
+                    <% relatedProducts.forEach((product) => { %>
+                      <!-- Check if the product has at least one listed variant -->
+                      <% if (product.variants.some(v => v.isListed)) { %>
+                        <div class="product-card">
+                          <!-- Use the first listed variant -->
+                          <% const listedVariant = product.variants.find(v => v.isListed); %>
+                          <a href="/productdetail/<%= product._id %>?variantId=<%= listedVariant._id %>" class="product-link">
+                            <div class="product-image">
+                              <img src="<%= listedVariant.images.length > 0 ? listedVariant.images[0] : '/default-image.jpg' %>" alt="<%= product.name %>">
+                              <!-- Display the highest offer badge -->
+                              <% if (product.appliedDiscount > 0) { %>
+                                <div class="offer-badge"><%= product.appliedDiscount %>% OFF</div>
+                              <% } %>
+                          </a>
+                              <div class="product-wishlist">
+                                <i class="fas fa-heart wishlist-icon" 
+                                   data-product="<%= product._id %>" 
+                                   data-variant="<%= listedVariant._id %>"
+                                   onclick="addToWishlist('<%= product._id %>', '<%= listedVariant._id %>')"></i>
                             </div>
-                        <% } %>
+                            </div>
+                         
+                          <div class="product-details">
+                            <h3 class="product-name"><%= product.name %></h3>
+                            <div class="price-container">
+                              <span class="mrp">M.R.P₹<%= product.actualPrice %></span>
+                              <span class="selling-price">₹<%= product.sellingPrice %></span>
+                            </div>
+                            <div class="product-rating">★★★★☆</div>
+                            <button class="add-to-cart" onclick="addToCart('<%= product._id %>', '<%= listedVariant._id %>')">
+                              Add to Cart
+                          </button>
+                          </div>
+                        </div>
+                      <% } %>
                     <% }) %>
-                <% } else { %>
+                  <% } else { %>
                     <p>No related products found.</p>
-                <% } %>
+                  <% } %>
             </div>
         </div>
     <% } %>
@@ -214,6 +233,23 @@
         zoomBox.style.display = "none";
     });
 });
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const wishlistButton = document.querySelector('.wishlist-button');
+        const wishlistIcon = wishlistButton.querySelector('.wishlist-icon');
+        const wishlistText = wishlistButton.querySelector('.wishlist-text');
+
+        wishlistButton.addEventListener('click', () => {
+            setTimeout(() => { // Delay to allow addToWishlist to update class
+                if (wishlistIcon.classList.contains('active')) {
+                    wishlistText.textContent = 'Remove from Wishlist';
+                } else {
+                    wishlistText.textContent = 'Add to Wishlist';
+                }
+            }, 100); // Small delay to ensure DOM updates
+        });
+    });
 
 
     </script>

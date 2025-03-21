@@ -128,7 +128,6 @@
 }
 
 /* Stock Status and Action Buttons Container */
-/* Stock Status and Action Buttons Container */
 .stock-and-actions {
   display: flex;
   flex-direction: column; /* Stack elements vertically */
@@ -158,7 +157,7 @@
   margin-top: 20px;
 }
 
-.add-to-wishlist-btn, .add-to-cart-btn {
+ .add-to-cart-btn {
   padding: 12px 24px;
   border-radius: 4px;
   font-size: 14px;
@@ -174,11 +173,34 @@
   flex: 1;
 }
 
-.add-to-wishlist-btn {
-  background-color: white;
-  color: #333;
-  border: 1px solid #ddd;
+
+.wishlist-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
 }
+.wishlist-button:hover {
+  background: #f5f5f5;
+}
+.wishlist-icon {
+  color: #ccc;
+  font-size: 18px;
+}
+
+.wishlist-icon.active {
+  color: #e74c3c;
+}
+
+.wishlist-text {
+  font-size: 16px;
+}
+
 
 .add-to-cart-btn {
   background-color: #ff3e6c;
@@ -186,10 +208,7 @@
   border: none;
 }
 
-.add-to-wishlist-btn:hover {
-  background-color: #f5f5f5;
-  border-color: #999;
-}
+
 
 .add-to-cart-btn:hover {
   background-color: #67222e;

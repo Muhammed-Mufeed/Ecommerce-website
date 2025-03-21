@@ -67,7 +67,17 @@ const orderItemSchema = new Schema({
   cancellationReason: {
     type:String,
     default:null
-  }
+  },
+  return: {
+    status: {
+      type: String,
+      enum: ['Requested', 'Approved', 'Rejected', 'Returned'],
+      default: null,
+    },
+    reason: { type: String, default: null },
+    requestedAt: { type: Date, default: null },
+    approvedAt: { type: Date, default: null },
+  },
 });
 
 

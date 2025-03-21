@@ -111,7 +111,7 @@
                // Disable the "+" button if the quantity reaches the stock limit
                   const increaseButton = cartItem.querySelector('.increase-quantity');
                   if (quantity >= data.stock) {
-                    increaseButton.disabled = true; // Disable the button immediately
+                    increaseButton.disabled = true; 
                     increaseButton.style.opacity = '0.5'; // Optional: Visual feedback
 
                     // Show error message after 2 seconds

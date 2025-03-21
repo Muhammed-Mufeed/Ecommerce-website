@@ -62,10 +62,8 @@ exports.postAddCoupon = async (req, res) => {
       usageLimit,
     });
 
-    // Save the coupon to the database
     await newCoupon.save();
 
-    // Send success response
     return res.status(200).json({ success: true, message: "Coupon added successfully" });
   } catch (error) {
     console.error("Error during adding coupon:", error);
@@ -80,7 +78,6 @@ exports.getEditCoupon = async (req, res) => {
   try {
     const couponId = req.params.id;
 
-    // Fetch coupon details
     const coupon = await Coupon.findById(couponId);
     if (!coupon) {
       return res.status(404).json({success:false,message:"Coupon not Found."});
@@ -119,7 +116,7 @@ exports.putEditCoupon = async (req, res) => {
       { new: true }
     );
 
-    return res.status(200).json({ success: true, message: "Coupon updated successfully" });
+    return res.status(200).json({ success: true, message: "Coupon updated successfully",updatedCoupon });
   } catch (error) {
     console.error("Error during updating coupon:", error);
     return res.status(500).json({ success: false, message: "Failed to update coupon" });

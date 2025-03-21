@@ -200,22 +200,31 @@ body {
 /* Sidebar Styling */
 .sidebar {
   width: 250px; /* Fixed width for sidebar */
-  background-color: #ffffff; /* White background */
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1); /* Shadow on the right */
-  padding: 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%); /* Subtle gradient for depth */
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.05); /* Softer shadow for a modern look */
+  padding: 30px 20px; /* Increased padding for better spacing */
   height: calc(100vh - 80px); /* Full height minus navbar height */
   position: sticky;
   top: 80px; /* Align below navbar */
   overflow-y: auto; /* Allow scrolling if content is too long */
+  border-right: 1px solid #e5e7eb; /* Subtle border to separate from main content */
+  transition: all 0.3s ease; /* Smooth transition for any dynamic changes */
 }
 
+/* Sidebar Header Styling */
 .sidebar-header {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: #333;
+  font-size: 22px; /* Slightly larger for prominence */
+  font-weight: 600; /* Medium bold for emphasis */
+  margin-bottom: 30px; /* More spacing below the header */
+  color: #1f2937; /* Darker gray for better contrast */
+  border-bottom: 2px solid #ff6f61; /* Accent color underline */
+  padding-bottom: 10px; /* Space between text and underline */
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Space for an optional user avatar if added */
 }
 
+/* Sidebar Menu Styling */
 .sidebar-menu {
   list-style: none;
   padding: 0;
@@ -223,21 +232,89 @@ body {
 }
 
 .sidebar-menu li {
-  margin-bottom: 15px;
+  margin-bottom: 10px; /* Reduced spacing for a tighter layout */
+  position: relative; /* For adding icons or indicators */
 }
 
 .sidebar-menu a {
   text-decoration: none;
-  color: #333;
+  color: #4b5563; /* Muted gray for non-active items */
   font-size: 16px;
-  transition: color 0.3s ease;
-  display: block;
-  padding: 8px 0;
+  font-weight: 500; /* Medium weight for readability */
+  display: flex;
+  align-items: center; /* Align icon and text */
+  padding: 12px 15px; /* Increased padding for a larger clickable area */
+  border-radius: 8px; /* Rounded corners for a modern look */
+  transition: all 0.3s ease; /* Smooth transitions for hover and active states */
+  gap: 10px; /* Space between icon and text */
 }
 
-.sidebar-menu a:hover,
+/* Style for Font Awesome Icons */
+.sidebar-menu a i {
+  font-size: 18px; /* Icon size */
+  color: #4b5563; /* Match the text color */
+  transition: color 0.3s ease; /* Smooth color transition */
+}
+
+/* Hover Effect for Menu Items */
+.sidebar-menu a:hover {
+  background-color: #f1f5f9; /* Light gray background on hover */
+  color: #ff6f61; /* Accent color for text */
+  transform: translateX(5px); /* Slight shift to the right for a playful effect */
+}
+
+/* Ensure icon color changes on hover */
+.sidebar-menu a:hover i {
+  color: #ff6f61; /* Match the text color on hover */
+}
+
+/* Active Menu Item */
 .sidebar-menu a.active {
-  color: #ff6f61; /* Matches logo color */
+  background-color: #261817; /* Accent color background */
+  color: #ffffff; /* White text for contrast */
+  font-weight: 600; /* Bold for emphasis */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+/* Ensure icon color changes for active state */
+.sidebar-menu a.active i {
+  color: #ffffff; /* White icon color for active state */
+}
+
+/* Active Indicator */
+.sidebar-menu a.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 30px;
+  background-color: #fdf0ef; /* Accent color indicator */
+  border-radius: 0 4px 4px 0; /* Rounded on the right side */
+}
+
+/* Responsive Design for Sidebar */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+    box-shadow: none;
+    padding: 15px;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb; /* Border at the bottom for mobile */
+  }
+
+  .sidebar-header {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .sidebar-menu a {
+    padding: 10px 12px;
+    font-size: 15px;
+  }
 }
 
 /* Main Content Styling */

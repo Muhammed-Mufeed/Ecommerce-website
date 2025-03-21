@@ -3,32 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="/admin/css/dashboard.css">
+    <title>Sales Report</title>
     <link rel="stylesheet" href="/admin/css/partial.css">
+    <style>
+       .report-container {
+            padding: 20px;
+        }
+        .filter-form {
+            margin-bottom: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .filter-form select, .filter-form input {
+            padding: 8px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-family: Arial, sans-serif;
+        }
+        /* Filter Button Styling */
+        .filter-form button {
+            padding: 10px 20px; /* Increased padding for better size */
+            background-color: #2c3e50; /* Matches sidebar background */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px; /* Slightly larger text */
+            font-family: Arial, sans-serif;
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+        }
+        .filter-form button:hover {
+            background-color: #83acb6; /* Matches sidebar hover */
+            transform: translateY(-2px); /* Slight lift on hover */
+        }
+        .filter-form button:active {
+            transform: translateY(0); /* Reset lift when clicked */
+            background-color: #1a252f; /* Darker shade on click */
+        }
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .report-table th, .report-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .report-table th {
+            background-color: #2c3e50;
+            color: white;
+        }
+        /* Download Button Styling */
+        .download-btn {
+            display: inline-block; /* Ensures it behaves like a button */
+            margin-top: 25px;
+            padding: 12px 25px; /* Slightly larger than Filter button */
+            background-color: #2c3e50; /* Matches sidebar */
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow */
+        }
+        .download-btn:hover {
+            background-color: #83acb6; /* Matches sidebar hover */
+            transform: translateY(-2px); /* Lift effect */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Enhanced shadow on hover */
+        }
+        .download-btn:active {
+            transform: translateY(0); /* Reset lift */
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Reduced shadow on click */
+            background-color: #1a252f; /* Darker shade on click */
+        }
+    </style>
 </head>
 <body>
-     <%-include('../partials/admin/header')%>
-        <!-- Dashboard Content -->
-        <div class="dashboard-content">
-            <div class="stat-box">
-                <h4>Total Sales</h4>
-                <p>$10,000</p>
-            </div>
-            <div class="stat-box">
-                <h4>Total Orders</h4>
-                <p>150</p>
-            </div>
-            <div class="stat-box">
-                <h4>Total Products</h4>
-                <p>320</p>
-            </div>
-            <div class="stat-box">
-                <h4>Total Customers</h4>
-                <p>250</p>
-            </div>
+    <%-include('../partials/admin/header')%>
+
+    
+        <div class="navbar">
+            <h1 class="navbar-heading">Sales Report</h1>
+        </div>
+        <div class="report-container">
+            <form class="filter-form" action="/admin/sales-report" method="GET">
+                <select name="filterType" onchange="toggleDateFields(this.value)">
+                    <option value="daily">1 Day</option>
+                    <option value="weekly">1 Week</option>
+                    <option value="monthly">1 Month</option>
+                    <option value="custom">Custom Range</option>
+                </select>
+                <div id="customDate" style="display: none;">
+                    <input type="date" name="startDate">
+                    <input type="date" name="endDate">
+                </div>
+                <button type="submit">Filter</button>
+            </form>
+
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Total Orders</th>
+                        <th>Total Amount</th>
+                        <th>Total Discounts</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><%= salesData.orderCount %></td>
+                        <td>₹<%= salesData.totalAmount.toFixed(2) %></td>
+                        <td>₹<%= salesData.totalDiscount.toFixed(2) %></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <a href="/admin/download-report?filterType=<%= filterType %>&startDate=<%= startDate %>&endDate=<%= endDate %>" class="download-btn">Download PDF</a>
         </div>
     </div>
 
+    <script>
+        function toggleDateFields(value) {
+            const customDateDiv = document.getElementById('customDate');
+            customDateDiv.style.display = value === 'custom' ? 'block' : 'none';
+        }
+    </script>
 </body>
 </html>

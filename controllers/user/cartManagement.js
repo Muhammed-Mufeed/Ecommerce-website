@@ -1,13 +1,14 @@
 const Product = require('../../models/productSchema')
 const Cart = require('../../models/cartSchema')
 const Offer = require('../../models/offerSchema')
+const Wishlist = require('../../models/wishlistSchema')
 
 
 // =========================================================AddtoCart-POST===================================================//
 
 exports.postAddtoCart = async (req,res)=>{
   try {
-    const{productId,variantId} = req.body
+    const { productId, variantId, fromWishlist } = req.body;
     const userId = req.session.user.id
 
     
@@ -50,6 +51,19 @@ exports.postAddtoCart = async (req,res)=>{
     }
 
     await cart.save()
+      if (fromWishlist) {
+        const wishlist = await Wishlist.findOne({ user: userId });
+        if (wishlist) {
+            const itemIndex = wishlist.items.findIndex(
+                (item) => item.product.toString() === productId && item.variant.toString() === variantId
+            );
+            if (itemIndex > -1) {
+                wishlist.items.splice(itemIndex, 1);
+                await wishlist.save();
+            }
+        }
+    }
+    
     return res.status(200).json({success:true,message:"Item added to the Cart"})
 
   } catch (error) {
@@ -68,15 +82,25 @@ exports.getCartPage = async (req, res) => {
 
     const userId = req.session.user.id;
 
-    const cart = await Cart.findOne({ user: userId }).populate('items.product');
+    const cart = await Cart.findOne({ user: userId })
+      .populate({
+        path: 'items.product',
+        populate: [
+          { path: 'category', match: { isListed: true } }, // Only listed categories
+          { path: 'brand', match: { isListed: true } },    // Only listed brands
+        ],
+      });
 
     if (!cart) {
       return res.render('user-cart', { cartItems: [], subtotal: 0 });
     }
 
-    const categoryOffers = await Offer.find({ isActive: true });
-
-    // Map category discounts for quick lookup
+    const categoryOffers = await Offer.find({
+      isActive: true,
+      validFrom: { $lte: new Date() },
+      validTo: { $gte: new Date() }
+    });
+    // Creating a Discount Lookup Object
     const categoryDiscounts = {};
     categoryOffers.forEach((offer) => {
       categoryDiscounts[offer.categoryId.toString()] = offer.categoryDiscount;
@@ -87,6 +111,9 @@ exports.getCartPage = async (req, res) => {
     // Fetch the correct variant and apply discount
     const cartItems = cart.items.map((item) => {
       const product = item.product;
+      if (!product || !product.isListed || !product.category || !product.brand) {
+        return null;
+      }
       const variant = product.variants.id(item.variant); 
       
       if (!variant || !variant.isListed) {

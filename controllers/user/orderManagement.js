@@ -4,6 +4,7 @@ const Address = require('../../models/addressSchema')
 const Order = require('../../models/orderSchema')
 const Offer = require('../../models/offerSchema')
 const Coupon = require('../../models/couponSchema')
+const Wallet = require('../../models/WalletSchema')
 const Razorpay = require('razorpay')
 const crypto = require('crypto');
 const env = require('dotenv').config()
@@ -52,13 +53,24 @@ exports.getCheckoutPage = async (req, res) => {
     const userId = req.session.user.id;
     
     // Fetch the user's cart and populate product details
-    const cart = await Cart.findOne({ user: userId }).populate('items.product');
+    const cart = await Cart.findOne({ user: userId })
+      .populate({
+        path: 'items.product',
+        populate: [
+          { path: 'category', match: { isListed: true } }, // Only listed categories
+          { path: 'brand', match: { isListed: true } },    // Only listed brands
+        ],
+      });
     if (!cart || cart.items.length === 0) {
       return res.redirect('/');     // Redirect to home if it's empty
     }
 
-    const categoryOffers =  await Offer.find({isActive:true});
-
+    const categoryOffers = await Offer.find({
+      isActive: true,
+      validFrom: { $lte: new Date() },
+      validTo: { $gte: new Date() }
+    });
+    
     const categoryDiscounts = {};
     categoryOffers.forEach((offer) => {
       categoryDiscounts[offer.categoryId.toString()] = offer.categoryDiscount
@@ -69,13 +81,17 @@ exports.getCheckoutPage = async (req, res) => {
     const validCartItems = cart.items
       .map((item) => {
         const product = item.product;
-        const variant = product.variants.id(item.variant);
-
-        
-        if (!product.isListed || !variant || !variant.isListed) {
-          return null; // Skip unlisted items
+        if (!product || !product.isListed || !product.category || !product.brand) {
+          return null;
         }
 
+        const variant = product.variants.id(item.variant);
+        if (!variant || !variant.isListed) {
+          return null;
+        }
+
+        
+       
         const productOffer = product.productDiscount || 0;
         const categoryOffer = categoryDiscounts[product.category.toString()] || 0
 
@@ -147,7 +163,7 @@ exports.postPlaceOrder = async (req,res) =>{
       return res.status(400).json({ success: false, message: 'Invalid address.' });
     }
 
-    // Fetch category offers (same as getCheckoutPage)
+    // Fetch category offers 
     const categoryOffers = await Offer.find({ isActive: true });
     const categoryDiscounts = {};
     categoryOffers.forEach((offer) => {
@@ -318,25 +334,6 @@ exports.postPlaceOrder = async (req,res) =>{
 };
 
 
-// ===============================================userOrdersList-GET===================================================================//
-exports.getUserOrderList = async (req,res) => {
-  try {
-    if(!req.session.user) {
-      return res.redirect('/login')
-    } 
-    
-    const userId = req.session.user.id
-    
-    // Fetch the user's orders
-    const orders = await Order.find({user:userId}).sort({createdAt : -1})
-
-    return res.render('user-orders',{orders})
-  } catch (error) {
-    console.error('Error loading user orders Listing page:', error);
-    return res.redirect('/pageNotFound'); 
-  }
-}
-
 
 // ===============================================Online Payment-POST===================================================================//
 
@@ -386,6 +383,27 @@ exports.verifyOnlinePayment = async (req, res) => {
   }
 };
 
+
+// ===============================================userOrdersList-GET===================================================================//
+exports.getUserOrderList = async (req,res) => {
+  try {
+    if(!req.session.user) {
+      return res.redirect('/login')
+    } 
+    
+    const userId = req.session.user.id
+    
+    // Fetch the user's orders
+    const orders = await Order.find({user:userId}).sort({createdAt : -1})
+
+    return res.render('user-orders',{orders})
+  } catch (error) {
+    console.error('Error loading user orders Listing page:', error);
+    return res.redirect('/pageNotFound'); 
+  }
+}
+
+
 // ===============================================userOrdersHistory-GET===================================================================//
 exports.getUserOrderHistory = async (req,res) =>{
   try {
@@ -431,7 +449,7 @@ exports.patchCancelItem = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Item not found.' });
     }
 
-    if (item.status !== 'Pending' && item.status !== 'Shipped') {
+    if (item.status === 'Delivered' || item.status === 'Cancelled' || item.status === 'Returned') {
       return res.status(400).json({ success: false, message: 'Item cannot be cancelled.' });
     }
     
@@ -455,6 +473,29 @@ exports.patchCancelItem = async (req, res) => {
     item.status = 'Cancelled';
     item.cancellationReason = reason; // Store the cancellation reason
 
+    if (order.paymentMethod === 'online') {
+
+        let wallet = await Wallet.findOne({ user: userId });
+        if (!wallet) {
+          wallet = new Wallet({
+            user: userId,
+            balance: 0,
+            transactions: []
+          });
+        }
+        const refundAmount = item.price;
+        wallet.balance += refundAmount;
+        wallet.transactions.push({
+          type: 'credit',
+          amount: refundAmount,
+          description: `Refund for cancelled item (Order #${order.orderId})`,
+          orderId: order.orderId,
+          itemId: item._id,
+        });
+        
+        await wallet.save();
+    }
+
 
     await order.save();
 
@@ -465,3 +506,35 @@ exports.patchCancelItem = async (req, res) => {
   }
 };
 
+// ===============================================ReturnOrder-PATCH===================================================================//
+
+// Request Return
+exports.patchRequestReturn = async (req, res) => {
+  try {
+    const { orderId, itemId } = req.params;
+    const { reason } = req.body;
+    const userId = req.session.user.id;
+
+    const order = await Order.findOne({ _id: orderId, user: userId });
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found.' });
+
+    const item = order.items.id(itemId);
+    if (!item) return res.status(404).json({ success: false, message: 'Item not found.' });
+
+    if (item.status !== 'Delivered' || item.return?.status === 'Requested') {
+      return res.status(400).json({ success: false, message: 'Return cannot be requested.' });
+    }
+
+    item.return = {
+      status: 'Requested',
+      reason,
+      requestedAt: new Date(),
+    };
+
+    await order.save();
+    return res.status(200).json({ success: true, message: 'Return request submitted successfully.' });
+  } catch (error) {
+    console.error('Error requesting return:', error);
+    return res.status(500).json({ success: false, message: 'Failed to request return.' });
+  }
+};

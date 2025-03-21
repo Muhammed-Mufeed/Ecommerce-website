@@ -69,10 +69,8 @@ exports.postAddCategoryOffer = async (req, res) => {
       validTo: validToDate,
     });
 
-    // Save the offer to the database
     await newOffer.save();
 
-    // Send success response
     return res.status(200).json({ success: true, message: "Category offer added successfully" });
   } catch (error) {
     console.error("Error during adding offer:", error);
@@ -141,19 +139,16 @@ exports.putEditCategoryOffer = async (req, res) => {
 
 // ===============================================Update Category Offer Status-PATCH===================================================================//
 
-// Update offer status (activate/deactivate)
 exports.patchUpdateOfferStatus = async (req, res) => {
   try {
     const offerId = req.params.id;
     
-    // Find the current offer
     const offer = await Offer.findById(offerId);
     
     if (!offer) {
       return res.status(404).json({ success: false,message: 'Offer not found'});
     }
     
-    // Toggle the active status
     offer.isActive = !offer.isActive;
     await offer.save();
 

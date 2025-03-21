@@ -15,7 +15,9 @@
     <!-- Icons -->
     <div class="icons">
       <div class="icon">
+        <a href="/wishlist">
         <img src="/user/icons/wishlist-2.png" alt="wishlist">
+        </a>
       </div>
       
       <div class="user-profile">
@@ -49,19 +51,57 @@
 
 <!-- Wrapper for Content -->
 <div class="wrapper">
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <div class="sidebar-header">Hello <%=userData.name%></div>
-    <ul class="sidebar-menu">
-      <li><a href="/userProfile" >Profile Information</a></li>
-      <li><a href="/userAddress" >Manage Addresses</a></li>
-      <li><a href="/userOrders" >My Orders</a></li>
-      <li><a href="/wishlist" >My Wishlist</a></li>
-      <li><a href="/wallet" >My Wallet</a></li>
-    </ul>
-  </div>
+ <!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-header"> <i class="fas fa-user"></i><%=userData.name%></div>
+  <ul class="sidebar-menu">
+    <li>
+      <a href="/userProfile" class="sidebar-link">
+        <i class="fas fa-user"></i> Profile Information
+      </a>
+    </li>
+    <li>
+      <a href="/userAddress" class="sidebar-link">
+        <i class="fas fa-map-marker-alt"></i> Manage Addresses
+      </a>
+    </li>
+    <li>
+      <a href="/userOrders" class="sidebar-link">
+        <i class="fas fa-shopping-bag"></i> My Orders
+      </a>
+    </li>
+    <li>
+      <a href="/wishlist" class="sidebar-link">
+        <i class="fas fa-heart"></i> My Wishlist
+      </a>
+    </li>
+    <li>
+      <a href="/wallet" class="sidebar-link">
+        <i class="fas fa-wallet"></i> My Wallet
+      </a>
+    </li>
+  </ul>
+</div>
   
   <!-- Main Content Area -->
   <div class="main-content">
 
+ <!-- JavaScript to Set Active Class -->
  
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Get all sidebar links
+    const sidebarLinks = document.querySelectorAll('.sidebar-link');
+    
+    // Get the current URL path (e.g., "/userProfile")
+    const currentPath = window.location.pathname;
+
+    // Loop through each link and check if its href matches the current path
+    sidebarLinks.forEach(link => {
+      const linkPath = link.getAttribute('href');
+      if (linkPath === currentPath) {
+        link.classList.add('active'); // Add active class to the matching link
+      }
+    });
+  });
+</script>

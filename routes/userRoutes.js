@@ -9,6 +9,7 @@ const orderManagement = require('../controllers/user/orderManagement')
 const addressManagement = require('../controllers/user/addressManagement')
 
 
+
 const{checkLogin,checkLogout,checkBlocked} = require('../middlewares/userAuth')
 const passport = require('../config/passport')
 // ==================================================================================================================//
@@ -67,6 +68,13 @@ router.delete('/deleteAddress/:addressId',checkLogin,addressManagement.deleteAdd
 router.get('/userOrders',checkBlocked,orderManagement.getUserOrderList)
 router.get('/userOrders/:orderId',checkBlocked,orderManagement.getUserOrderHistory)
 router.patch('/userOrders/:orderId/cancelItem/:itemId',checkLogin,orderManagement.patchCancelItem)
+router.patch('/userOrders/:orderId/returnItem/:itemId', checkLogin, orderManagement.patchRequestReturn);
+
+router.get('/wishlist',checkBlocked, userProfileManagement.getWishlistPage);
+router.post('/addToWishlist',checkLogin, userProfileManagement.postaddToWishlist);
+router.get('/getWishlistItems', checkBlocked, userProfileManagement.getWishlistItemsStatus);
+
+router.get('/wallet', checkBlocked, userProfileManagement.getWallet);
 
 // ==================================================================================================================//
 router.post('/add-to-cart',checkLogin,cartManagement.postAddtoCart)

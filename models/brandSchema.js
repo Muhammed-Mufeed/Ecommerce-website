@@ -7,11 +7,6 @@ const brandSchema=new mongoose.Schema({
     unique: true,
   },
 
- image: {
-    type:[String],
-    required:true
-  },
-
   isListed: {
     type:Boolean,
     default:true
