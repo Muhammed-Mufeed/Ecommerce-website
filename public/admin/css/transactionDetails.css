@@ -1,0 +1,129 @@
+.transaction-details-page h3 {
+  font-size: 24px;
+  margin-top: 60px; /* Adjusted to prevent overlap with navbar */
+  margin-bottom: 20px;
+}
+
+.transaction-container {
+  background-color: white;
+  border-radius: 5px;
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto 30px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.transaction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.transaction-header h4 {
+  font-size: 18px;
+  color: #34495e;
+  margin: 0;
+}
+
+.back-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  background-color: #3498db;
+  color: white;
+  text-decoration: none;
+  text-align: center;
+}
+
+.back-btn:hover {
+  background-color: #2980b9;
+}
+
+.transaction-info {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-weight: 600;
+  color: #34495e;
+  width: 150px;
+  flex-shrink: 0;
+}
+
+.value {
+  color: #666;
+  flex-grow: 1;
+}
+
+.value.credit {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.value.debit {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.link {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+  color: #2980b9;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .transaction-container {
+    padding: 15px;
+  }
+
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .label {
+    width: 100%;
+  }
+
+  .back-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .transaction-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .transaction-header h4 {
+    font-size: 16px;
+  }
+}

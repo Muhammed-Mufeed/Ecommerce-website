@@ -6,7 +6,7 @@
     <title>My Orders</title>
     <link rel="stylesheet" href="/user/css/profile-sidebar.css" />
     <!-- Add Font Awesome CDN -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         * {
             margin: 0;
@@ -287,6 +287,49 @@
             background-color: #e5645a;
         }
 
+        /* Pagination Styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .pagination a {
+            padding: 8px 12px;
+            text-decoration: none;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .pagination a:hover {
+            background-color: #ff6f61;
+            color: white;
+            border-color: #ff6f61;
+        }
+
+        .pagination a.active {
+            background-color: #ff6f61;
+            color: white;
+            border-color: #ff6f61;
+        }
+
+        .pagination a.disabled {
+            color: #ccc;
+            border-color: #ddd;
+            pointer-events: none;
+        }
+
+        .pagination span {
+            font-size: 14px;
+            color: #6c757d;
+        }
+   
+
         @media (max-width: 768px) {
             .wrapper {
                 flex-direction: column;
@@ -343,7 +386,7 @@
                                   <div class="item-info">
                                     <div class="item-name"><%= item.product.name %></div>
                                     <div class="item-variant">Color: <%= item.variant.colorName %></div>
-                                    <div class="item-price">₹<%= item.price.toFixed(2) %></div>
+                                    <div class="item-price">₹<%= item.product.soldPrice.toFixed(2) %></div>
                                     <div class="item-quantity">Qty: <%= item.quantity %></div>
                                     <div class="item-status status-<%= item.status.toLowerCase() %>"><%= item.status %></div>
                                   </div>
@@ -370,14 +413,15 @@
                               <div class="payment-details">
                                 <div class="payment-method">
                                   Payment: <%= order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod %>
+                                  <br>
+                                  Payment Status: <%= order.paymentStatus %>
                                 </div>
                                 <div class="total-amount">Total: ₹<%= order.finalAmount.toFixed(2) %></div>
                               </div>
                             </div>
                             
                             <div class="order-actions">
-                              <a href="/userOrders/<%= order._id %>" class="btn btn-detail">View Details</a>
-                            </div>
+                                <a href="/userOrders/<%= order.orderId %>" class="btn btn-detail">View Details</a>                             </div>
                           </div>
                         </div>
                       <% }); %>
@@ -391,6 +435,39 @@
             </div>
         </div>
     </div>
+
+    <!-- Pagination Controls -->
+    <% if (orders && orders.length > 0) { %>
+        <div class="pagination">
+          <!-- Previous Button -->
+          <a href="<%= currentPage > 1 ? '/userOrders?page=' + (currentPage - 1) : '#' %>" 
+             class="<%= currentPage === 1 ? 'disabled' : '' %>">
+            Previous
+          </a>
+
+          <!-- Page Numbers -->
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <a href="/userOrders?page=<%= i %>" 
+               class="<%= currentPage === i ? 'active' : '' %>">
+              <%= i %>
+            </a>
+          <% } %>
+
+          <!-- Next Button -->
+          <a href="<%= currentPage < totalPages ? '/userOrders?page=' + (currentPage + 1) : '#' %>" 
+             class="<%= currentPage === totalPages ? 'disabled' : '' %>">
+            Next
+          </a>
+
+          <!-- Optional: Show total orders and current range -->
+          <span>
+            Showing <%= (currentPage - 1) * 5 + 1 %>-<%= Math.min(currentPage * 5, totalOrders) %> of <%= totalOrders %> orders
+          </span>
+        </div>
+      <% } %>
+</div>
+</div>
+</div>
     
     <%-include('../partials/user/profile-sidebar-footer')%>
 </body>

@@ -1,0 +1,104 @@
+.wallet-page h3 {
+  font-size: 24px;
+  margin-top: 60px; /* Adjusted to prevent overlap with navbar */
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  padding: 10px;
+  font-size: 16px;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.wallet-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: white;
+}
+
+.wallet-table th, .wallet-table td {
+  padding: 15px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.wallet-table th {
+  background-color: #34495e;
+  color: white;
+}
+
+/* View button */
+.view-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  background-color: #3498db;
+  color: white;
+  text-decoration: none;
+  text-align: center;
+}
+
+.view-btn:hover {
+  background-color: #2980b9;
+}
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 30px 0;
+}
+
+.pagination .page-link {
+  padding: 8px 16px;
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 5px;
+  background-color: white;
+  color: #34495e;
+  border: 1px solid #34495e;
+  transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+  background-color: #34495e;
+  color: white;
+}
+
+.pagination .page-link.active {
+  background-color: #34495e;
+  color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .wallet-table {
+    font-size: 14px;
+  }
+
+  .wallet-table th, .wallet-table td {
+    padding: 10px 8px;
+  }
+
+  .view-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .wallet-table {
+    display: block;
+    overflow-x: auto;
+  }
+}

@@ -64,7 +64,6 @@ router.get('/editAddress/:addressId',checkBlocked,addressManagement.getEditAddre
 router.put('/editAddress/:addressId',checkLogin,addressManagement.putUpdateAddress);
 router.delete('/deleteAddress/:addressId',checkLogin,addressManagement.deleteAddress)
 
-
 router.get('/userOrders',checkBlocked,orderManagement.getUserOrderList)
 router.get('/userOrders/:orderId',checkBlocked,orderManagement.getUserOrderHistory)
 router.patch('/userOrders/:orderId/cancelItem/:itemId',checkLogin,orderManagement.patchCancelItem)
@@ -87,7 +86,10 @@ router.post('/cart',checkLogin,cartManagement.postCartTocheckout)
 router.post('/Checkout_addAddress', checkLogin,orderManagement.postCheckoutAddaddress)
 router.get('/checkout',checkBlocked,orderManagement.getCheckoutPage)
 router.post('/checkout',checkLogin,orderManagement.postPlaceOrder)
+router.get('/orderSuccess/:orderId', checkBlocked,orderManagement.getOrderSuccess);
 router.post('/verify-Onlinepayment',checkLogin, orderManagement.verifyOnlinePayment);
+router.post('/payment-failed',checkLogin, orderManagement.postPaymentFailed);
+router.post('/retry-payment', checkLogin, orderManagement.postRetryPayment);
 
 // ==================================================================================================================//
 

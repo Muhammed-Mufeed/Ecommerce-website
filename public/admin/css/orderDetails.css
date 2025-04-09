@@ -1,83 +1,87 @@
-/* Order Details Page */
+/* Reset and Base Styles */
+
+/* Main Container */
 .order-details-page {
-  padding: 20px;
+  max-width: 1200px;
+  margin: 40px auto;
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
-  margin: 0 auto;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  padding: 30px;
+  border: 2px solid #2f3640;
 }
 
+/* Header */
 .order-header {
+  background: linear-gradient(90deg, #2f3640, #576574);
+  color: #fff;
+  padding: 20px 25px;
+  border-radius: 8px 8px 0 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #eaeaea;
-  margin-bottom: 20px;
+  border-bottom: 3px solid #1e272e;
 }
 
 .order-id {
-  font-weight: 600;
-  color: #333;
-}
-
-.order-date {
-  color: #6c757d;
-  font-size: 14px;
-}
-
-.order-status {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 22px;
+  font-weight: 700;
   text-transform: uppercase;
 }
 
-.status-pending {
-  background-color: #fff3cd;
-  color: #856404;
+.order-date {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.9;
 }
 
-.status-confirmed {
-  background-color: #cce5ff;
-  color: #004085;
+/* Sections */
+.order-section {
+  margin: 30px 0;
 }
 
-.status-shipped {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.status-delivered {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-.order-items {
+.section-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e272e;
   margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #2f3640;
+  text-transform: uppercase;
+}
+
+/* Items */
+.order-items {
+  display: grid;
+  gap: 25px;
 }
 
 .item {
-  display: flex;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border: 2px solid #dfe6e9;
+  border-radius: 8px;
+  padding: 20px;
+  background-color: #fff;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.item:last-child {
-  border-bottom: none;
+.item:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  border-color: #2f3640;
+}
+
+.item-top {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .item-image {
-  width: 80px;
-  height: 80px;
-  border-radius: 4px;
-  background-color: #f0f0f0;
-  margin-right: 16px;
+  width: 120px;
+  height: 120px;
+  border-radius: 6px;
   object-fit: contain;
+  margin-right: 20px;
+  border: 2px solid #b2bec3;
 }
 
 .item-info {
@@ -85,113 +89,230 @@
 }
 
 .item-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e272e;
+  margin-bottom: 8px;
+  text-transform: capitalize;
+}
+
+.item-detail {
+  font-size: 14px;
   font-weight: 500;
-  margin-bottom: 4px;
+  color: #576574;
+  margin-bottom: 6px;
 }
 
-.item-variant {
-  font-size: 13px;
-  color: #555;
-  margin-bottom: 4px;
-}
-
-.item-price {
-  color: #333;
+.item-status {
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 12px;
   font-weight: 600;
+  text-transform: uppercase;
+  display: inline-block;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.item-quantity {
-  color: #6c757d;
-  font-size: 14px;
-}
+/* Status Colors */
+.status-pending { background-color: #ffdd57; color: #4a3b00; }
+.status-confirmed { background-color: #74b9ff; color: #003566; }
+.status-shipped { background-color: #55efc4; color: #0c4b33; }
+.status-delivered { background-color: #00b894; color: #fff; }
+.status-cancelled { background-color: #ff7675; color: #4a1a1a; }
+.status-requested { background-color: #fdcb6e; color: #5c3a00; }
+.status-approved { background-color: #a29bfe; color: #2f1d5c; }
+.status-rejected { background-color: #d63031; color: #fff; }
+.status-returned { background-color: #ffeaa7; color: #5c3a00; }
+.status-paid { background-color: #00b894; color: #fff; }
+.status-failed { background-color: #ff7675; color: #4a1a1a; }
+.status-pending-payment { background-color: #ffdd57; color: #4a3b00; }
 
+/* Actions */
 .item-actions {
-  margin-left: auto; /* Push buttons to the right */
   display: flex;
-  gap: 8px; /* Space between buttons */
-}
-
-.order-summary {
-  display: flex;
-  justify-content: space-between;
-  padding-top: 16px;
-  border-top: 1px solid #eaeaea;
-  margin-bottom: 20px;
-}
-
-.address-details {
-  flex: 2;
-}
-
-.address-title {
-  font-weight: 600;
-  margin-bottom: 8px;
-  font-size: 14px;
-}
-
-.address-text {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #6c757d;
-}
-
-.payment-details {
-  flex: 1;
-  text-align: right;
-}
-
-.payment-method {
-  font-size: 14px;
-  color: #6c757d;
-  margin-bottom: 8px;
-}
-
-.total-amount {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
+  gap: 10px;
+  align-items: center;
 }
 
 .btn {
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 10px 20px;
+  border-radius: 6px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: uppercase;
   cursor: pointer;
   border: none;
-  transition: background-color 0.3s ease;
-  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .btn-confirm {
-  background-color: #28a745;
-  color: white;
+  background-color: #00b894;
+  color: #fff;
 }
 
 .btn-confirm:hover {
-  background-color: #218838;
+  background-color: #009975;
 }
 
 .btn-ship {
-  background-color: #17a2b8;
-  color: white;
+  background-color: #0984e3;
+  color: #fff;
 }
 
 .btn-ship:hover {
-  background-color: #138496;
+  background-color: #076bbf;
 }
 
 .btn-deliver {
-  background-color: #ffc107;
-  color: white;
+  background-color: #2f3640;
+  color: #fff;
 }
 
 .btn-deliver:hover {
-  background-color: #e0a800;
+  background-color: #1e272e;
+}
+
+.btn-cancel {
+  background-color: #d63031;
+  color: #fff;
+}
+
+.btn-cancel:hover {
+  background-color: #b12728;
 }
 
 .btn-disabled {
-  background-color: #6c757d;
-  color: white;
+  background-color: #b2bec3;
+  color: #636e72;
   cursor: not-allowed;
+}
+
+.btn-disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Tracking Timeline */
+.tracking-timeline {
+  padding: 20px 0;
+}
+
+.timeline {
+  list-style: none;
+  padding-left: 30px;
+  position: relative;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #b2bec3;
+}
+
+.timeline li {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.timeline li::before {
+  content: '';
+  position: absolute;
+  left: -30px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #b2bec3;
+  border: 3px solid #fff;
+}
+
+.timeline li.active::before {
+  background: #2f3640;
+}
+
+.timeline li.active .status-text {
+  color: #2f3640;
+  font-weight: 600;
+}
+
+.status-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #636e72;
+}
+
+.status-date {
+  font-size: 12px;
+  font-weight: 400;
+  color: #95a5a6;
+}
+
+/* Summary */
+.order-summary {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  background-color: #f1f3f5;
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid #dfe6e9;
+}
+
+.address-details, .payment-details {
+  flex: 1;
+  min-width: 280px;
+}
+
+.address-text, .payment-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #576574;
+  line-height: 1.8;
+}
+
+.payment-status {
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: inline-block;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .order-details-page {
+    margin: 20px 10px;
+    padding: 20px;
+  }
+  .item-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .item-image {
+    margin-bottom: 15px;
+  }
+  .item-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .btn {
+    width: 100%;
+  }
+  .order-summary {
+    flex-direction: column;
+  }
 }

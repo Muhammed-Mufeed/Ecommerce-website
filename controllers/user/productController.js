@@ -49,8 +49,8 @@ exports.getHomepage = async (req, res) => {
 
       return {
         ...product.toObject(),  // Convert mongoose document to plain object
-        sellingPrice:discountedPrice, // Override selling price
-        appliedDiscount:maxDiscount //// Pass applied discount for frontend display
+        sellingPrice:discountedPrice, 
+        appliedDiscount:maxDiscount 
       }
 
     })
@@ -123,11 +123,10 @@ exports.getCategoryProductspage = async (req,res)=>{
 
 
  // =======================================================Products-GET============================================================//
-
  exports.getProductspage = async (req, res) => {
   try {
 
-    const { availability, discount, minPrice, maxPrice, category, brand, sort } = req.query;
+    const { availability,  minPrice, maxPrice, category, brand, sort, search} = req.query;
 
     let query = { isListed: true };
 
@@ -152,6 +151,48 @@ exports.getCategoryProductspage = async (req,res)=>{
       query.brand = { $in: Array.isArray(brand) ? brand : [brand] };
     }
 
+
+    //searchbar logic
+    let SearchAppliedCategory =null
+    let SearchAppliedBrand = null
+
+    if(search){
+      const searchTerm = search.trim().toLowerCase()
+    
+
+        // Only search for category if no category filter is set 
+        if (!query.category) {
+          const categoryMatch = await Category.findOne({   // Check if search matches a category name
+            name: { $regex: new RegExp(`^${searchTerm}$`, 'i') },
+            isListed: true
+          });
+          if (categoryMatch) {
+            SearchAppliedCategory = categoryMatch._id.toString();
+            query.category = SearchAppliedCategory;
+          }
+        }
+
+        
+       // Only search for brand if no brand filter is set
+      if (!query.brand) {
+        const brandMatch = await Brand.findOne({   // Check if search matches a brand name
+          name: { $regex: new RegExp(`^${searchTerm}$`, 'i') },
+          isListed: true
+        });
+        if (brandMatch) {
+          SearchAppliedBrand = brandMatch._id.toString();
+          query.brand = SearchAppliedBrand;
+        }
+      }
+
+        // Search product names within the filtered results
+      if (!SearchAppliedCategory && !SearchAppliedBrand) {
+        query.name = { $regex: new RegExp(searchTerm, 'i') };
+      }
+
+      }
+
+   
     const products = await Product.find(query)
       .populate({
         path: 'category',
@@ -180,37 +221,48 @@ exports.getCategoryProductspage = async (req,res)=>{
         const productOffer = product.productDiscount || 0;
         const categoryOffer = categoryDiscounts[product.category._id.toString()] || 0;
         
-        // Use the greater discount
         const maxDiscount = Math.max(productOffer, categoryOffer);
         
-        // Calculate the new selling price
         const discountedPrice = Math.round(product.actualPrice - (product.actualPrice * maxDiscount) / 100);
         
         return {
-          ...product.toObject(), // Convert mongoose document to plain object
-          sellingPrice: discountedPrice, // Override selling price
-          appliedDiscount: maxDiscount // Pass applied discount for frontend display
+          ...product.toObject(), 
+          sellingPrice: discountedPrice, 
+          appliedDiscount: maxDiscount 
         };
       });    
 
-    if (sort === 'aZ') {
-      products.sort((a, b) => a.name.localeCompare(b.name)); // Ascending (aA - zZ)
-    } else if (sort === 'zA') {
-      products.sort((a, b) => b.name.localeCompare(a.name)); // Descending (zZ - aA)
-    }
-
+      if (sort === 'aZ') {
+        ListedProducts.sort((a, b) => a.name.localeCompare(b.name)); // Ascending (aA - zZ)
+      } else if (sort === 'zA') {
+        ListedProducts.sort((a, b) => b.name.localeCompare(a.name)); // Descending (zZ - aA)
+      } else if (sort === 'priceLowToHigh') {
+        ListedProducts.sort((a, b) => a.sellingPrice - b.sellingPrice); // Price: Low to High
+      } else if (sort === 'priceHighToLow') {
+        ListedProducts.sort((a, b) => b.sellingPrice - a.sellingPrice); // Price: High to Low
+      }
   
 
     const categories = await Category.find({});
     const brands = await Brand.find({});
 
-    return res.render('user-products', { products: ListedProducts, categories, brands });
+    return res.render('user-products', {
+        products: ListedProducts,
+        categories,
+        brands,
+        availability,
+        minPrice,
+        maxPrice,
+        category: SearchAppliedCategory || category,
+        brand: SearchAppliedBrand || brand,
+        sort,
+        search
+    });
   } catch (error) {
     console.log("Error in loading All products page", error);
     return res.redirect('/pageNotFound');
   }
 };
-
 // ===================================================ProductDetail-GET==========================================================//
 
 exports.getProductDetailPage = async (req, res) => {

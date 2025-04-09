@@ -8,6 +8,8 @@
   const orderManagement = require('../controllers/admin/orderManagement')
   const offerManagement = require('../controllers/admin/offerManagement')
   const couponManagement = require('../controllers/admin/couponManagement')
+  const salesManagement = require('../controllers/admin/salesManagement')
+  const walletController = require('../controllers/admin/walletManagement')
 
 
   const{checkLogin,checkLogout} = require('../middlewares/adminAuth')
@@ -18,10 +20,11 @@
   // ==================================================================================================================//
   router.get('/login', checkLogout, adminController.getAdminLogin)
   router.post('/login', adminController.postAdminLogin)
-  // ==================================================================================================================//
   router.post('/logout',  adminController.postAdminLogout)
-  router.get('/sales-report',checkLogin, adminController.getSalesReport);
-  router.get('/download-report',checkLogin, adminController.downloadSalesReport);
+  // ==================================================================================================================//
+  router.get('/dashboard',checkLogin, salesManagement.getSalesDashboard);
+  router.get('/chart-data',checkLogin, salesManagement.getChartData); // New route for chart data
+  router.get('/dashboard/download',checkLogin, salesManagement.downloadSalesReport);
 
   // ==================================================================================================================//
   router.get('/customers',checkLogin,customerManagement.getuserManagement)
@@ -78,7 +81,8 @@ router.patch('/orders/:orderId/items/:itemId/reject-return', checkLogin, orderMa
   router.patch('/coupons/:id/update-Couponstatus',couponManagement.patchUpdateCouponStatus)
 
 
-
+  router.get('/wallets', walletController.getWalletTransactionsPage);
+  router.get('/wallet/transaction/:id', walletController.getTransactionDetails);
 
 
    // ==================================================================================================================//

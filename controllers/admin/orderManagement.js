@@ -1,5 +1,7 @@
 const Order = require('../../models/orderSchema')
 const User = require('../../models/userSchema')
+const Product = require('../../models/productSchema')
+const Wallet = require('../../models/WalletSchema')
 
 
 // ===============================================OrderListPage-GET===================================================================//
@@ -66,7 +68,7 @@ exports.getOrderDetailspage = async (req, res) => {
     const orderId = req.params.orderId;
 
     // Fetch the order and populate product details
-    const order = await Order.findOne({ _id: orderId })
+    const order = await Order.findOne({ orderId: orderId })
      
 
     if (!order) {
@@ -89,7 +91,7 @@ exports.updateOrderStatus = async (req, res) => {
     const { status } = req.body;
 
     // Find the order
-    const order = await Order.findOne({ _id: orderId });
+    const order = await Order.findOne({ orderId: orderId });
 
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found.' });
@@ -128,6 +130,14 @@ exports.updateOrderStatus = async (req, res) => {
       item.status = status;
       await order.save();
 
+      if (order.paymentMethod === 'cod' && order.paymentStatus === 'Pending') {
+        const allDelivered = order.items.every(item => item.status === 'Delivered');
+        if (allDelivered) {
+          order.paymentStatus = 'Paid';
+          await order.save();
+        }
+      }
+
    
       return res.status(200).json({ success: true, message: `Item status updated to ${status}.` });
   } catch (error) {
@@ -143,7 +153,7 @@ exports.approveReturn = async (req, res) => {
   try {
     const { orderId, itemId } = req.params;
 
-    const order = await Order.findOne({ _id: orderId });
+    const order = await Order.findOne({ orderId: orderId });
 
     if (!order){
        return res.status(404).json({ success: false, message: 'Order not found.' });
@@ -174,7 +184,7 @@ exports.approveReturn = async (req, res) => {
        });
     }
 
-    const refundAmount = item.price;
+    const refundAmount =item.product.soldPrice * item.quantity;
      wallet.balance += refundAmount;
      wallet.transactions.push({
       type: 'credit',
@@ -198,7 +208,7 @@ exports.rejectReturn = async (req, res) => {
   try {
     const { orderId, itemId } = req.params;
 
-    const order = await Order.findOne({ _id: orderId });
+    const order = await Order.findOne({ orderId: orderId });
     if (!order){
        return res.status(404).json({ success: false, message: 'Order not found.' });
     }

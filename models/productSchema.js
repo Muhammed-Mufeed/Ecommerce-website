@@ -76,17 +76,26 @@ const productSchema = new mongoose.Schema({
 
 
 
-// Pre-save middleware to calculate sellingPrice
-productSchema.pre('save',function (next){
+// Pre-save middleware to synchronize sellingPrice and productDiscount
 
-  // Check if either offerPercentage or actualPrice has been modified
-   if(this.isModified ("productDiscount") || this.isModified("actualPrice"))
-   {
-    const discountAmount = (this.actualPrice * this.productDiscount) / 100 ;
-    this.sellingPrice = Math.round(this.actualPrice - discountAmount)
-   }  
-   next()
-})
+productSchema.pre("save", function (next) {
+  // If actualPrice or productDiscount is modified, update sellingPrice
+  if (this.isModified("actualPrice") || this.isModified("productDiscount")) {
+    this.sellingPrice = Math.round(
+      this.actualPrice - (this.actualPrice * this.productDiscount) / 100
+    );
+  }
+  // If actualPrice or sellingPrice is modified, update productDiscount
+  else if (this.isModified("actualPrice") || this.isModified("sellingPrice")) {
+    if (this.actualPrice > 0) {
+      this.productDiscount = Math.round(
+        ((this.actualPrice - this.sellingPrice) * 100) / this.actualPrice
+      );
+      if (this.productDiscount < 0) this.productDiscount = 0; // Prevent negative discount
+    }
+  }
+  next();
+});
 
 
 const Product= mongoose.model("Product",productSchema)

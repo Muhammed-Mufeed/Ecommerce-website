@@ -60,8 +60,8 @@ exports.postAddProduct = async(req,res)=>{
     else if(actualPrice <= sellingPrice){
      return  res.status(400).json({success:false,message:"Selling price must be less than actual price"})
     }
-    else if(offerPercentage < 0 ){
-      return res.status(400).json({success:false,message:"Offer percentage cannot be negative."})
+    else if(productDiscount < 0 ){
+      return res.status(400).json({success:false,message:"product discount cannot be negative."})
     }
 
   
@@ -122,8 +122,8 @@ exports.putEditProduct = async(req,res)=>{
     else if(actualPrice <= sellingPrice){
       return  res.status(400).json({success:false,message:"Selling price must be less than actual price"})
     }
-    else if (offerPercentage < 0) {
-      return res.status(400).json({ success: false, message: "Offer percentage Cannot be negative." });
+    else if (productDiscount < 0) {
+      return res.status(400).json({ success: false, message: "product Discount Cannot be negative." });
     }
 
 

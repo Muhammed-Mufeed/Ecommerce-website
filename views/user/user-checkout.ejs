@@ -39,20 +39,27 @@
       </div>
 
       <!-- Payment Options -->
-      <div class="payment-section">
-        <h2>Payment Options</h2>
+    <div class="payment-section">
+      <h2>Payment Options</h2>
 
-        <div class="payment-option">
-          <input type="radio" name="paymentMethod" value="cod" id="cod" checked>
-          <label for="cod">Cash on Delivery</label>
-        </div>
+      <div class="payment-option cod-option">
+        <input type="radio" name="paymentMethod" value="cod" id="cod" <%= subtotal > 5000 ? 'disabled' : 'checked' %>>
+        <label for="cod">Cash on Delivery</label>
+        <p class="error-message cod-error <%= subtotal > 5000 ? 'visible' : 'hidden' %>">Order above ₹5000 is not eligible for COD</p>
+      </div>
 
-        <div class="payment-option">
-          <input type="radio" name="paymentMethod" value="online" id="online">
-          <label for="online">Online Payment</label>
-        </div>
+      <div class="payment-option">
+        <input type="radio" name="paymentMethod" value="online" id="online" <%= subtotal > 5000 ? 'checked' : '' %>>
+        <label for="online">Online Payment</label>
+      </div>
+
+      <div class="payment-option wallet-option">
+        <input type="radio" name="paymentMethod" value="wallet" id="wallet" <%= walletBalance < subtotal ? 'disabled' : '' %>>
+        <label for="wallet">Wallet Payment (Balance: ₹<%= walletBalance.toFixed(2) %>)</label>
+        <p class="error-message wallet-error <%= walletBalance < subtotal ? 'visible' : 'hidden' %>">Insufficient balance</p>
       </div>
     </div>
+   </div>
 
     <div class="order-summary">
       <h1>Checkout</h1>
@@ -69,30 +76,50 @@
         </div>
 
         <div class="coupon-section">
+          <h3>Apply Coupon</h3>
+          <div class="coupon-input-container">
+            <input type="text" id="coupon-input" placeholder="Enter code" value="">
+            <button id="apply-coupon-btn" class="apply-btn">Apply</button>
+          </div>
+          <div id="applied-coupon" class="applied-coupon" style="display: none;">
+            <span id="applied-coupon-text"></span>
+            <button id="remove-coupon-btn" class="remove-btn">Remove</button>
+          </div>
+          <div id="coupon-error" class="error-message"></div>
+        
           <h3>Available Coupons</h3>
-          <select id="coupon-select">
-            <option value="">Select a coupon</option>
+          <div class="available-coupons">
             <% if (coupons.length > 0) { %>
               <% coupons.forEach(coupon => { %>
-                <option 
-                  value="<%= coupon.couponCode %>"
-                  data-discount="<%= coupon.discountAmount %>"
-                  data-min-amount="<%= coupon.minPurchaseAmount %>"
-                >
-                  <%= coupon.couponCode %> (₹<%= coupon.discountAmount %> off, Min: ₹<%= coupon.minPurchaseAmount %>)
-                </option>
+                <div class="coupon-card" data-coupon-code="<%= coupon.couponCode %>" data-discount="<%= coupon.discountAmount %>" data-min-amount="<%= coupon.minPurchaseAmount %>">
+                  <div class="coupon-details">
+                    <span class="coupon-code"><%= coupon.couponCode %></span>
+                    <p class="coupon-discount">Get Instant Discount ₹<%= coupon.discountAmount %></p>
+                    <p class="coupon-min-amount">Valid on orders above ₹<%= coupon.minPurchaseAmount %></p>
+                  </div>
+                  <button class="apply-coupon-card-btn apply-btn">Apply</button>
+                </div>
               <% }) %>
             <% } else { %>
-              <option value="" disabled>No coupons found</option>
+              <p>No coupons available.</p>
             <% } %>
-          </select>
-          <div id="coupon-error" class="error-message"></div>
+          </div>
         </div>
 
         <div class="order-total">
           <p><span>Subtotal:</span> <span id="subtotal">₹<%= subtotal %></span></p>
-          <p><span>Discount:</span> <span id="discount">₹0</span></p>
-          <p><strong>Total:</strong> <span id="total">₹<%= subtotal %></span></p>
+          <p><span>Coupon Applied:</span> <span id="discount">₹0</span></p>
+          <p>
+            <span>Delivery Charge:</span>
+            <span id="delivery-charge">
+              <% if (subtotal < 1000) { %>
+                ₹99
+              <% } else { %>
+                <s>₹99</s> Free
+              <% } %>
+            </span>
+          </p>
+          <p><strong>Total:</strong> <span id="total">₹<%= subtotal + (subtotal < 1000 ? 99 : 0) %></span></p>
         </div>
 
         <button id="place-order-btn" class="place-order-btn">Place Order</button>
@@ -163,7 +190,7 @@
     </div>
   </div>
 
-  <%- include('../partials/user/footer') %>
+   <%- include('../partials/user/footer') %>
 
   <script>
   
@@ -297,184 +324,292 @@
     });
 
 
-    // Coupon handling
-    const couponSelect = document.getElementById('coupon-select');
+    const couponInput = document.getElementById('coupon-input');
+    const applyCouponBtn = document.getElementById('apply-coupon-btn');
+    const appliedCouponSection = document.getElementById('applied-coupon');
+    const appliedCouponText = document.getElementById('applied-coupon-text');
+    const removeCouponBtn = document.getElementById('remove-coupon-btn');
+    const couponError = document.getElementById('coupon-error');
+
     const subtotalVal = document.getElementById('subtotal');
     const discountVal = document.getElementById('discount');
-    const totalVal= document.getElementById('total');
-    const couponError = document.getElementById('coupon-error');
+    const totalVal = document.getElementById('total');
     const subtotal = parseInt('<%= subtotal %>');
+    const walletBalance = parseFloat('<%= walletBalance %>');
+
     let selectedCoupon = null;
+    let selectedDiscount = 0;
 
-    couponSelect.addEventListener('change', function(e) {
+
+    function updateOrderTotals(subtotal, discount) {
+    const deliveryCharge = subtotal < 1000 ? 99 : 0;
+    const total = Math.max(subtotal - discount + deliveryCharge, 0);
+
+    // Update UI
+    discountVal.textContent = `-₹${discount}`;
+    totalVal.textContent = `₹${total}`;
+    document.getElementById('delivery-charge').innerHTML = subtotal < 1000 ? '₹99' : '<s>₹99</s> Free';
+
+    // Update COD availability
+    updateCODAvailability(total);
+
+    // Update wallet availability
+    const walletRadio = document.getElementById('wallet');
+    const walletError = document.querySelector('.wallet-error');
+    if (total > walletBalance) {
+      walletRadio.disabled = true;
+      walletError.classList.remove('hidden');
+      walletError.classList.add('visible');
+    } else {
+      walletRadio.disabled = false;
+      walletError.classList.remove('visible');
+      walletError.classList.add('hidden');
+    }
+  }
+    // Function to apply a coupon
+    function applyCoupon(couponCode, discount, minAmount) {
+        couponError.textContent = '';
+
+        // Validate minimum purchase amount
+        if (subtotal < minAmount) {
+          couponError.textContent = `Minimum purchase amount for this coupon is ₹${minAmount}`;
+          return false;
+        }
+
+        // Update UI
+        selectedCoupon = couponCode;
+        selectedDiscount = discount;
+
+        // Set the coupon code in the input field
+        couponInput.value = couponCode;
+
+        // Show applied coupon section
+        appliedCouponText.textContent = `Applied: ${couponCode} (-₹${discount} off)`;
+        appliedCouponSection.style.display = 'flex';
+
+        // Update all "Apply" buttons to "Applied"
+        document.querySelectorAll('.apply-btn').forEach(btn => {
+          if (btn.closest('.coupon-card')?.dataset.couponCode === couponCode || btn === applyCouponBtn) {
+            btn.textContent = 'Applied';
+            btn.classList.add('applied');
+            btn.disabled = true;
+          }
+      });
+
+      // Update order totals
+      updateOrderTotals(subtotal, discount);
+
+      return true;
+    }
+
+        // Function to remove a coupon
+    function removeCoupon() {
+      selectedCoupon = null;
+      selectedDiscount = 0;
+
+      // Reset UI
+      couponInput.value = '';
+      appliedCouponSection.style.display = 'none';
       couponError.textContent = '';
-      const selectedOption = e.target.options[e.target.selectedIndex];
-      
-      if (!selectedOption.value) {
-        discountVal.textContent = '₹0';
-        totalVal.textContent = `₹${subtotal}`;
-        selectedCoupon = null;
+
+      // Reset all "Applied" buttons to "Apply"
+      document.querySelectorAll('.apply-btn').forEach(btn => {
+        btn.textContent = 'Apply';
+        btn.classList.remove('applied');
+        btn.disabled = false;
+      });
+
+      // Update order totals
+      updateOrderTotals(subtotal, 0);
+    }
+
+    // Apply coupon from input field
+    applyCouponBtn.addEventListener('click', () => {
+      const couponCode = couponInput.value.trim().toUpperCase();
+      if (!couponCode) {
+        couponError.textContent = 'Please enter a coupon code.';
         return;
       }
 
-      const discount = parseInt(selectedOption.dataset.discount);
-      const minAmount = parseInt(selectedOption.dataset.minAmount);
-
-      if (subtotal < minAmount) {
-        couponError.textContent = `Minimum purchase amount for this coupon is ₹${minAmount}`;
-        e.target.value = '';
-        discountVal.textContent = '₹0';
-        totalVal.textContent = `₹${subtotal}`;
-        selectedCoupon = null;
+      // Find the coupon in the available coupons
+      const couponCard = document.querySelector(`.coupon-card[data-coupon-code="${couponCode}"]`);
+      if (!couponCard) {
+        couponError.textContent = 'Invalid coupon code.';
         return;
       }
 
-      selectedCoupon = selectedOption.value;
-      const total = Math.max(subtotal - discount,0);
-      
-      discountVal.textContent = `₹${discount}`;
-      totalVal.textContent = `₹${total}`;
+      const discount = parseInt(couponCard.dataset.discount);
+      const minAmount = parseInt(couponCard.dataset.minAmount);
+
+      applyCoupon(couponCode, discount, minAmount);
+    });
+
+    // Apply coupon from available coupons
+    document.querySelectorAll('.apply-coupon-card-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const couponCard = btn.closest('.coupon-card');
+        const couponCode = couponCard.dataset.couponCode;
+        const discount = parseInt(couponCard.dataset.discount);
+        const minAmount = parseInt(couponCard.dataset.minAmount);
+
+        applyCoupon(couponCode, discount, minAmount);
+      });
+    });
+
+    // Remove coupon
+    removeCouponBtn.addEventListener('click', () => {
+      removeCoupon();
     });
 
 
 
+   // Place Order Button
+    document.getElementById('place-order-btn').addEventListener('click', async () => {
+    const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+    const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
 
-          // Place Order Button
-      document.getElementById('place-order-btn').addEventListener('click', async () => {
-        // Get selected address and payment method
-        const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
-        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+    if (!selectedAddress) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Please select a shipping address.',
+        confirmButtonText: 'OK',
+      });
+      return;
+    }
 
-        // Validate address and payment method
-        if (!selectedAddress) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Please select a shipping address.',
-            confirmButtonText: 'OK',
-          });
-          return;
-        }
+    if (!selectedPaymentMethod) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Please select a payment method.',
+        confirmButtonText: 'OK',
+      });
+      return;
+    }
 
-        if (!selectedPaymentMethod) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Please select a payment method.',
-            confirmButtonText: 'OK',
-          });
-          return;
-        }
+    const orderData = {
+      addressId: selectedAddress.value,
+      paymentMethod: selectedPaymentMethod.value,
+      couponCode: selectedCoupon || '',
+    };
 
-        // Prepare order data
-        const orderData = {
-          addressId: selectedAddress.value,
-          paymentMethod: selectedPaymentMethod.value,
-          couponCode: selectedCoupon || ''
-        };
+    try {
+      const response = await fetch('/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData),
+      });
+      const data = await response.json();
 
-        try {
-          // Send order data to the server
-          const response = await fetch('/checkout', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(orderData),
-           
-          });
-          console.log(response)
+      if (data.success) {
 
-          const data = await response.json();
+          if (selectedPaymentMethod.value === 'online' && data.orderId) {
+              // Store mongoOrderId in a variable
+              const mongoOrderId = data.mongoOrderId;
 
-          if (data.success) {
-
-            if (selectedPaymentMethod.value === 'online' && data.orderId) {
-              // Razorpay payment flow
               const options = {
-                key: '<%= process.env.RAZORPAY_KEY_ID %>', // Pass Key ID from server
-                amount: data.finalAmount * 100, // Amount in paise (multiply by 100)
+                key: '<%= process.env.RAZORPAY_KEY_ID %>',
+                amount: data.finalAmount * 100,
                 currency: 'INR',
                 name: 'PackSmart',
                 description: 'Test Transaction',
-                order_id: data.orderId, // Razorpay order ID from server
+                order_id: data.orderId,
                 handler: async function (response) {
-                  // After successful payment, verify it on the server
                   const paymentData = {
                     razorpay_order_id: response.razorpay_order_id,
                     razorpay_payment_id: response.razorpay_payment_id,
                     razorpay_signature: response.razorpay_signature,
-                  };  
+                  };
 
                   const verifyResponse = await fetch('/verify-Onlinepayment', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(paymentData),
                   });
-
                   const verifyData = await verifyResponse.json();
 
                   if (verifyData.success) {
-                    Swal.fire({
-                      icon: 'success',
-                      title: 'Order Placed!',
-                      text: 'Payment successful and order placed.',
-                      confirmButtonText: 'OK',
-                    }).then(() => {
-                      window.location.href = verifyData.redirectUrl;
-                    });
+                    window.location.href = verifyData.redirectUrl; // Success redirect
                   } else {
                     Swal.fire({
                       icon: 'error',
                       title: 'Payment Failed',
                       text: verifyData.message || 'Payment verification failed.',
                       confirmButtonText: 'OK',
+                    }).then(() => {
+                      window.location.href = verifyData.redirectUrl; // Redirect to order details on verification failure
                     });
                   }
                 },
                 prefill: {
-                  name: '<%= user.name %>', 
-                  email: '<%= user.email %>', 
-                  contact: '<%= user.mobile %>', 
+                  name: '<%= user.name %>',
+                  email: '<%= user.email %>',
+                  contact: '<%= user.mobile %>',
                 },
                 theme: {
                   color: '#F37254',
                 },
+                modal: {
+                  ondismiss: async function () {
+                    // Handle popup closure using the captured mongoOrderId
+                    await fetch('/payment-failed', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ orderId: mongoOrderId }),
+                    });
+                    window.location.href = `/userOrders/${mongoOrderId}`;
+                  },
+                },
               };
 
               const rzp = new Razorpay(options);
-              rzp.open();
-            } 
-            else {
-              // COD flow
-              Swal.fire({
-                icon: 'success',
-                title: 'Order Placed!',
-                text: 'Your order has been placed successfully.',
-                confirmButtonText: 'OK',
-              }).then(() => {
-                window.location.href = data.redirectUrl;
+              rzp.on('payment.failed', async function (response) {
+                // Handle payment failure (e.g., invalid card) using the captured mongoOrderId
+                await fetch('/payment-failed', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ orderId: mongoOrderId }),
+                });
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Payment Failed',
+                  text: response.error.description || 'Payment failed. Please try again.',
+                  confirmButtonText: 'OK',
+                }).then(() => {
+                  window.location.href = `/userOrders/${mongoOrderId}`;
+                });
               });
-            }
+              rzp.open();
 
+          } else {
+
+              window.location.href = data.redirectUrl; // COD redirect
+              
           }
-          else {
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: data.message || 'Failed to place order.',
-              confirmButtonText: 'OK',
-            });
-          }
-        } catch (error) {
-          console.error('Error during order placement', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Something went wrong. Please try again.',
-            confirmButtonText: 'OK',
-          });
-        }
+          
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: data.message || 'Failed to place order.',
+          confirmButtonText: 'OK',
+        });
+      }
+    } catch (error) {
+      console.error('Error during order placement', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Something went wrong. Please try again.',
+        confirmButtonText: 'OK',
+      });
+    }
   });
 
+ 
+  // Initial check on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    updateOrderTotals(subtotal, 0);
+  });
 </script>

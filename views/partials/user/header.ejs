@@ -7,7 +7,34 @@
 
       <!-- Search Bar -->
       <div class="search-bar">
-        <input type="text" placeholder="Search products...">
+        <form id="search-form" action="/userproducts" method="GET">
+          <!-- Hidden inputs to preserve current filters -->
+          <% if (typeof category !== 'undefined') { %>
+            <% (Array.isArray(category) ? category : [category]).forEach(cat => { %>
+              <input type="hidden" name="category" value="<%= cat %>">
+            <% }) %>
+          <% } %>
+          <% if (typeof brand !== 'undefined') { %>
+            <% (Array.isArray(brand) ? brand : [brand]).forEach(br => { %>
+              <input type="hidden" name="brand" value="<%= br %>">
+            <% }) %>
+          <% } %>
+          <% if (typeof availability !== 'undefined') { %>
+            <input type="hidden" name="availability" value="<%= availability %>">
+          <% } %>
+          <% if (typeof minPrice !== 'undefined') { %>
+            <input type="hidden" name="minPrice" value="<%= minPrice %>">
+          <% } %>
+          <% if (typeof maxPrice !== 'undefined') { %>
+            <input type="hidden" name="maxPrice" value="<%= maxPrice %>">
+          <% } %>
+          <% if (typeof sort !== 'undefined') { %>
+            <input type="hidden" name="sort" value="<%= sort %>">
+          <% } %>
+          <!-- Search input -->
+          <input type="text" name="search" placeholder="Search products,categories,brands..." value="<%= typeof search !== 'undefined' ? search : '' %>">
+          <button type="submit" style="display: none;">Search</button> <!-- Hidden button, Enter key works -->
+        </form>
       </div>
 
       <!-- Icons -->

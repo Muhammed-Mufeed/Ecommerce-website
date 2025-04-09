@@ -3,134 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sales Report</title>
+    <title>Sales Dashboard</title>
+    <link rel="stylesheet" href="/admin/css/dashboard.css">
     <link rel="stylesheet" href="/admin/css/partial.css">
-    <style>
-       .report-container {
-            padding: 20px;
-        }
-        .filter-form {
-            margin-bottom: 20px;
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .filter-form select, .filter-form input {
-            padding: 8px;
-            margin-right: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-family: Arial, sans-serif;
-        }
-        /* Filter Button Styling */
-        .filter-form button {
-            padding: 10px 20px; /* Increased padding for better size */
-            background-color: #2c3e50; /* Matches sidebar background */
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px; /* Slightly larger text */
-            font-family: Arial, sans-serif;
-            transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
-        }
-        .filter-form button:hover {
-            background-color: #83acb6; /* Matches sidebar hover */
-            transform: translateY(-2px); /* Slight lift on hover */
-        }
-        .filter-form button:active {
-            transform: translateY(0); /* Reset lift when clicked */
-            background-color: #1a252f; /* Darker shade on click */
-        }
-        .report-table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .report-table th, .report-table td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        .report-table th {
-            background-color: #2c3e50;
-            color: white;
-        }
-        /* Download Button Styling */
-        .download-btn {
-            display: inline-block; /* Ensures it behaves like a button */
-            margin-top: 25px;
-            padding: 12px 25px; /* Slightly larger than Filter button */
-            background-color: #2c3e50; /* Matches sidebar */
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-family: Arial, sans-serif;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow */
-        }
-        .download-btn:hover {
-            background-color: #83acb6; /* Matches sidebar hover */
-            transform: translateY(-2px); /* Lift effect */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Enhanced shadow on hover */
-        }
-        .download-btn:active {
-            transform: translateY(0); /* Reset lift */
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Reduced shadow on click */
-            background-color: #1a252f; /* Darker shade on click */
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <%-include('../partials/admin/header')%>
+    <%- include('../partials/admin/header') %>
 
-    
-        <div class="navbar">
-            <h1 class="navbar-heading">Sales Report</h1>
-        </div>
-        <div class="report-container">
-            <form class="filter-form" action="/admin/sales-report" method="GET">
-                <select name="filterType" onchange="toggleDateFields(this.value)">
-                    <option value="daily">1 Day</option>
-                    <option value="weekly">1 Week</option>
-                    <option value="monthly">1 Month</option>
-                    <option value="custom">Custom Range</option>
-                </select>
-                <div id="customDate" style="display: none;">
-                    <input type="date" name="startDate">
-                    <input type="date" name="endDate">
-                </div>
-                <button type="submit">Filter</button>
-            </form>
-
-            <table class="report-table">
-                <thead>
-                    <tr>
-                        <th>Total Orders</th>
-                        <th>Total Amount</th>
-                        <th>Total Discounts</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><%= salesData.orderCount %></td>
-                        <td>₹<%= salesData.totalAmount.toFixed(2) %></td>
-                        <td>₹<%= salesData.totalDiscount.toFixed(2) %></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <a href="/admin/download-report?filterType=<%= filterType %>&startDate=<%= startDate %>&endDate=<%= endDate %>" class="download-btn">Download PDF</a>
+    <div class="header">
+        <h1>Sales Dashboard</h1>
+        <div class="download-buttons">
+            <button onclick="downloadReport('pdf')">PDF</button>
+            <button onclick="downloadReport('excel')">EXCEL</button>
         </div>
     </div>
 
+    <!-- Stats Filter -->
+    <div class="stats-filter">
+        <div class="filter-buttons">
+            <button class="filter-btn <%= filter === 'today' ? 'active' : '' %>" onclick="applyFilter('today')">Today</button>
+            <button class="filter-btn <%= filter === 'weekly' ? 'active' : '' %>" onclick="applyFilter('weekly')">Weekly</button>
+            <button class="filter-btn <%= filter === 'monthly' ? 'active' : '' %>" onclick="applyFilter('monthly')">Monthly</button>
+            <button class="filter-btn <%= filter === 'yearly' ? 'active' : '' %>" onclick="applyFilter('yearly')">Yearly</button>
+            <div class="custom-date">
+                <input type="date" id="start-date" value="<%= startDate %>">
+                <span>to</span>
+                <input type="date" id="end-date" value="<%= endDate %>">
+                <button onclick="applyCustomFilter()">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+        <div class="stat-card">
+            <h3>Total Revenue</h3>
+            <p>₹<%= totalRevenue.toFixed(2) %></p>
+        </div>
+        <div class="stat-card">
+            <h3>Orders</h3>
+            <p><%= totalOrders %></p>
+        </div>
+        <div class="stat-card">
+            <h3>Average Order</h3>
+            <p>₹<%= averageOrder.toFixed(2) %></p>
+        </div>
+        <div class="stat-card">
+            <h3>Discount Applied</h3>
+            <p>₹<%= totalDiscount.toFixed(2) %></p>
+        </div>
+        <div class="stat-card">
+            <h3>Coupon</h3>
+            <p>₹<%= totalCoupon.toFixed(2) %></p>
+        </div>
+        <div class="stat-card">
+            <h3>Total Amount (Pre-Discount)</h3>
+            <p>₹<%= totalPreDiscount.toFixed(2) %></p>
+        </div>
+    </div>
+
+
+    <!-- Charts -->
+    <div class="charts">
+        <div class="chart-card">
+            <h3>Sales Overview</h3>
+            <canvas id="salesChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>Top Categories</h3>
+            <canvas id="topCategoriesChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="recent-orders">
+        <h3>Recent Orders</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% orders.forEach(order => { %>
+                    <tr>
+                        <td><%= order.orderId %></td>
+                        <td><%= order.user.name %></td>
+                        <td><%= order.createdAt.toLocaleDateString() %></td>
+                        <td>₹<%= order.finalAmount.toFixed(2) %></td>
+                        <td><%= order.items[0].status %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+        <div class="pagination">
+            <span>Showing 1 to <%= orders.length %> of <%= totalOrders %> orders</span>
+            <button>Previous</button>
+            <span>1</span>
+            <button>Next</button>
+        </div>
+    </div>
+
+    <!-- Pass initial data to client-side JavaScript -->
+    <script type="application/json" id="sales-data">
+        <%- typeof salesData !== 'undefined' ? JSON.stringify(salesData) : '[]' %>
+    </script>
+    <script type="application/json" id="top-categories-data">
+        <%- typeof topCategoriesData !== 'undefined' ? JSON.stringify(topCategoriesData) : '[]' %>
+    </script>
+
+    <script src="/admin/js/graph.js"></script>
     <script>
-        function toggleDateFields(value) {
-            const customDateDiv = document.getElementById('customDate');
-            customDateDiv.style.display = value === 'custom' ? 'block' : 'none';
+        // Retrieve and parse the initial data
+        let salesData = JSON.parse(document.getElementById('sales-data').textContent);
+        let topCategoriesData = JSON.parse(document.getElementById('top-categories-data').textContent);
+
+        // Debug initial data
+        console.log('Initial salesData:', salesData);
+        console.log('Initial topCategoriesData:', topCategoriesData);
+
+        // Render charts on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                renderSalesChart(salesData);
+                renderTopCategoriesChart(topCategoriesData);
+            } catch (error) {
+                console.error('Error rendering charts on load:', error);
+            }
+        });
+
+        // Update chart filter button styles
+        function updateChartFilterStyles(filter) {
+            document.querySelectorAll('.charts-filter .filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-filter') === filter) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Update charts based on filter
+        async function updateChart(filter) {
+            try {
+                let url = `/admin/dashboard/chart-data?filter=${filter}`;
+                if (filter === 'custom') {
+                    const startDate = document.getElementById('chart-start-date').value;
+                    const endDate = document.getElementById('chart-end-date').value;
+                    if (!startDate || !endDate) {
+                        alert('Please select both start and end dates.');
+                        return;
+                    }
+                    url += `&startDate=${startDate}&endDate=${endDate}`;
+                }
+
+                // Update filter button styles
+                updateChartFilterStyles(filter);
+
+                // Fetch new chart data
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch chart data');
+                }
+                const data = await response.json();
+
+                // Update global data
+                salesData = data.salesData;
+                topCategoriesData = data.topCategoriesData;
+
+                // Debug fetched data
+                console.log(`Fetched ${filter} salesData:`, salesData);
+                console.log(`Fetched ${filter} topCategoriesData:`, topCategoriesData);
+
+                // Re-render charts
+                renderSalesChart(salesData);
+                renderTopCategoriesChart(topCategoriesData);
+            } catch (error) {
+                console.error(`Error updating charts for filter ${filter}:`, error);
+            }
+        }
+
+        function applyFilter(filter) {
+            window.location.href = `/admin/dashboard?filter=${filter}`;
+        }
+
+        function applyCustomFilter() {
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            window.location.href = `/admin/dashboard?filter=custom&startDate=${startDate}&endDate=${endDate}`;
+        }
+
+        function downloadReport(type) {
+            const filter = '<%= filter %>';
+            const startDate = '<%= startDate %>';
+            const endDate = '<%= endDate %>';
+            window.location.href = `/admin/dashboard/download?type=${type}&filter=${filter}&startDate=${startDate}&endDate=${endDate}`;
         }
     </script>
 </body>

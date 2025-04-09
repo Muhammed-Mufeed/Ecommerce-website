@@ -3,68 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders - Admin Dashboard</title>
-    <link rel="stylesheet" href="/admin/css/orders.css">
+    <title>Wallet Transactions - Admin Dashboard</title>
+    <link rel="stylesheet" href="/admin/css/wallet.css">
     <link rel="stylesheet" href="/admin/css/partial.css">
     <!-- Add SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <%-include('../partials/admin/header')%>
-    <!-- Orders Page Content -->
-    <div class="orders-page">
-        <h3>Orders List</h3>
+    <!-- Wallet Transactions Page Content -->
+    <div class="wallet-page">
+        <h3>Wallet Transactions</h3>
 
         <!-- Search Bar -->
         <div class="search-bar">
-            <input type="text" id="order-search" placeholder="Search Orders..." value="<%= search %>">
+            <input type="text" id="transaction-search" placeholder="Search Transactions..." value="<%= search %>">
         </div>
 
-        <!-- Orders Table -->
-        <table class="orders-table" id="orders-table">
+        <!-- Transactions Table -->
+        <table class="wallet-table" id="wallet-table">
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Total Price</th>
+                    <th>Transaction ID</th>
+                    <th>User</th>
+                    <th>Transaction Type</th>
+                    <th>Amount</th>
                     <th>Date</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                <% if (orders.length > 0) { %>
-                    <% orders.forEach((order, index) => { %>
+                <% if (transactions.length > 0) { %>
+                    <% transactions.forEach((transaction, index) => { %>
                         <tr>
                             <td><%= (currentPage - 1) * 5 + index + 1 %></td>
-                            <td><%= order.orderId %></td>
-                            <td><%= order.user.email %></td>
-                            <td>₹<%= order.finalAmount.toFixed(2) %></td>
-                            <td><%= new Date(order.createdAt).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
+                            <td><%= transaction.transactionId %></td>
+                            <td><%= transaction.user.email %></td>
+                            <td><%= transaction.type %></td>
+                            <td>₹<%= transaction.amount.toFixed(2) %></td>
+                            <td><%= new Date(transaction.date).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
                             <td>
-                                <a href="/admin/orders/<%= order.orderId %>" class="view-btn">View</a>
+                                <a href="/admin/wallet/transaction/<%= transaction.transactionId%>" class="view-btn">View</a>
                             </td>
                         </tr>
                     <% }) %>
                 <% } else { %>
                     <tr>
-                        <td colspan="7" style="text-align: center;">No orders found</td>
+                        <td colspan="7" style="text-align: center;">No transactions found</td>
                     </tr>
                 <% } %>
             </tbody>
         </table>
 
         <!-- Pagination Section -->
-        <% if (orders.length > 0) { %>
+        <% if (transactions.length > 0) { %>
             <div class="pagination">
                 <!-- Previous Button -->
                 <% if (currentPage > 1) { %>
-                    <a href="/admin/orders?page=<%= currentPage - 1 %>&search=<%= search %>" class="page-link">Previous</a>
+                    <a href="/admin/wallets?page=<%= currentPage - 1 %>&search=<%= search %>" class="page-link">Previous</a>
                 <% } %>
 
                 <!-- Page Numbers -->
                 <% for (let i = 1; i <= totalPages; i++) { %>
-                    <a href="/admin/orders?page=<%= i %>&search=<%= search %>"
+                    <a href="/admin/wallets?page=<%= i %>&search=<%= search %>"
                       class="page-link <%= currentPage === i ? 'active' : '' %>">
                         <%= i %>
                     </a>
@@ -72,7 +74,7 @@
 
                 <!-- Next Button -->
                 <% if (currentPage < totalPages) { %>
-                    <a href="/admin/orders?page=<%= currentPage + 1 %>&search=<%= search %>" class="page-link">Next</a>
+                    <a href="/admin/wallets?page=<%= currentPage + 1 %>&search=<%= search %>" class="page-link">Next</a>
                 <% } %>
             </div>
         <% } %>
@@ -80,14 +82,14 @@
 
     <script>
         // Add search functionality
-        const searchInput = document.getElementById('order-search');
+        const searchInput = document.getElementById('transaction-search');
         let searchTimeout;
 
         searchInput.addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 const searchValue = e.target.value.trim();
-                window.location.href = `/admin/orders?search=${searchValue}&page=1`;
+                window.location.href = `/admin/wallets?search=${searchValue}&page=1`;
             }, 500); // Wait 500ms after user stops typing
         });
     </script>

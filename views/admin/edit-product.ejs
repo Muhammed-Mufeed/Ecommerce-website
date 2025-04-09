@@ -107,9 +107,8 @@
                 const offerPercentage = parseFloat(offerPercentageInput.value);
 
                 if (!isNaN(actualPrice) && !isNaN(offerPercentage) && offerPercentage >= 0) {
-                    const discountAmount = (actualPrice * offerPercentage) / 100;
-                    const sellingPrice = actualPrice - discountAmount;
-                    sellingPriceInput.value = Math.round(sellingPrice)
+                    const sellingPrice = Math.round(actualPrice - (actualPrice * offerPercentage) / 100);
+                    sellingPriceInput.value = sellingPrice;
                 }
             }
 
@@ -118,10 +117,9 @@
                 const actualPrice = parseFloat(actualPriceInput.value);
                 const sellingPrice = parseFloat(sellingPriceInput.value);
 
-                if (!isNaN(actualPrice) && !isNaN(sellingPrice)) {
-                    const discountAmount = actualPrice - sellingPrice;
-                    const offerPercentage = (discountAmount / actualPrice) * 100;
-                    offerPercentageInput.value = Math.round(offerPercentage) 
+                if (!isNaN(actualPrice) && !isNaN(sellingPrice) && actualPrice > 0) {
+                    const offerPercentage = Math.round(((actualPrice - sellingPrice) * 100) / actualPrice);
+                    offerPercentageInput.value = offerPercentage >= 0 ? offerPercentage : 0; // Prevent negative values
                 }
             }
 

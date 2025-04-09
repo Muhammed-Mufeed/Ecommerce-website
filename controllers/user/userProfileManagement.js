@@ -135,7 +135,7 @@ exports.getWallet = async (req, res) => {
     }
     const userId = req.session.user.id;
 
-    let wallet = await Wallet.findOne({ user: userId });
+    let wallet = await Wallet.findOne({ user: userId })
     
     if (!wallet) {
        wallet = new Wallet({
@@ -146,6 +146,7 @@ exports.getWallet = async (req, res) => {
 
       await wallet.save();
     }
+
 
     return res.render('user-wallet', { wallet });
   } catch (error) {

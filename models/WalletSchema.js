@@ -2,7 +2,18 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
+// Function to generate a random transaction ID
+const generateTransactionId = () => {
+  return 'TXN_' + Math.random().toString(36).substr(2, 9).toUpperCase(); // e.g., TXN_7K9P2M4
+};
+
 const transactionSchema = new Schema({
+
+  transactionId: {
+    type: String,
+    default: generateTransactionId,
+    required: true,
+  },
   type: {
     type: String,
     enum: ['credit', 'debit'],

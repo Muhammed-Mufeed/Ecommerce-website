@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Details - Admin Dashboard</title>
+    <link rel="stylesheet" href="/admin/css/transactionDetails.css">
+    <link rel="stylesheet" href="/admin/css/partial.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <%- include('../partials/admin/header') %>
+    <div class="transaction-details-page">
+        <h3>Transaction Details</h3>
+
+        <div class="transaction-container">
+            <div class="transaction-header">
+                <h4>Transaction ID: <%= transaction.transactionId %></h4>
+                <a href="/admin/wallets" class="back-btn">Back to Transactions</a>
+            </div>
+
+            <div class="transaction-info">
+                <div class="info-row">
+                    <span class="label">User Email:</span>
+                    <span class="value"><%= user.email %></span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Transaction Type:</span>
+                    <span class="value <%= transaction.type === 'credit' ? 'credit' : 'debit' %>">
+                        <%= transaction.type %>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Amount:</span>
+                    <span class="value">₹<%= transaction.amount.toFixed(2) %></span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Date:</span>
+                    <span class="value">
+                        <%= new Date(transaction.date).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+                        <%= new Date(transaction.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) %>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Description:</span>
+                    <span class="value"><%= transaction.description || 'N/A' %></span>
+                </div>
+                <% if (transaction.orderId) { %>
+                    <div class="info-row">
+                        <span class="label">Order ID:</span>
+                        <span class="value">
+                            <a href="/admin/orders/<%= transaction.orderId %>" class="link"><%= transaction.orderId %></a>
+                        </span>
+                    </div>
+                <% } %>
+                <% if (transaction.itemId) { %>
+                    <div class="info-row">
+                        <span class="label">Item ID:</span>
+                        <span class="value"><%= transaction.itemId %></span>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

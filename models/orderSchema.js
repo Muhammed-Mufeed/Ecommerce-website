@@ -27,7 +27,7 @@ const orderItemSchema = new Schema({
       type: Number,
       required: true,
     },
-    sellingPrice: {
+    soldPrice: {
       type: Number,
       required: true,
     }
@@ -53,14 +53,10 @@ const orderItemSchema = new Schema({
     required: true,
   },
 
-  price: {
-    type: Number,
-    required: true,
-  },
 
   status: {
     type: String,
-    enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'],
+    enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled',, 'Returned'],
     default: 'Pending',
   },
 
@@ -71,7 +67,7 @@ const orderItemSchema = new Schema({
   return: {
     status: {
       type: String,
-      enum: ['Requested', 'Approved', 'Rejected', 'Returned'],
+      enum: ['Requested', 'Approved', 'Rejected'],
       default: null,
     },
     reason: { type: String, default: null },
@@ -140,9 +136,15 @@ const orderSchema = new Schema({
     required: true,
   },
 
+  deliveryCharge: { 
+    type: Number,
+    required: true,
+    default: 0, 
+  },
+
   paymentMethod: {
     type: String,
-    enum: ['cod', 'online'], 
+    enum: ['cod', 'online','wallet'], 
     required: true,
   },
 

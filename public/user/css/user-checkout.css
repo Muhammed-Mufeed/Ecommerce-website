@@ -453,31 +453,208 @@ button[type="submit"]:hover {
 
 
 /* Add these to your existing CSS file */
-.order-total p {
-  display: flex;
-  justify-content: space-between;
-  margin: 10px 0;
-}
-
 .coupon-section {
-  padding: 15px 20px;
-  border-top: 1px solid #eee;
+  margin-top: 20px;
 }
 
 .coupon-section h3 {
-  font-size: 1.1rem;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.coupon-input-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 10px;
 }
 
-.coupon-section select {
-  width: 100%;
+#coupon-input {
+  flex: 1;
   padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  font-size: 14px;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  outline: none;
+  background-color: #f9f9f9;
+}
+
+.apply-btn {
+  padding: 10px 20px;
+  background-color: #6f42c1;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.apply-btn:hover {
+  background-color: #5a32a3;
+}
+
+.apply-btn.applied {
+  background-color: #28a745;
+  cursor: not-allowed;
+}
+
+.applied-coupon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #e6f3fa;
+  padding: 10px;
+  border-radius: 4px;
   margin-bottom: 10px;
 }
 
-.coupon-section .error-message {
-  color: #ff3333;
-  font-size: 0.9rem;
+#applied-coupon-text {
+  font-size: 14px;
+  color: #333;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.remove-btn:hover {
+  color: #b02a37;
+}
+
+.available-coupons {
+  margin-top: 10px;
+}
+
+.coupon-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f1faff;
+  border: 1px solid #d1e7ff;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.coupon-details {
+  flex: 1;
+}
+
+.coupon-code {
+  font-size: 16px;
+  font-weight: 600;
+  color: #007bff;
+}
+
+.coupon-discount,
+.coupon-min-amount {
+  font-size: 12px;
+  color: #666;
+  margin: 2px 0;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Add to user-checkout.css */
+
+/* Wallet Option */
+.wallet-option {
+  position: relative;
+}
+
+.wallet-option input[disabled] + label {
+  color: #999;
+  cursor: not-allowed;
+}
+
+.wallet-error {
+  margin-left: 30px;
+  font-size: 12px;
+  color: #dc3545;
+}
+
+.wallet-error.visible {
+  display: block;
+}
+
+.wallet-error.hidden {
+  display: none;
+}
+
+/* COD Option */
+.cod-option {
+  position: relative;
+}
+
+.cod-option input[disabled] + label {
+  color: #999;
+  cursor: not-allowed;
+}
+
+.cod-error {
+  margin-left: 30px;
+  font-size: 12px;
+  color: #dc3545;
+}
+
+.cod-error.visible {
+  display: block;
+}
+
+.cod-error.hidden {
+  display: none;
+}
+
+/* Delivery Charge Styling */
+#delivery-charge {
+  font-weight: 500;
+  color: #333;
+}
+
+#delivery-charge s {
+  color: #999;
+  text-decoration: line-through;
+}
+
+#delivery-charge s + span,
+#delivery-charge::after {
+  color: #28a745; /* Green for "Free" */
+  font-weight: 600;
+  margin-left: 5px;
+}
+
+/* Update .order-total p for spacing */
+.order-total p {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  padding: 8px 0;
+}
+
+.order-total p span:last-child {
+  min-width: 100px;
+  text-align: right;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .order-total p {
+    font-size: 1rem;
+  }
+
+  #delivery-charge {
+    font-size: 0.95rem;
+  }
 }
