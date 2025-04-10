@@ -89,6 +89,11 @@
                 let isValid = true;
                 
                 // Validation
+
+                const minPurchaseValue = parseInt(minPurchaseAmountInput.value);
+                const discountAmountValue = parseInt(discountAmountInput.value);
+                
+                // Validation
                 if (couponCodeInput.value.trim() === '') {
                     couponCodeError.textContent = 'Coupon code is required';
                     isValid = false;
@@ -97,41 +102,49 @@
                     isValid = false;
                 }
                 
-              
-                
+
                 if (minPurchaseAmountInput.value.trim() === '') {
                     minPurchaseAmountError.textContent = 'Minimum purchase amount is required';
                     isValid = false;
-                } else {
-                    const minPurchaseValue = parseInt(minPurchaseAmountInput.value);
-                    if (isNaN(minPurchaseValue) || !Number.isInteger(minPurchaseValue)) {
-                        minPurchaseAmountError.textContent = 'Minimum purchase amount must be a whole number';
-                        isValid = false;
-                    } else if (minPurchaseValue < 0) {
-                        minPurchaseAmountError.textContent = 'Minimum purchase amount cannot be negative';
-                        isValid = false;
-                    }
-                }
-
-                if(discountAmountInput.value.trim() === ''){
-                    discountAmountError.textContent = "Discount Amount is required"
+                } else if (isNaN(minPurchaseValue) || !Number.isInteger(minPurchaseValue)) {
+                    minPurchaseAmountError.textContent = 'Minimum purchase amount must be a whole number';
                     isValid = false;
-                }else {
-                    const discountAmountValue = parseInt(discountAmountInput.value);
-                    if (isNaN(discountAmountValue) || !Number.isInteger(discountAmountValue)) {
-                        discountAmountError.textContent = 'Discount amount must be a whole number';
-                        isValid = false;
-                    } else if (discountAmountValue < 0) {
-                       discountAmountError.textContent = 'Discount amount cannot be negative';
-                        isValid = false;
-                    }
+                } else if (minPurchaseValue < 1) {
+                    minPurchaseAmountError.textContent = 'Minimum purchase amount cannot be negative or zero';
+                    isValid = false;
                 }
 
 
+                if (discountAmountInput.value.trim() === '') {
+                    discountAmountError.textContent = "Discount Amount is required";
+                    isValid = false;
+                } else if (isNaN(discountAmountValue) || !Number.isInteger(discountAmountValue)) {
+                    discountAmountError.textContent = 'Discount amount must be a whole number';
+                    isValid = false;
+                } else if (discountAmountValue < 1) {
+                    discountAmountError.textContent = 'Discount amount cannot be negative or zero';
+                    isValid = false;
+                }
+
+               
+                if (!isNaN(minPurchaseValue) && !isNaN(discountAmountValue)) {
+                    if (discountAmountValue >= minPurchaseValue) {
+                        discountAmountError.textContent = 'Discount cannot be more than or equal to minimum purchase amount';
+                        isValid = false;
+                    } else if (minPurchaseValue - discountAmountValue < 50) {
+                        minPurchaseAmountError.textContent = 'Minimum purchase should be at least 50 more than discount';
+                        isValid = false;
+                    }
+                }
 
                 
+              // Date Validation
+                const today = new Date().toISOString().split('T')[0];
                 if (validFromInput.value === '') {
                     validFromError.textContent = 'Valid from date is required';
+                    isValid = false;
+                } else if (validFromInput.value < today) {
+                    validFromError.textContent = 'Valid from date cannot be in the past';
                     isValid = false;
                 }
                 
@@ -139,10 +152,12 @@
                     validToError.textContent = 'Valid to date is required';
                     isValid = false;
                 } else if (validToInput.value < validFromInput.value) {
-                    validToError.textContent = 'Valid to date cannot be before valid from date';
+                    validToError.textContent = 'Valid to date must be after valid from date';
                     isValid = false;
                 }
                 
+
+
                 if (usageLimitInput.value.trim() === '') {
                     usageLimitError.textContent = 'Usage limit is required';
                     isValid = false;

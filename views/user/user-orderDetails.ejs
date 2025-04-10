@@ -378,6 +378,15 @@
   margin: 10px 0;
 }
 
+.btn-download-invoice {
+    background-color: #28a745;
+    color: #fff;
+ }
+.btn-download-invoice:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+}
+
     @media (max-width: 768px) {
       .main-content {
         padding: 20px 10px;
@@ -420,6 +429,13 @@
   <div class="wrapper">
     <div class="main-content">
       <div class="order-details-container">
+
+        <!-- Invoice Download Button -->
+      <div style="margin-bottom: 20px; text-align: right;">
+        <button class="btn btn-download-invoice" onclick="downloadInvoice('<%= order.orderId %>')">
+          <i class="fas fa-download"></i> Download Invoice
+        </button>
+      </div>
         <!-- Error Message for Failed Payment -->
         <% if (order.paymentMethod === 'online' && order.paymentStatus === 'Failed') { %>
           <div class="error-message">
@@ -726,6 +742,10 @@
           Swal.fire('Error', 'Failed to initiate payment retry.', 'error');
         });
     }
+
+    function downloadInvoice(orderId) {
+    window.location.href = `/userOrders/download-invoice/${orderId}`;
+  }
   </script>
 
   <%- include('../partials/user/profile-sidebar-footer') %>

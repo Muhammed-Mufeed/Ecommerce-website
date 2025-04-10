@@ -12,6 +12,8 @@ const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
 
 
 // ===============================================CheckoutPage-POST===================================================================//
@@ -753,5 +755,130 @@ exports.patchRequestReturn = async (req, res) => {
 };
 
 
+// ===============================================Download Invoice-GET===================================================================//
+// ===============================================Download Invoice-GET===================================================================//
+exports.getDownloadInvoice = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const userId = req.session.user.id;
 
+    // Fetch the order
+    const order = await Order.findOne({ orderId: orderId, user: userId }).populate('user');
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found.' });
+    }
 
+    const doc = new PDFDocument({ margin: 40 });
+    const fileName = `invoice_${order.orderId}.pdf`;
+
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader('Content-Type', 'application/pdf');
+
+    doc.pipe(res);
+
+    doc.rect(0, 0, 612, 100).fill('#007bff');
+    doc.fillColor('#ffffff').fontSize(24).font('Helvetica-Bold').text('PackSmart Invoice', { align: 'center', baseline: 'middle', y: 30 });
+    doc.fontSize(12).text(`Order #${order.orderId}`, { align: 'center', y: 60 });
+    doc.moveDown(2);
+
+    // Reset fill color for body content
+    doc.fillColor('#000000');
+
+    // Order Details
+    doc.fontSize(16).font('Helvetica-Bold').text('Order Details', 50, doc.y);
+    doc.moveDown(0.5);
+    doc.fontSize(10).font('Helvetica');
+    doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString('en-US')}`, 50, doc.y);
+    doc.text(`Customer: ${order.user.name}`, 50, doc.y);
+    doc.text(`Email: ${order.user.email}`, 50, doc.y);
+    doc.moveDown(1.5);
+
+    doc.fontSize(16).font('Helvetica-Bold').text('Shipping Address', 50, doc.y);
+    doc.moveDown(0.5);
+    doc.fontSize(10).font('Helvetica');
+    doc.text(`${order.address.name}`, 50, doc.y);
+    doc.text(`${order.address.address}, ${order.address.locality}`, 50, doc.y);
+    doc.text(`${order.address.city}, ${order.address.state} - ${order.address.pincode}`, 50, doc.y);
+    doc.text(`Phone: ${order.address.mobile}`, 50, doc.y);
+    doc.moveDown(1.5);
+
+    doc.fontSize(16).font('Helvetica-Bold').text('Items', 50, doc.y);
+    doc.moveDown(0.5);
+
+    const tableTop = doc.y;
+    const itemX = 50;
+    const mrpX = 230;
+    const offerX = 330;
+    const qtyX = 430;
+    const totalX = 480;
+    const rowHeight = 25;
+    const tableWidth = 500;
+
+    doc.fillColor('#f5f5f5').rect(50, tableTop, tableWidth, 20).fill();
+    doc.fillColor('#333333').fontSize(10).font('Helvetica-Bold');
+    doc.text('Product', itemX + 5, tableTop + 5);
+    doc.text('MRP', mrpX + 5, tableTop + 5);
+    doc.text('Offer Price', offerX + 5, tableTop + 5);
+    doc.text('Qty', qtyX + 5, tableTop + 5);
+    doc.text('Total', totalX + 5, tableTop + 5);
+
+    // Table Rows
+    let y = tableTop + rowHeight;
+    order.items.forEach((item, index) => {
+      if (index % 2 === 0) {
+        doc.fillColor('#fafafa').rect(50, y, tableWidth, rowHeight).fill();
+      }
+      doc.fillColor('#333333').fontSize(10).font('Helvetica');
+      doc.text(`${item.product.name} (${item.variant.colorName})`, itemX + 5, y + 5, { width: 170, align: 'left' });
+      doc.text(`₹${item.product.actualPrice.toFixed(2)}`, mrpX + 5, y + 5);
+      doc.text(`₹${item.product.soldPrice.toFixed(2)}`, offerX + 5, y + 5);
+      doc.text(item.quantity.toString(), qtyX + 5, y + 5);
+      doc.text(`₹${(item.product.soldPrice * item.quantity).toFixed(2)}`, totalX + 5, y + 5);
+      y += rowHeight;
+    });
+
+    // Table Borders
+    doc.lineWidth(0.5).strokeColor('#cccccc');
+    doc.rect(50, tableTop, tableWidth, y - tableTop).stroke();
+    doc.moveTo(mrpX, tableTop).lineTo(mrpX, y).stroke();
+    doc.moveTo(offerX, tableTop).lineTo(offerX, y).stroke();
+    doc.moveTo(qtyX, tableTop).lineTo(qtyX, y).stroke();
+    doc.moveTo(totalX, tableTop).lineTo(totalX, y).stroke();
+    for (let i = tableTop + rowHeight; i < y; i += rowHeight) {
+      doc.moveTo(50, i).lineTo(50 + tableWidth, i).stroke();
+    }
+
+    doc.moveDown(1.5);
+
+    // Order Summary
+    doc.fontSize(16).font('Helvetica-Bold').text('Order Summary', 50, doc.y);
+    doc.moveDown(0.5);
+    doc.fontSize(10).font('Helvetica');
+
+    const subtotal = order.items.reduce((sum, item) => sum + item.product.soldPrice * item.quantity, 0);
+    const deliveryCharge = 0; 
+
+    doc.text(`Subtotal: ₹${subtotal.toFixed(2)}`, 50, doc.y);
+    if (order.coupon.discountAmount > 0) {
+      doc.text(`Coupon Discount (${order.coupon.couponCode}): -₹${order.coupon.discountAmount.toFixed(2)}`, 50, doc.y);
+    }
+    doc.text(`Delivery Charge: ₹${deliveryCharge.toFixed(2)}`, 50, doc.y);
+    doc.moveDown(0.5);
+    doc.font('Helvetica-Bold').text(`Final Amount: ₹${order.finalAmount.toFixed(2)}`, 50, doc.y);
+
+    doc.moveDown(1);
+    doc.font('Helvetica');
+    doc.text(`Payment Method: ${order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod === 'online' ? 'Online' : 'Wallet'}`, 50, doc.y);
+    doc.text(`Payment Status: ${order.paymentStatus}`, 50, doc.y);
+
+    doc.moveDown(2);
+    doc.fillColor('#666666').fontSize(8).font('Helvetica').text('Thank you for shopping with PackSmart!', { align: 'center' });
+
+    // Finalize the PDF
+    doc.end();
+
+  } catch (error) {
+    console.error('Error generating invoice:', error);
+    res.status(500).json({ success: false, message: 'Failed to generate invoice.' });
+  }
+};

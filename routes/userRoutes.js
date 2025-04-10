@@ -68,6 +68,7 @@ router.get('/userOrders',checkBlocked,orderManagement.getUserOrderList)
 router.get('/userOrders/:orderId',checkBlocked,orderManagement.getUserOrderHistory)
 router.patch('/userOrders/:orderId/cancelItem/:itemId',checkLogin,orderManagement.patchCancelItem)
 router.patch('/userOrders/:orderId/returnItem/:itemId', checkLogin, orderManagement.patchRequestReturn);
+router.get('/userOrders/download-invoice/:orderId',checkLogin, orderManagement.getDownloadInvoice);
 
 router.get('/wishlist',checkBlocked, userProfileManagement.getWishlistPage);
 router.post('/addToWishlist',checkLogin, userProfileManagement.postaddToWishlist);
