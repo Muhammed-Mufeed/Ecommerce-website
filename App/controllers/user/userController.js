@@ -1,7 +1,8 @@
-
-const nodemailer=require('nodemailer')
 const bcrypt=require('bcrypt')
-const env =require('dotenv').config()
+
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY); // Initialize Resend
+
 const User=require('../../models/userSchema')
 const Otp = require('../../models/otpSchema')
 
@@ -29,35 +30,57 @@ const getSignupPage=async(req,res)=>{
 
 // ===============================================Nodemailer for sending Otp===================================================================//
 
-async function sendVerificationEmail(email,otp){
-  try{
-    console.log("Sending OTP to:", email);  
-// Configuring nodemailer
-    const transporter = nodemailer.createTransport({
-      service:'gmail',   // Use your email service 
-      port:587,
-      secure:false,
-      auth:{
-        user: process.env.NODEMAILER_EMAIL,
-        pass: process.env.NODEMAILER_PASSWORD
+async function sendVerificationEmail(email, otp, isDemoMode) {
+  try {
+    console.log(`[Email Attempt] To: ${email} | Demo Mode: ${isDemoMode}`);  
+
+    // Beautifully styled HTML Email Template
+    const htmlTemplate = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        <div style="background-color: #007bff; padding: 20px; text-align: center;">
+          <h2 style="margin: 0; color: #ffffff; letter-spacing: 1px;">PackSmart</h2>
+        </div>
+        <div style="padding: 40px 30px; text-align: center; background-color: #ffffff;">
+          <h3 style="margin-top: 0; color: #333333;">Verify Your Account</h3>
+          <p style="font-size: 16px; color: #555555; line-height: 1.5;">
+            Thank you for choosing PackSmart! Please use the verification code below to complete your authentication process.
+          </p>
+          <div style="margin: 30px auto; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border: 1px dashed #ced4da; display: inline-block;">
+            <h1 style="margin: 0; font-size: 36px; letter-spacing: 8px; color: #007bff;">${otp}</h1>
+          </div>
+          <p style="font-size: 14px; color: #888888; margin-bottom: 0;">This code will expire in 60 seconds.</p>
+          
+          ${isDemoMode ? '<p style="font-size: 12px; color: #d32f2f; margin-top: 25px; padding-top: 15px; border-top: 1px solid #eee;"><i>Note: This is a portfolio demonstration email.</i></p>' : ''}
+        </div>
+        <div style="background-color: #f4f4f4; padding: 15px; text-align: center; font-size: 12px; color: #999999;">
+          &copy; ${new Date().getFullYear()} PackSmart. All rights reserved.
+        </div>
+      </div>
+    `;
+
+    const { data, error } = await resend.emails.send({
+      from: 'PackSmart <onboarding@resend.dev>',
+      to: email, 
+      subject: "PackSmart: Your Verification Code",
+      html: htmlTemplate
+    });
+
+    if (error) {
+      if (isDemoMode) {
+        console.error("Resend API blocked the email (Expected in Sandbox):", error.message);
+        return true; // Bypass for recruiters
+      } else {
+        console.error("Failed to send to REAL email:", error.message);
+        return false; // Actually fail if it was supposed to go to your real email
       }
-    })
+    }
 
-    const info = await transporter.sendMail({
-      from: process.env.NODEMAILER_EMAIL,
-      to:email,    //user email
-      subject: "verify your account",
-      text: `Your OTP is ${otp}`,
-      html: `<b>Your OTP is ${otp}</b>`
-    })
+    console.log("Email sent successfully via Resend:", data.id);
+    return true; 
 
-   return  info.accepted.length > 0 ? true : false; //This explicitly returns true if the email was accepted, otherwise false.
-
-
-  }
-  catch(error){
-   console.error("Error sending email",error)
-   return false
+  } catch (error) {
+    console.error("Critical error in sendVerificationEmail:", error);
+    return isDemoMode; // If demo mode, keep going. If real mode, fail.
   }
 }
 
@@ -81,8 +104,11 @@ const postSignupPage=async(req,res)=>{
   
   // To generate a random 6-digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  console.log(`Generated OTP: ${otp}`); 
 
+  // Check if we are in demo mode (for the UI banner)
+    const isDemoMode = email !== process.env.MY_VERIFIED_EMAIL;
+
+    console.log(`[${isDemoMode ? 'Demo' : 'Production'} Mode] Generated OTP: ${otp}`);
 
 
  const expiresAt = new Date(Date.now() + 60 * 1000) //OTP expires in 30 seconds
@@ -97,7 +123,7 @@ const postSignupPage=async(req,res)=>{
   await saveOtp.save()      
 
   
-  const emailSent = await sendVerificationEmail(email,otp);
+  const emailSent = await sendVerificationEmail(email,otp,isDemoMode);
 
   if (!emailSent) {
     return res.json({success:false,message:"Failed to send OTP.Please try again"})
@@ -105,8 +131,7 @@ const postSignupPage=async(req,res)=>{
   
    req.session.userData = {name,phone,email,password}
 
-   res.render('verify-otp')
-   console.log("OTP send successfully",otp);
+   res.render('verify-otp',{ demoOtp: otp, isDemoMode: isDemoMode })
    
   
 }
@@ -174,7 +199,10 @@ const postResendOtp = async (req,res)=>{
    }
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();   // Generate new OTP
-  console.log(`Generated OTP(resend): ${otp}`); // debugging
+
+  const isDemoMode = email !== process.env.MY_VERIFIED_EMAIL;
+  console.log(`[${isDemoMode ? 'Demo' : 'Production'} Mode] Generated OTP: ${otp}`);
+
 
    // Set expiration time for the new OTP
    const expiresAt = new Date(Date.now() + 60 * 1000)  
@@ -189,11 +217,11 @@ const postResendOtp = async (req,res)=>{
 
 
 
-   const emailSent = await sendVerificationEmail(email,otp);
+   const emailSent = await sendVerificationEmail(email,otp,isDemoMode);
 
    if(emailSent){
     console.log(`OTP sent(resend) successfully ${otp}`); //debugging
-    return res.status(200).json({success:true,message:"OTP Resend Successfully"})
+    return res.status(200).json({success:true,message:"OTP Resend Successfully",newDemoOtp: otp,isDemoMode: isDemoMode})
     
    }
    else{
@@ -320,7 +348,9 @@ const postResetPassword = async (req, res) => {
 
     // Generate a random 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(`Generated OTP: ${otp}`);
+
+    const isDemoMode = email !== process.env.MY_VERIFIED_EMAIL;
+    console.log(`[${isDemoMode ? 'Demo' : 'Production'} Mode] Generated OTP: ${otp}`);
 
     const expiresAt = new Date(Date.now() + 60 * 1000); // OTP expires in 1 minute
 
@@ -332,7 +362,7 @@ const postResetPassword = async (req, res) => {
 
     await saveOtp.save();
 
-    const emailSent = await sendVerificationEmail(email, otp);
+    const emailSent = await sendVerificationEmail(email, otp,isDemoMode);
 
     if (!emailSent) {
       return res.json({ success: false, message: "Failed to send OTP. Please try again." });
@@ -340,7 +370,7 @@ const postResetPassword = async (req, res) => {
 
     req.session.userData = {email} ;
 
-    res.render('forgot-verify-otp');
+    res.render('forgot-verify-otp',{ demoOtp: otp , isDemoMode: isDemoMode });
     console.log("OTP sent successfully", otp);
 
   } catch (error) {

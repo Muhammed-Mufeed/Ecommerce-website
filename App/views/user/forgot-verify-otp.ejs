@@ -11,6 +11,14 @@
 <body>
   <div class="card p-4" style="width: 400px;">
     <h3 class="text-center mb-3">Verify OTP</h3>
+
+    <% if (isDemoMode) { %>
+    <div class="alert alert-warning text-center" id="demoBanner" role="alert" style="font-size: 0.85rem;">
+      <strong>⚠️ Demo Environment Active</strong><br>
+      Due to API sandbox restrictions, email delivery is disabled. <br>
+      Please enter test OTP: <b id="displayOtp" style="font-size: 1.1rem; letter-spacing: 1px; color: #d32f2f;"><%= demoOtp %></b>
+    </div>
+    <% } %>
     <form id="verifyOtpForm">
       <div class="mb-3">
         <label for="otp" class="form-label">Enter OTP</label>
@@ -111,11 +119,26 @@
           throw new Error(data.message || "Please try again later");
         }
 
-        Swal.fire({
-          icon: "success",
-          title: "OTP Sent!",
-          text: data.message || "Check your email for the OTP.",
-        });
+        // ================== SMART CONDITIONAL UI ================== //
+        if (data.isDemoMode) {
+          // If a recruiter is testing: Update the banner and show the SweetAlert with the OTP
+          const displayElement = document.getElementById("displayOtp");
+          if(displayElement) displayElement.innerText = data.newDemoOtp;
+
+          Swal.fire({
+            icon: "success",
+            title: "OTP Sent!",
+            text: `New Demo OTP Generated: ${data.newDemoOtp}`,
+          });
+        } else {
+          // If YOU are testing (real email): Tell them to check their inbox!
+          Swal.fire({
+            icon: "success",
+            title: "Email Sent!",
+            text: "A real OTP has been successfully sent to your inbox.",
+          });
+        }
+        // ========================================================== //
 
         startTimer();
       } catch (error) {
